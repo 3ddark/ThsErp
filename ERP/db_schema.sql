@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict K5wiNM2qNcaFyWm0nV77rhuq97yPpHesHROtE1bgq2eQbVLWKmBjX3u4gqdrpiF
+\restrict itPdCh6th8aoYd48PNq1BWYFQ1audGxXARkg8vsif2ola5u8E1HArIb7IrwOLaR
 
 -- Dumped from database version 18.1
 -- Dumped by pg_dump version 18.1
@@ -587,6 +587,24 @@ $$;
 
 
 ALTER FUNCTION public.personel_adsoyad() OWNER TO ths_admin;
+
+--
+-- Name: pur_quotation_order_unlinked(); Type: FUNCTION; Schema: public; Owner: ths_admin
+--
+
+CREATE FUNCTION public.pur_quotation_order_unlinked() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  IF NEW.pur_order_id IS NULL AND OLD.pur_order_id IS NOT NULL AND NEW.status = 5 THEN
+    NEW.status := 3;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION public.pur_quotation_order_unlinked() OWNER TO ths_admin;
 
 --
 -- Name: table_listen(text); Type: FUNCTION; Schema: public; Owner: postgres
@@ -3571,6 +3589,104 @@ ALTER TABLE public.pur_order ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
+-- Name: pur_quotation; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.pur_quotation (
+    id bigint NOT NULL,
+    quotation_no character varying(16) NOT NULL,
+    quotation_date date DEFAULT CURRENT_DATE NOT NULL,
+    pur_request_id bigint,
+    acc_account_id bigint NOT NULL,
+    supplier_ref_no character varying(32),
+    valid_until date,
+    delivery_days smallint DEFAULT 0 NOT NULL,
+    delivery_date date,
+    currency character varying(3) DEFAULT public.fn_default_currency() NOT NULL,
+    exchange_rate numeric(18,6) DEFAULT 1 NOT NULL,
+    payment_term_days smallint DEFAULT 0 NOT NULL,
+    payment_terms character varying(256),
+    status smallint DEFAULT 1 NOT NULL,
+    gross_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    discount_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    net_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    vat_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    total_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    pur_order_id bigint,
+    approved_sys_user_id bigint,
+    approved_at timestamp without time zone,
+    description character varying(256),
+    CONSTRAINT pur_quotation_delivery_date_check CHECK (((delivery_date IS NULL) OR (delivery_date >= quotation_date))),
+    CONSTRAINT pur_quotation_delivery_days_check CHECK (((delivery_days >= 0) AND (delivery_days <= 999))),
+    CONSTRAINT pur_quotation_exchange_rate_check CHECK ((exchange_rate > (0)::numeric)),
+    CONSTRAINT pur_quotation_order_check CHECK (((pur_order_id IS NULL) OR (status = 5))),
+    CONSTRAINT pur_quotation_payment_term_check CHECK (((payment_term_days >= 0) AND (payment_term_days <= 365))),
+    CONSTRAINT pur_quotation_status_check CHECK (((status >= 1) AND (status <= 6))),
+    CONSTRAINT pur_quotation_valid_until_check CHECK (((valid_until IS NULL) OR (valid_until >= quotation_date)))
+);
+
+
+ALTER TABLE public.pur_quotation OWNER TO ths_admin;
+
+--
+-- Name: pur_quotation_detail; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.pur_quotation_detail (
+    id bigint NOT NULL,
+    pur_quotation_id bigint NOT NULL,
+    line_no smallint NOT NULL,
+    stk_inventory_id bigint NOT NULL,
+    quantity numeric(18,6) NOT NULL,
+    unit_price numeric(18,6) DEFAULT 0 NOT NULL,
+    discount_rate numeric(5,2) DEFAULT 0 NOT NULL,
+    vat_rate numeric(5,2) DEFAULT 0 NOT NULL,
+    gross_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    discount_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    net_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    vat_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    total_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    delivery_date date,
+    pur_request_detail_id bigint,
+    description character varying(128),
+    CONSTRAINT pur_quotation_detail_discount_check CHECK (((discount_rate >= (0)::numeric) AND (discount_rate <= (100)::numeric))),
+    CONSTRAINT pur_quotation_detail_price_check CHECK ((unit_price >= (0)::numeric)),
+    CONSTRAINT pur_quotation_detail_quantity_check CHECK ((quantity > (0)::numeric)),
+    CONSTRAINT pur_quotation_detail_vat_check CHECK (((vat_rate >= (0)::numeric) AND (vat_rate <= (100)::numeric)))
+);
+
+
+ALTER TABLE public.pur_quotation_detail OWNER TO ths_admin;
+
+--
+-- Name: pur_quotation_detail_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.pur_quotation_detail ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.pur_quotation_detail_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: pur_quotation_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.pur_quotation ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.pur_quotation_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: pur_receipt; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
@@ -3696,6 +3812,104 @@ ALTER TABLE public.pur_request_detail ALTER COLUMN id ADD GENERATED ALWAYS AS ID
 
 ALTER TABLE public.pur_request ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.pur_request_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: qc_inspection; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.qc_inspection (
+    id bigint NOT NULL,
+    inspection_no character varying(16) NOT NULL,
+    inspection_date date DEFAULT CURRENT_DATE NOT NULL,
+    pur_receipt_detail_id bigint NOT NULL,
+    stk_inventory_id bigint NOT NULL,
+    quantity numeric(18,6) NOT NULL,
+    accepted_quantity numeric(18,6) DEFAULT 0 NOT NULL,
+    rejected_quantity numeric(18,6) DEFAULT 0 NOT NULL,
+    result smallint NOT NULL,
+    disposition smallint,
+    emp_employee_id bigint,
+    description character varying(256),
+    CONSTRAINT qc_inspection_disposition_check CHECK ((((rejected_quantity = (0)::numeric) AND (disposition IS NULL)) OR ((rejected_quantity > (0)::numeric) AND (disposition >= 1) AND (disposition <= 4)))),
+    CONSTRAINT qc_inspection_quantity_check CHECK (((quantity > (0)::numeric) AND (accepted_quantity >= (0)::numeric) AND (rejected_quantity >= (0)::numeric) AND ((accepted_quantity + rejected_quantity) = quantity))),
+    CONSTRAINT qc_inspection_result_check CHECK (((result >= 1) AND (result <= 3)))
+);
+
+
+ALTER TABLE public.qc_inspection OWNER TO ths_admin;
+
+--
+-- Name: qc_inspection_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.qc_inspection ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.qc_inspection_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: qc_rule; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.qc_rule (
+    id bigint NOT NULL,
+    stk_group_id bigint,
+    stk_inventory_id bigint,
+    is_required boolean DEFAULT true NOT NULL,
+    inspection_criteria character varying(256),
+    CONSTRAINT qc_rule_target_check CHECK (((stk_group_id IS NULL) <> (stk_inventory_id IS NULL)))
+);
+
+
+ALTER TABLE public.qc_rule OWNER TO ths_admin;
+
+--
+-- Name: qc_rule_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.qc_rule ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.qc_rule_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: qc_setting; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.qc_setting (
+    id bigint NOT NULL,
+    sys_application_setting_id bigint NOT NULL,
+    is_enabled boolean DEFAULT false NOT NULL,
+    reject_stk_warehouse_id bigint,
+    description character varying(256)
+);
+
+
+ALTER TABLE public.qc_setting OWNER TO ths_admin;
+
+--
+-- Name: qc_setting_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.qc_setting ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.qc_setting_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -4246,8 +4460,10 @@ CREATE TABLE public.stk_transaction (
     pur_receipt_detail_id bigint,
     sls_dispatch_detail_id bigint,
     sls_invoice_detail_id bigint,
+    qc_inspection_id bigint,
     CONSTRAINT stk_transaction_is_opening_check CHECK (((NOT is_opening) OR (transaction_type = 1))),
     CONSTRAINT stk_transaction_pur_receipt_check CHECK (((pur_receipt_detail_id IS NULL) OR (transaction_type = 1))),
+    CONSTRAINT stk_transaction_qc_check CHECK (((qc_inspection_id IS NULL) OR (transaction_type = 3))),
     CONSTRAINT stk_transaction_quantity_check CHECK ((quantity > (0)::numeric)),
     CONSTRAINT stk_transaction_sls_check CHECK ((((sls_dispatch_detail_id IS NULL) AND (sls_invoice_detail_id IS NULL)) OR ((transaction_type = 2) AND ((sls_dispatch_detail_id IS NULL) OR (sls_invoice_detail_id IS NULL))))),
     CONSTRAINT stk_transaction_transaction_type_check CHECK ((((transaction_type = 1) AND (to_stk_warehouse_id IS NOT NULL) AND (from_stk_warehouse_id IS NULL)) OR ((transaction_type = 2) AND (from_stk_warehouse_id IS NOT NULL) AND (to_stk_warehouse_id IS NULL)) OR ((transaction_type = 3) AND (from_stk_warehouse_id IS NOT NULL) AND (to_stk_warehouse_id IS NOT NULL) AND (from_stk_warehouse_id <> to_stk_warehouse_id))))
@@ -7444,6 +7660,141 @@ CREATE VIEW public.vw_pur_order_detail AS
 ALTER VIEW public.vw_pur_order_detail OWNER TO ths_admin;
 
 --
+-- Name: vw_pur_quotation; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_pur_quotation AS
+ SELECT q.id,
+    q.quotation_no,
+    q.quotation_date,
+    q.pur_request_id,
+    r.request_no,
+    q.acc_account_id,
+    a.code AS account_code,
+    a.name AS account_name,
+    q.supplier_ref_no,
+    q.valid_until,
+    q.delivery_days,
+    q.delivery_date,
+    q.currency,
+    q.exchange_rate,
+    q.payment_term_days,
+    q.payment_terms,
+    q.status,
+    q.gross_amount,
+    q.discount_amount,
+    q.net_amount,
+    q.vat_amount,
+    q.total_amount,
+    (round((q.net_amount * q.exchange_rate), 2))::numeric(18,2) AS net_amount_base,
+    (round((q.total_amount * q.exchange_rate), 2))::numeric(18,2) AS total_amount_base,
+    q.pur_order_id,
+    o.order_no,
+    q.approved_sys_user_id,
+    u.username AS approved_by,
+    q.approved_at,
+    (( SELECT count(*) AS count
+           FROM public.pur_quotation_detail d
+          WHERE (d.pur_quotation_id = q.id)))::integer AS line_count,
+    q.description
+   FROM ((((public.pur_quotation q
+     JOIN public.acc_account a ON ((a.id = q.acc_account_id)))
+     LEFT JOIN public.pur_request r ON ((r.id = q.pur_request_id)))
+     LEFT JOIN public.pur_order o ON ((o.id = q.pur_order_id)))
+     LEFT JOIN public.sys_user u ON ((u.id = q.approved_sys_user_id)));
+
+
+ALTER VIEW public.vw_pur_quotation OWNER TO ths_admin;
+
+--
+-- Name: vw_pur_quotation_comparison; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_pur_quotation_comparison AS
+ SELECT d.id,
+    rd.pur_request_id,
+    r.request_no,
+    d.pur_request_detail_id,
+    rd.line_no AS request_line_no,
+    d.stk_inventory_id,
+    i.code AS inventory_code,
+    i.name AS inventory_name,
+    u.unit_code AS uom_code,
+    rd.quantity AS request_quantity,
+    d.pur_quotation_id,
+    q.quotation_no,
+    q.quotation_date,
+    q.status,
+    q.acc_account_id,
+    a.code AS account_code,
+    a.name AS account_name,
+    q.currency,
+    q.exchange_rate,
+    d.quantity,
+    d.unit_price,
+    d.discount_rate,
+    d.vat_rate,
+    (round((d.net_amount / d.quantity), 6))::numeric(18,6) AS net_unit_price,
+    (round(((d.net_amount * q.exchange_rate) / d.quantity), 6))::numeric(18,6) AS net_unit_price_base,
+    (round((d.net_amount * q.exchange_rate), 2))::numeric(18,2) AS net_amount_base,
+    q.delivery_days,
+    COALESCE(d.delivery_date, q.delivery_date) AS delivery_date,
+    q.payment_term_days,
+    q.payment_terms,
+    q.valid_until,
+    (rank() OVER (PARTITION BY d.pur_request_detail_id ORDER BY (round(((d.net_amount * q.exchange_rate) / d.quantity), 6))))::integer AS price_rank
+   FROM ((((((public.pur_quotation_detail d
+     JOIN public.pur_quotation q ON ((q.id = d.pur_quotation_id)))
+     JOIN public.pur_request_detail rd ON ((rd.id = d.pur_request_detail_id)))
+     JOIN public.pur_request r ON ((r.id = rd.pur_request_id)))
+     JOIN public.acc_account a ON ((a.id = q.acc_account_id)))
+     JOIN public.stk_inventory i ON ((i.id = d.stk_inventory_id)))
+     LEFT JOIN public.sys_uom u ON ((u.id = i.sys_uom_id)))
+  WHERE (q.status <> 4);
+
+
+ALTER VIEW public.vw_pur_quotation_comparison OWNER TO ths_admin;
+
+--
+-- Name: vw_pur_quotation_detail; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_pur_quotation_detail AS
+ SELECT d.id,
+    d.pur_quotation_id,
+    q.quotation_no,
+    q.status AS quotation_status,
+    q.acc_account_id,
+    q.currency,
+    d.line_no,
+    d.stk_inventory_id,
+    i.code AS inventory_code,
+    i.name AS inventory_name,
+    u.unit_code AS uom_code,
+    d.quantity,
+    d.unit_price,
+    d.discount_rate,
+    d.vat_rate,
+    d.gross_amount,
+    d.discount_amount,
+    d.net_amount,
+    d.vat_amount,
+    d.total_amount,
+    d.delivery_date,
+    d.pur_request_detail_id,
+    r.request_no,
+    d.description
+   FROM (((((public.pur_quotation_detail d
+     JOIN public.pur_quotation q ON ((q.id = d.pur_quotation_id)))
+     JOIN public.stk_inventory i ON ((i.id = d.stk_inventory_id)))
+     LEFT JOIN public.sys_uom u ON ((u.id = i.sys_uom_id)))
+     LEFT JOIN public.pur_request_detail rd ON ((rd.id = d.pur_request_detail_id)))
+     LEFT JOIN public.pur_request r ON ((r.id = rd.pur_request_id)));
+
+
+ALTER VIEW public.vw_pur_quotation_detail OWNER TO ths_admin;
+
+--
 -- Name: vw_pur_receipt; Type: VIEW; Schema: public; Owner: ths_admin
 --
 
@@ -7562,6 +7913,138 @@ CREATE VIEW public.vw_pur_request_detail AS
 
 
 ALTER VIEW public.vw_pur_request_detail OWNER TO ths_admin;
+
+--
+-- Name: vw_qc_inspection; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_qc_inspection AS
+ SELECT c.id,
+    c.inspection_no,
+    c.inspection_date,
+    c.pur_receipt_detail_id,
+    p.id AS pur_receipt_id,
+    p.receipt_no,
+    p.receipt_date,
+    p.acc_account_id,
+    a.name AS account_name,
+    p.stk_warehouse_id,
+    w.warehouse_name,
+    rd.line_no AS receipt_line_no,
+    c.stk_inventory_id,
+    i.code AS inventory_code,
+    i.name AS inventory_name,
+    u.unit_code AS uom_code,
+    c.quantity,
+    c.accepted_quantity,
+    c.rejected_quantity,
+    c.result,
+    c.disposition,
+    c.emp_employee_id,
+    e.full_name AS employee_name,
+    t.id AS stk_transaction_id,
+    t.to_stk_warehouse_id AS reject_stk_warehouse_id,
+    c.description
+   FROM ((((((((public.qc_inspection c
+     JOIN public.pur_receipt_detail rd ON ((rd.id = c.pur_receipt_detail_id)))
+     JOIN public.pur_receipt p ON ((p.id = rd.pur_receipt_id)))
+     JOIN public.acc_account a ON ((a.id = p.acc_account_id)))
+     JOIN public.stk_warehouse w ON ((w.id = p.stk_warehouse_id)))
+     JOIN public.stk_inventory i ON ((i.id = c.stk_inventory_id)))
+     LEFT JOIN public.sys_uom u ON ((u.id = i.sys_uom_id)))
+     LEFT JOIN public.emp_employee e ON ((e.id = c.emp_employee_id)))
+     LEFT JOIN public.stk_transaction t ON ((t.qc_inspection_id = c.id)));
+
+
+ALTER VIEW public.vw_qc_inspection OWNER TO ths_admin;
+
+--
+-- Name: vw_qc_receipt_line; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_qc_receipt_line AS
+ SELECT rd.id,
+    p.id AS pur_receipt_id,
+    p.receipt_no,
+    p.receipt_date,
+    p.acc_account_id,
+    a.name AS account_name,
+    p.stk_warehouse_id,
+    w.warehouse_name,
+    rd.line_no,
+    rd.stk_inventory_id,
+    i.code AS inventory_code,
+    i.name AS inventory_name,
+    u.unit_code AS uom_code,
+    rd.quantity,
+    COALESCE(ri.inspection_criteria, rg.inspection_criteria) AS inspection_criteria,
+    c.id AS qc_inspection_id,
+    c.inspection_no,
+    c.inspection_date,
+    c.quantity AS inspected_quantity,
+    c.accepted_quantity,
+    c.rejected_quantity,
+    c.result,
+    (
+        CASE
+            WHEN (c.id IS NULL) THEN 1
+            WHEN ((c.quantity <> rd.quantity) OR (c.stk_inventory_id <> rd.stk_inventory_id)) THEN 2
+            ELSE 3
+        END)::smallint AS qc_status
+   FROM ((((((((public.pur_receipt_detail rd
+     JOIN public.pur_receipt p ON ((p.id = rd.pur_receipt_id)))
+     JOIN public.acc_account a ON ((a.id = p.acc_account_id)))
+     JOIN public.stk_warehouse w ON ((w.id = p.stk_warehouse_id)))
+     JOIN public.stk_inventory i ON ((i.id = rd.stk_inventory_id)))
+     LEFT JOIN public.sys_uom u ON ((u.id = i.sys_uom_id)))
+     LEFT JOIN public.qc_rule ri ON ((ri.stk_inventory_id = rd.stk_inventory_id)))
+     LEFT JOIN public.qc_rule rg ON ((rg.stk_group_id = i.stk_group_id)))
+     LEFT JOIN public.qc_inspection c ON ((c.pur_receipt_detail_id = rd.id)))
+  WHERE (COALESCE(ri.is_required, rg.is_required, false) AND (EXISTS ( SELECT 1
+           FROM public.qc_setting s
+          WHERE s.is_enabled)));
+
+
+ALTER VIEW public.vw_qc_receipt_line OWNER TO ths_admin;
+
+--
+-- Name: vw_qc_rule; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_qc_rule AS
+ SELECT r.id,
+    r.stk_group_id,
+    g.name AS group_name,
+    r.stk_inventory_id,
+    i.code AS inventory_code,
+    i.name AS inventory_name,
+    r.is_required,
+    r.inspection_criteria
+   FROM ((public.qc_rule r
+     LEFT JOIN public.stk_group g ON ((g.id = r.stk_group_id)))
+     LEFT JOIN public.stk_inventory i ON ((i.id = r.stk_inventory_id)));
+
+
+ALTER VIEW public.vw_qc_rule OWNER TO ths_admin;
+
+--
+-- Name: vw_qc_setting; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_qc_setting AS
+ SELECT s.id,
+    s.sys_application_setting_id,
+    a.company_title,
+    s.is_enabled,
+    s.reject_stk_warehouse_id,
+    w.warehouse_name AS reject_warehouse_name,
+    s.description
+   FROM ((public.qc_setting s
+     JOIN public.sys_application_setting a ON ((a.id = s.sys_application_setting_id)))
+     LEFT JOIN public.stk_warehouse w ON ((w.id = s.reject_stk_warehouse_id)));
+
+
+ALTER VIEW public.vw_qc_setting OWNER TO ths_admin;
 
 --
 -- Name: vw_sls_dispatch; Type: VIEW; Schema: public; Owner: ths_admin
@@ -10077,6 +10560,46 @@ ALTER TABLE ONLY public.pur_order
 
 
 --
+-- Name: pur_quotation_detail pur_quotation_detail_line_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_quotation_detail
+    ADD CONSTRAINT pur_quotation_detail_line_key UNIQUE (pur_quotation_id, line_no) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+-- Name: pur_quotation_detail pur_quotation_detail_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_quotation_detail
+    ADD CONSTRAINT pur_quotation_detail_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: pur_quotation pur_quotation_order_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_quotation
+    ADD CONSTRAINT pur_quotation_order_key UNIQUE (pur_order_id);
+
+
+--
+-- Name: pur_quotation pur_quotation_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_quotation
+    ADD CONSTRAINT pur_quotation_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: pur_quotation pur_quotation_quotation_no_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_quotation
+    ADD CONSTRAINT pur_quotation_quotation_no_key UNIQUE (quotation_no);
+
+
+--
 -- Name: pur_receipt_detail pur_receipt_detail_line_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -10146,6 +10669,70 @@ ALTER TABLE ONLY public.pur_request
 
 ALTER TABLE ONLY public.pur_request
     ADD CONSTRAINT pur_request_request_no_key UNIQUE (request_no);
+
+
+--
+-- Name: qc_inspection qc_inspection_inspection_no_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.qc_inspection
+    ADD CONSTRAINT qc_inspection_inspection_no_key UNIQUE (inspection_no);
+
+
+--
+-- Name: qc_inspection qc_inspection_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.qc_inspection
+    ADD CONSTRAINT qc_inspection_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: qc_inspection qc_inspection_receipt_detail_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.qc_inspection
+    ADD CONSTRAINT qc_inspection_receipt_detail_key UNIQUE (pur_receipt_detail_id);
+
+
+--
+-- Name: qc_rule qc_rule_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.qc_rule
+    ADD CONSTRAINT qc_rule_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: qc_rule qc_rule_stk_group_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.qc_rule
+    ADD CONSTRAINT qc_rule_stk_group_key UNIQUE (stk_group_id);
+
+
+--
+-- Name: qc_rule qc_rule_stk_inventory_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.qc_rule
+    ADD CONSTRAINT qc_rule_stk_inventory_key UNIQUE (stk_inventory_id);
+
+
+--
+-- Name: qc_setting qc_setting_application_setting_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.qc_setting
+    ADD CONSTRAINT qc_setting_application_setting_key UNIQUE (sys_application_setting_id);
+
+
+--
+-- Name: qc_setting qc_setting_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.qc_setting
+    ADD CONSTRAINT qc_setting_pkey PRIMARY KEY (id);
 
 
 --
@@ -10482,6 +11069,14 @@ ALTER TABLE ONLY public.stk_transaction
 
 ALTER TABLE ONLY public.stk_transaction
     ADD CONSTRAINT stk_transaction_pur_receipt_detail_key UNIQUE (pur_receipt_detail_id);
+
+
+--
+-- Name: stk_transaction stk_transaction_qc_inspection_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_transaction
+    ADD CONSTRAINT stk_transaction_qc_inspection_key UNIQUE (qc_inspection_id);
 
 
 --
@@ -11500,6 +12095,55 @@ CREATE INDEX pur_order_stk_warehouse_id_idx ON public.pur_order USING btree (stk
 
 
 --
+-- Name: pur_quotation_acc_account_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX pur_quotation_acc_account_id_idx ON public.pur_quotation USING btree (acc_account_id);
+
+
+--
+-- Name: pur_quotation_approved_sys_user_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX pur_quotation_approved_sys_user_id_idx ON public.pur_quotation USING btree (approved_sys_user_id);
+
+
+--
+-- Name: pur_quotation_currency_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX pur_quotation_currency_idx ON public.pur_quotation USING btree (currency);
+
+
+--
+-- Name: pur_quotation_detail_request_detail_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX pur_quotation_detail_request_detail_idx ON public.pur_quotation_detail USING btree (pur_request_detail_id);
+
+
+--
+-- Name: pur_quotation_detail_stk_inventory_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX pur_quotation_detail_stk_inventory_id_idx ON public.pur_quotation_detail USING btree (stk_inventory_id);
+
+
+--
+-- Name: pur_quotation_request_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX pur_quotation_request_idx ON public.pur_quotation USING btree (pur_request_id);
+
+
+--
+-- Name: pur_quotation_selected_key; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE UNIQUE INDEX pur_quotation_selected_key ON public.pur_quotation USING btree (pur_request_id) WHERE (status = ANY (ARRAY[2, 3, 5]));
+
+
+--
 -- Name: pur_receipt_acc_account_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
 --
 
@@ -11560,6 +12204,27 @@ CREATE INDEX pur_request_detail_stk_inventory_id_idx ON public.pur_request_detai
 --
 
 CREATE INDEX pur_request_emp_employee_id_idx ON public.pur_request USING btree (emp_employee_id);
+
+
+--
+-- Name: qc_inspection_emp_employee_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX qc_inspection_emp_employee_id_idx ON public.qc_inspection USING btree (emp_employee_id);
+
+
+--
+-- Name: qc_inspection_stk_inventory_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX qc_inspection_stk_inventory_id_idx ON public.qc_inspection USING btree (stk_inventory_id);
+
+
+--
+-- Name: qc_setting_reject_stk_warehouse_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX qc_setting_reject_stk_warehouse_id_idx ON public.qc_setting USING btree (reject_stk_warehouse_id);
 
 
 --
@@ -12242,6 +12907,41 @@ CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.emp_section FOR 
 
 
 --
+-- Name: pur_quotation audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.pur_quotation FOR EACH ROW EXECUTE FUNCTION public.audit();
+
+
+--
+-- Name: pur_quotation_detail audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.pur_quotation_detail FOR EACH ROW EXECUTE FUNCTION public.audit();
+
+
+--
+-- Name: qc_inspection audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.qc_inspection FOR EACH ROW EXECUTE FUNCTION public.audit();
+
+
+--
+-- Name: qc_rule audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.qc_rule FOR EACH ROW EXECUTE FUNCTION public.audit();
+
+
+--
+-- Name: qc_setting audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.qc_setting FOR EACH ROW EXECUTE FUNCTION public.audit();
+
+
+--
 -- Name: sys_access_right audit; Type: TRIGGER; Schema: public; Owner: ths_admin
 --
 
@@ -12557,6 +13257,20 @@ CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.pur_order_detai
 
 
 --
+-- Name: pur_quotation notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.pur_quotation FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: pur_quotation_detail notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.pur_quotation_detail FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
 -- Name: pur_receipt notify; Type: TRIGGER; Schema: public; Owner: ths_admin
 --
 
@@ -12582,6 +13296,13 @@ CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.pur_request FOR
 --
 
 CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.pur_request_detail FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: qc_inspection notify; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.qc_inspection FOR EACH ROW EXECUTE FUNCTION public.table_notify();
 
 
 --
@@ -12673,6 +13394,13 @@ CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.stk_transaction
 --
 
 CREATE TRIGGER notify AFTER INSERT OR DELETE OR UPDATE ON public.stk_warehouse FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: pur_quotation order_unlinked; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER order_unlinked BEFORE UPDATE OF pur_order_id ON public.pur_quotation FOR EACH ROW EXECUTE FUNCTION public.pur_quotation_order_unlinked();
 
 
 --
@@ -13751,6 +14479,70 @@ ALTER TABLE ONLY public.pur_order
 
 
 --
+-- Name: pur_quotation pur_quotation_acc_account_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_quotation
+    ADD CONSTRAINT pur_quotation_acc_account_id_fkey FOREIGN KEY (acc_account_id) REFERENCES public.acc_account(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: pur_quotation pur_quotation_approved_sys_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_quotation
+    ADD CONSTRAINT pur_quotation_approved_sys_user_id_fkey FOREIGN KEY (approved_sys_user_id) REFERENCES public.sys_user(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: pur_quotation pur_quotation_currency_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_quotation
+    ADD CONSTRAINT pur_quotation_currency_fkey FOREIGN KEY (currency) REFERENCES public.sys_currency(currency) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: pur_quotation_detail pur_quotation_detail_quotation_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_quotation_detail
+    ADD CONSTRAINT pur_quotation_detail_quotation_fkey FOREIGN KEY (pur_quotation_id) REFERENCES public.pur_quotation(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: pur_quotation_detail pur_quotation_detail_request_detail_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_quotation_detail
+    ADD CONSTRAINT pur_quotation_detail_request_detail_fkey FOREIGN KEY (pur_request_detail_id) REFERENCES public.pur_request_detail(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: pur_quotation_detail pur_quotation_detail_stk_inventory_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_quotation_detail
+    ADD CONSTRAINT pur_quotation_detail_stk_inventory_id_fkey FOREIGN KEY (stk_inventory_id) REFERENCES public.stk_inventory(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: pur_quotation pur_quotation_order_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_quotation
+    ADD CONSTRAINT pur_quotation_order_fkey FOREIGN KEY (pur_order_id) REFERENCES public.pur_order(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: pur_quotation pur_quotation_request_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_quotation
+    ADD CONSTRAINT pur_quotation_request_fkey FOREIGN KEY (pur_request_id) REFERENCES public.pur_request(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
 -- Name: pur_receipt pur_receipt_acc_account_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -13828,6 +14620,62 @@ ALTER TABLE ONLY public.pur_request_detail
 
 ALTER TABLE ONLY public.pur_request
     ADD CONSTRAINT pur_request_emp_employee_id_fkey FOREIGN KEY (emp_employee_id) REFERENCES public.emp_employee(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: qc_inspection qc_inspection_emp_employee_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.qc_inspection
+    ADD CONSTRAINT qc_inspection_emp_employee_id_fkey FOREIGN KEY (emp_employee_id) REFERENCES public.emp_employee(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: qc_inspection qc_inspection_receipt_detail_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.qc_inspection
+    ADD CONSTRAINT qc_inspection_receipt_detail_fkey FOREIGN KEY (pur_receipt_detail_id) REFERENCES public.pur_receipt_detail(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: qc_inspection qc_inspection_stk_inventory_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.qc_inspection
+    ADD CONSTRAINT qc_inspection_stk_inventory_id_fkey FOREIGN KEY (stk_inventory_id) REFERENCES public.stk_inventory(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: qc_rule qc_rule_stk_group_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.qc_rule
+    ADD CONSTRAINT qc_rule_stk_group_id_fkey FOREIGN KEY (stk_group_id) REFERENCES public.stk_group(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: qc_rule qc_rule_stk_inventory_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.qc_rule
+    ADD CONSTRAINT qc_rule_stk_inventory_id_fkey FOREIGN KEY (stk_inventory_id) REFERENCES public.stk_inventory(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: qc_setting qc_setting_reject_stk_warehouse_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.qc_setting
+    ADD CONSTRAINT qc_setting_reject_stk_warehouse_id_fkey FOREIGN KEY (reject_stk_warehouse_id) REFERENCES public.stk_warehouse(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: qc_setting qc_setting_sys_application_setting_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.qc_setting
+    ADD CONSTRAINT qc_setting_sys_application_setting_id_fkey FOREIGN KEY (sys_application_setting_id) REFERENCES public.sys_application_setting(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -14463,6 +15311,14 @@ ALTER TABLE ONLY public.stk_transaction
 
 
 --
+-- Name: stk_transaction stk_transaction_qc_inspection_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.stk_transaction
+    ADD CONSTRAINT stk_transaction_qc_inspection_fkey FOREIGN KEY (qc_inspection_id) REFERENCES public.qc_inspection(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: stk_transaction stk_transaction_sls_dispatch_detail_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -14917,5 +15773,5 @@ GRANT ALL ON TABLE public.vw_einv_diib_line TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict K5wiNM2qNcaFyWm0nV77rhuq97yPpHesHROtE1bgq2eQbVLWKmBjX3u4gqdrpiF
+\unrestrict itPdCh6th8aoYd48PNq1BWYFQ1audGxXARkg8vsif2ola5u8E1HArIb7IrwOLaR
 

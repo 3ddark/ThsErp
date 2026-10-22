@@ -15,7 +15,7 @@ cp -r ../../lib "$O/bin/" 2>/dev/null
 mkdir -p "$O/bin/Resource" && cp -r ../../Resource/Localization ../../Resource/EInvoice "$O/bin/Resource/"
 E="$ERP/BackEnd"
 U="$E/Core;$E/Core/Base;$E/Tools;$E/Tools/SynPDF;$ERP/Utils"
-for m in System Employee Account Stock Production Finance Purchasing Sales EInvoice; do for s in Domain Exception Repository Service Cache Helper; do [ -d "$E/$m/$s" ] && U="$U;$E/$m/$s"; done; done
+for m in System Employee Account Stock Production Finance Purchasing Quality Sales EInvoice; do for s in Domain Exception Repository Service Cache Helper; do [ -d "$E/$m/$s" ] && U="$U;$E/$m/$s"; done; done
 L="$BDS/lib/win64/release"
 "$BDS/bin/dcc64.exe" -B -Q -W- -H- -DDEBUG \
   "-NSSystem;Winapi;Vcl;Vcl.Imaging;Data;Data.Win;System.Win;Xml;FireDAC" \

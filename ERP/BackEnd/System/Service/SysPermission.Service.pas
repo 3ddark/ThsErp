@@ -102,6 +102,12 @@ const
   PERMISSION_PUR_ORDER                    = 1081;   // sipariş + kalemleri
   PERMISSION_PUR_RECEIPT                  = 1082;   // mal kabul + kalemleri (stok girişi)
   PERMISSION_PUR_INVOICE                  = 1083;   // alış faturası + kalemleri
+  PERMISSION_PUR_QUOTATION                = 1084;   // alış teklifi + kalemleri + karşılaştırma (özel = onay / red)
+
+  // Quality (giriş kalite kontrol, gevşek bağlı)
+  PERMISSION_QC_INSPECTION                = 1085;   // kontrol kayıtları + kontrol bekleyen mal kabul kalemleri
+  PERMISSION_QC_RULE                      = 1086;   // stok grubu / kartı bazında kontrol gerekliliği
+  PERMISSION_QC_SETTING                   = 1087;   // modül aç / kapat, red ambarı
 
   // Accounting (muhasebe)
   PERMISSION_ACC_EXCHANGE_RATE            = 3001;

@@ -1,5 +1,7 @@
 -- ths_erp_it test DB: boş tablolara ekran testleri için birer örnek satır
 BEGIN;
+-- canlıdan gelen kullanıcı favorileri ekran testini etkilemesin (favori ekle / çıkar testi temiz başlar)
+UPDATE sys_user_menu SET is_favorite = false WHERE is_favorite;
 SELECT set_config('ths_erp.user_name', 'ui_seed', true);
 
 INSERT INTO emp_transportation (car_no, car_name) VALUES (1, 'UI SERVİS 1');
@@ -93,6 +95,29 @@ SELECT 1, d.stk_inventory_id, p.stk_warehouse_id, d.quantity, d.quantity * d.uni
 INSERT INTO pur_invoice (invoice_no, acc_account_id, gross_amount, net_amount, total_amount) SELECT 'IRS-1', min(id), 15, 15, 15 FROM acc_account;
 INSERT INTO pur_invoice_detail (pur_invoice_id, line_no, stk_inventory_id, quantity, unit_price, gross_amount, net_amount, total_amount, pur_receipt_detail_id)
 SELECT (SELECT max(id) FROM pur_invoice), 1, stk_inventory_id, 5, 3, 15, 15, 15, id FROM pur_receipt_detail;
+-- alış teklifi: onaylı talep + taslak teklif (talep kalemine bağlı)
+INSERT INTO pur_request (request_no, emp_employee_id, status, description) SELECT 'PT900002', min(id), 2, 'UI TEKLIF TALEBI' FROM emp_employee;
+INSERT INTO pur_request_detail (pur_request_id, line_no, stk_inventory_id, quantity) SELECT (SELECT id FROM pur_request WHERE request_no = 'PT900002'), 1, min(id), 8 FROM stk_inventory;
+INSERT INTO pur_quotation (quotation_no, pur_request_id, acc_account_id, delivery_days, payment_term_days, payment_terms, gross_amount, net_amount, vat_amount, total_amount, description)
+SELECT 'AT900001', (SELECT id FROM pur_request WHERE request_no = 'PT900002'), min(id), 10, 30, 'UI 30 GUN', 16, 16, 3.2, 19.2, 'UI SEED' FROM acc_account;
+INSERT INTO pur_quotation_detail (pur_quotation_id, line_no, stk_inventory_id, quantity, unit_price, vat_rate, gross_amount, net_amount, vat_amount, total_amount, pur_request_detail_id)
+SELECT q.id, 1, d.stk_inventory_id, 8, 2, 20, 16, 16, 3.2, 19.2, d.id FROM pur_quotation q JOIN pur_request_detail d ON d.pur_request_id = q.pur_request_id WHERE q.quotation_no = 'AT900001';
+-- ikinci tedarikçinin daha ucuz teklifi (karşılaştırma testi bunu seçer; AT900001 taslak kalır)
+INSERT INTO pur_quotation (quotation_no, pur_request_id, acc_account_id, delivery_days, gross_amount, net_amount, vat_amount, total_amount, description)
+SELECT 'AT900002', (SELECT id FROM pur_request WHERE request_no = 'PT900002'), (SELECT min(id) FROM acc_account WHERE id > (SELECT min(id) FROM acc_account)), 5, 12, 12, 2.4, 14.4, 'UI SEED';
+INSERT INTO pur_quotation_detail (pur_quotation_id, line_no, stk_inventory_id, quantity, unit_price, vat_rate, gross_amount, net_amount, vat_amount, total_amount, pur_request_detail_id)
+SELECT q.id, 1, d.stk_inventory_id, 8, 1.5, 20, 12, 12, 2.4, 14.4, d.id FROM pur_quotation q JOIN pur_request_detail d ON d.pur_request_id = q.pur_request_id WHERE q.quotation_no = 'AT900002';
+-- giriş kalite kontrol: modül açık, ilk stok kartının grubu kontrollü, MK900001 kalemi kontrol edildi (1 uygunsuz)
+INSERT INTO qc_setting (sys_application_setting_id, is_enabled, description) SELECT min(id), true, 'UI SEED' FROM sys_application_setting
+  ON CONFLICT (sys_application_setting_id) DO UPDATE SET is_enabled = true;
+INSERT INTO qc_rule (stk_group_id, is_required, inspection_criteria) SELECT stk_group_id, true, 'UI SEED KRITER' FROM stk_inventory WHERE id = (SELECT min(id) FROM stk_inventory)
+  ON CONFLICT (stk_group_id) DO NOTHING;
+INSERT INTO qc_inspection (inspection_no, pur_receipt_detail_id, stk_inventory_id, quantity, accepted_quantity, rejected_quantity, result, disposition, description)
+SELECT 'KK900001', d.id, d.stk_inventory_id, d.quantity, d.quantity - 1, 1, 3, 1, 'UI SEED' FROM pur_receipt_detail d JOIN pur_receipt p ON p.id = d.pur_receipt_id WHERE p.receipt_no = 'MK900001';
+-- kontrol bekleyen mal kabul kalemi
+INSERT INTO pur_receipt (receipt_no, acc_account_id, stk_warehouse_id, waybill_no) SELECT 'MK900002', min(id), (SELECT min(id) FROM stk_warehouse), 'IRS-2' FROM acc_account;
+INSERT INTO pur_receipt_detail (pur_receipt_id, line_no, stk_inventory_id, quantity, unit_price)
+SELECT (SELECT id FROM pur_receipt WHERE receipt_no = 'MK900002'), 1, min(id), 3, 2 FROM stk_inventory;
 
 -- satış: taslak teklif, taslak sipariş, kısmi sevkli sipariş + irsaliye (stok çıkışı) + irsaliyeden fatura, irsaliyeli fatura
 INSERT INTO sls_offer (offer_no, acc_account_id, status, usd_rate, eur_rate)
@@ -149,7 +174,7 @@ SELECT 'UI-DIIB-1', 2, min(id), current_date, current_date + 365, 'UI SEED' FROM
 INSERT INTO einv_diib (document_no, holder_type, description) VALUES ('UI-DIIB-OWN', 1, 'UI SEED');
 INSERT INTO einv_diib_line (einv_diib_id, line_no, line_code, line_kind, einv_gtip_id, product_description, stk_inventory_id, quantity)
 SELECT d.id, 1, 'UI-1', 1, g.id, 'UI SEED DIIB URUN', (SELECT min(id) FROM stk_inventory), 100
-  FROM einv_diib d CROSS JOIN einv_gtip g WHERE g.code = '020622000000';
+  FROM einv_diib d CROSS JOIN einv_gtip g WHERE g.code = '020622000000' AND d.description = 'UI SEED';
 UPDATE sls_invoice SET einv_profile_id = (SELECT id FROM einv_profile WHERE code = 'EARSIVFATURA'),
        einv_invoice_type_id = (SELECT id FROM einv_invoice_type WHERE code = 'SATIS'), einv_status = 1, einv_uuid = gen_random_uuid(),
        einv_payment_means_id = (SELECT id FROM einv_payment_means WHERE code = '42')

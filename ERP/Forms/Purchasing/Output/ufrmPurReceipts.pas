@@ -14,8 +14,9 @@ type
   TfrmPurReceipts = class(TfrmGrid<TPurReceipt, TPurReceiptService>)
   private
     FFixedOrderName: string;
-    FmniToInvoice: TMenuItem;
+    FmniToInvoice, FmniQuality: TMenuItem;
     procedure mniToInvoiceClick(Sender: TObject);
+    procedure mniQualityClick(Sender: TObject);
 
   public
     procedure SetFixedOrder(AOrderId: Int64; const AOrderName: string);
@@ -33,7 +34,7 @@ implementation
 
 uses
   PurLookup,
-  ufrmPurInvoiceDetail, PurInvoice, PurInvoice.Service;
+  ufrmPurInvoiceDetail, PurInvoice, PurInvoice.Service, PurReceiptExtension;
 
 procedure TfrmPurReceipts.SetFixedOrder(AOrderId: Int64; const AOrderName: string);
 begin
@@ -68,6 +69,16 @@ begin
   RefreshParentGrid(True);
 end;
 
+// Giriş kalite kontrol (gevşek bağlı eklenti): mal kabulün kontrol listesi
+procedure TfrmPurReceipts.mniQualityClick(Sender: TObject);
+begin
+  if Grd.DataSource.DataSet.IsEmpty or not Assigned(GReceiptQualityShow) then
+    Exit;
+
+  SetSelectedItem;
+  GReceiptQualityShow(Self, Table.Id, Table.ReceiptNo);
+end;
+
 procedure TfrmPurReceipts.PreparePopupMenu;
 begin
   inherited;
@@ -76,6 +87,9 @@ begin
 
   AddPopupMenuSpliter();
   FmniToInvoice := AddMenu(TLocalizationManager.Translate(TLangKeys.TPurReceipt.MenuToInvoice, 'Create Purchase Invoice'), 'mniToInvoice', mniToInvoiceClick);
+  // kalite kontrol modülü kayıtlı ve açıksa
+  if Assigned(GReceiptQualityAvailable) and Assigned(GReceiptQualityShow) and GReceiptQualityAvailable() then
+    FmniQuality := AddMenu(TLocalizationManager.Translate(TLangKeys.TPurReceipt.MenuQuality, 'Quality Inspection'), 'mniQuality', mniQualityClick);
 end;
 
 // Belge ekranı (başlık + kalemler); kopyada belge formu Service.PrepareCopy ile yeni no / siparişsiz / yeni kalemler verir
@@ -146,6 +160,8 @@ begin
   SetColumnTitle('total_amount', TLocalizationManager.Translate(TLangKeys.TPurReceipt.ColTotalAmount, 'Total'));
   if Assigned(FmniToInvoice) then
     FmniToInvoice.Caption := TLocalizationManager.Translate(TLangKeys.TPurReceipt.MenuToInvoice, 'Create Purchase Invoice');
+  if Assigned(FmniQuality) then
+    FmniQuality.Caption := TLocalizationManager.Translate(TLangKeys.TPurReceipt.MenuQuality, 'Quality Inspection');
 end;
 
 end.

@@ -1138,3 +1138,49 @@ gevşek bağlı, ileride framework olarak paylaşılacak")
   fiş no MF + yevmiye no servisten. UI: ufrmAccVouchers + ufrmAccVoucherDetail (borç / alacak / fark paneli) +
   ufrmAccVoucherLine (hesap seçimi SON hesaplar). Test: TestAccountingVoucher 10/10; IT 2194 PASS / 6 FAIL (bilinen,
   yukarıda); UI Account 256/0. Diğer belgelerden otomatik fiş kesimi YOK (sonraki iş). Elle UI denemesi yapılmadı.
+
+## Alış teklifi + giriş kalite kontrol (2026-10-22, /goal; NB61, 5433)
+- Hedef (kullanıcı): talep ile sipariş arasına alış teklifi (tedarikçi başına teklif, fiyat / para birimi / iskonto / vade +
+  ödeme koşulları / teslim süresi + termin / açıklama, karşılaştırma, seçilen teklif onaya, onaylıdan siparişe; bağlar korunur);
+  gevşek bağlı giriş kalite kontrol (firma ayarıyla aç / kapa, ürün / grup bazında gereklilik, uygun / uygunsuz yönetimi;
+  kapalıyken mal kabul / stok / fatura akışı aynen). TPurRequest / TPurRequestDetail ve sipariş servisi değişmedi.
+- DB (yedek: scratchpad ths_erp_before_quotation_qc.dump): pur_quotation (+ detail, view'lar vw_pur_quotation /
+  _detail / _comparison, trigger order_unlinked), qc_setting / qc_rule / qc_inspection (+ vw_qc_setting / _rule /
+  _inspection / _receipt_line), stk_transaction.qc_inspection_id (transfer, CASCADE). Yetkiler 1084-1087 (yeni grup
+  quality; yönetici tam, satın alma 1084 özelsiz + 1085 tam + 1086/1087 okuma, üretim okuma; tüm kullanıcılara boş
+  sys_access_right). Menü 500305 teklifler, 500600 Giriş Kalite Kontrol (500601-500604), 500800 Raporlar / 500801 karşılaştırma.
+  sys_grid_sort: vw_pur_quotation_comparison, vw_qc_receipt_line. db_schema.sql + db.dump yenilendi.
+- Kod: BackEnd/Purchasing PurQuotation(+Detail, Comparison), PurLookup PUR_QUO_* (+ 'AT' öneki); BackEnd/Quality (QcLookup,
+  QcSetting, QcRule, QcInspection, QcReceiptLine). Onay / red ve onay iptali = özel yetki (ptSpecial). Tekliften sipariş
+  TPurOrderService ile aynı transaction'da yazılır. Formlar: ufrmPurQuotations / Detail / Line / Comparisons; ufrmQcReceiptLines
+  / Inspections / Inspection / Rules / Rule / Setting. Talep listesine popup: Teklif İste / Teklifler / Karşılaştır. Mal kabul
+  listesine "Kalite Kontrol" yalnız Forms/Purchasing/Output/PurReceiptExtension kancasıyla (QC birimi initialization'da atar).
+- Test: IT specific 763 PASS / 0 FAIL (TestPurchaseQuotation 33 + TestQualityControl 24 yeni adım; onay / red özel yetki
+  TEST kullanıcısıyla, red ambarı transferi stok servisinden değişmez / silinmez); generic Purchasing 87/3, Stock 109/0,
+  Quality 24/0; perm / perm2 0 FAIL. UI (ths_erp_it): Purchasing 110/1, Quality 39/0, Stock 155/0. Kalan FAIL'ler HEAD
+  (değişikliksiz kod, worktree) ile birebir aynı: generic 69/3, UI 79/1 — canlı PT000001 (talep 356, durum 3) verisi.
+- Test altyapısı (canlı veriye dokunmadan): durum kilitli belgenin (taslak dışı) "aynı değerlerle güncelle" reddi
+  (`*ExceptionDraftOnly` / `*ExceptionNotEditable`) generic + UI testinde INFO (diğer hatalar FAIL kalır); generic Diff
+  `AddressesAssigned` yükleme bayrağını atlar (ImageLoaded gibi); UI memo jsonb'yi anlamsal karşılaştırır; seed canlıdan gelen
+  favorileri ths_erp_it'te sıfırlar. Sonuç: IT tamamı 2334 PASS / 0 FAIL, UI tamamı 1820 PASS / 0 FAIL, derleme 0 hata. Seed: DİİB satırı yalnız UI SEED belgelerine (canlıdaki kullanıcı DİİB'i çakışıyordu) + teklif / QC örnekleri.
+- Stok servisi QC transferini korur (IsQualityInspectionLinked; yalnız stk_transaction kolonunu okur, Quality birimi yok).
+  Elle UI denemesi yapılmadı (UI otomasyonu gerçek formları sürer). Commit yapılmadı.
+
+### Kaldığım yer (2026-10-22 akşam) — alış teklifi + giriş kalite kontrol
+- Durum: kod + DB + testler TAMAM, commit YOK (çalışma ağacında; Ths.res, GlobalSettings.ini,
+  ufrmEInvDiibLines.pas değişiklikleri bu işten önce de vardı, bu işe ait değil).
+- Bağımsız doğrulama (HEAD test şablonu, canlının değiştirilmemiş kopyası, kendi boş audit DB'si ths_audit_chk):
+  HEAD kodu 2197 PASS / 6 FAIL, yeni kod 2319 PASS / 6 FAIL — FAIL listesi birebir aynı (3 PT000001 durum kilidi
+  "update roundtrip", 3 TAccAccount AddressesAssigned = eski şablon kusuru). Kopyada PT000001 taslakken yeni kod
+  2321 / 3 (yalnız AddressesAssigned). Güncel şablonla canlı: IT 2334/0, UI 1820/0, derleme 0 hata.
+- Paylaşılan ths_audit_it ile kopyada görülen audit FAIL'i: iki kopya da sys_region id 153 üretti (UI seed satırı
+  çakıştı); kendi audit DB'siyle PASS.
+- Canlı PT000001 (talep 356) durumu oturum sırasında kullanıcı 1 tarafından değişti (16:45-16:47, 3 -> 4 -> 5);
+  kod / test değiştirmedi.
+- Bekleyen kullanıcı kararları:
+  1. Commit (mesajda Claude / AI ibaresi yok); kapsam: bu bölümde listelenen tüm dosyalar + db_schema.sql + db.dump.
+  2. Elle kabul denemesi: Alımlar > Alış Teklifleri / Teklif Karşılaştırma, talep listesi popup "Teklif İste",
+     onay / red (özel yetki), "Siparişe Dönüştür"; Giriş Kalite Kontrol > Ayarlar (aç / kapa, red ambarı), Kurallar,
+     Kontrol Bekleyen Mal Kabuller, mal kabul listesi popup "Kalite Kontrol".
+  3. İsteğe bağlı: canlı PT000001'i taslağa almak (yalnız açık onayla; generic / UI testindeki eski FAIL'in kaynağı).
+- Diğer makine: pg_restore db.dump (yeni tablolar / yetkiler / menüler).

@@ -41,6 +41,8 @@ type
     function IsPurchaseReceiptLinked(AId: Int64): Boolean;
     // Sevk irsaliyesi / irsaliyesiz satış faturası kaleminden oluşan hareket (satış modülü yönetir)
     function IsSalesDocumentLinked(AId: Int64): Boolean;
+    // Giriş kalite kontrolün uygunsuz miktar transferi (stk_transaction.qc_inspection_id)
+    function IsQualityInspectionLinked(AId: Int64): Boolean;
   end;
 
 implementation
@@ -78,6 +80,23 @@ begin
                   '   AND (sls_dispatch_detail_id IS NOT NULL OR sls_invoice_detail_id IS NOT NULL)';
     Q.ParamByName('id').AsLargeInt := AId;
     LogQuery(Q, 'IsSalesDocumentLinked');
+    Q.Open;
+    Result := not Q.IsEmpty;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TStkTransactionRepository.IsQualityInspectionLinked(AId: Int64): Boolean;
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT 1 FROM public.stk_transaction WHERE id = :id AND qc_inspection_id IS NOT NULL';
+    Q.ParamByName('id').AsLargeInt := AId;
+    LogQuery(Q, 'IsQualityInspectionLinked');
     Q.Open;
     Result := not Q.IsEmpty;
   finally

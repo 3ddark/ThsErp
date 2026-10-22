@@ -28,6 +28,8 @@ uses
   PurOrder, PurOrder.Service, PurOrderDetail, PurOrderDetail.Service,
   PurReceipt, PurReceipt.Service, PurReceiptDetail, PurReceiptDetail.Service,
   PurInvoice, PurInvoice.Service, PurInvoiceDetail, PurInvoiceDetail.Service,
+  PurQuotation, PurQuotation.Service, PurQuotationDetail,
+  QcLookup, QcSetting, QcSetting.Service, QcRule, QcRule.Service, QcInspection, QcInspection.Service,
   SlsLookup, SlsOffer, SlsOffer.Service, SlsOfferDetail, SlsOfferDetail.Service,
   AccExchangeRate, AccExchangeRate.Service, Tcmb.ExchangeRates,
   SlsOrder, SlsOrder.Service, SlsOrderDetail, SlsOrderDetail.Service,
@@ -4157,6 +4159,582 @@ begin
   end;
 end;
 
+// Alış teklifi (talep -> tedarikçi başına teklif -> karşılaştırma -> onaya gönder -> onay -> sipariş): talepten teklif,
+// tedarikçi başına tek açık teklif, karşılaştırma fiyat sırası, talep başına tek seçili teklif, taslak dışı kilit, onayda
+// diğer tekliflerin "seçilmedi" olması, tekliften sipariş (fiyat / talep bağı / talebin sipariş miktarı), sipariş silinince
+// teklifin onaylıya dönmesi, kopya ve silme kuralları. Commit yok: test transaction'ı geri alınır.
+procedure TestPurchaseQuotation;
+var
+  RSvc: TPurRequestService;
+  QSvc: TPurQuotationService;
+  OSvc: TPurOrderService;
+  URepo: TSysUserRepository;
+  Q1, Q2, Copy: TPurQuotation;
+  Ord: TPurOrder;
+  Inv1, Inv2, S1, S2, ReqId, DraftReqId, Q1Id, Q2Id, OrdId: Int64;
+
+  function Q(const ASql: string): Double;
+  begin
+    Result := Num(Scalar(ASql));
+  end;
+
+  // Talep: 10 x Inv1, 4 x Inv2; AApprove: onaylı
+  function MakeRequest(AApprove: Boolean): Int64;
+  var
+    LReq: TPurRequest;
+    LL: TPurRequestDetail;
+  begin
+    LReq := TPurRequest.Create;
+    try
+      LL := RSvc.NewLine(LReq); LL.StkInventoryId := Inv1; LL.Quantity := 10;
+      LL := RSvc.NewLine(LReq); LL.StkInventoryId := Inv2; LL.Quantity := 4;
+      RSvc.BusinessSaveWithDetails(LReq, False, True);
+      Result := LReq.Id;
+    finally
+      LReq.Free;
+    end;
+    if AApprove then
+      RSvc.ChangeStatus(Result, PUR_REQ_APPROVED, True);
+  end;
+
+  // Talepten tedarikçi teklifi; Inv1 / Inv2 birim fiyatları, KDV %20
+  function MakeQuotation(ARequestId, ASupplier: Int64; APrice1, APrice2: Currency): Int64;
+  var
+    LQuo: TPurQuotation;
+    LLine: TPurQuotationDetail;
+  begin
+    Result := QSvc.CreateFromRequest(ARequestId, ASupplier, True);
+    LQuo := QSvc.BusinessFindById(Result, False, False, True);
+    try
+      for LLine in LQuo.Lines do
+      begin
+        if LLine.StkInventoryId = Inv1 then
+          LLine.UnitPrice := APrice1
+        else
+          LLine.UnitPrice := APrice2;
+        LLine.DiscountRate := 0;
+        LLine.VatRate := 20;
+      end;
+      LQuo.PaymentTermDays := 30;
+      LQuo.DeliveryDays := 7;
+      LQuo.PaymentTerms := 'IT 30 gun vadeli';
+      QSvc.Recalculate(LQuo);
+      QSvc.BusinessSaveWithDetails(LQuo, False, True);
+    finally
+      LQuo.Free;
+    end;
+  end;
+
+  // TEST kullanıcısı (id 4): şablonsuz, teklif yetkisi okuma + güncelleme (+ isteğe bağlı özel = onay)
+  procedure SetTestUserRights(ASpecial: Boolean);
+  begin
+    UoW.Connection.ExecSQL('DELETE FROM sys_user_permission_template WHERE sys_user_id = 4');
+    UoW.Connection.ExecSQL('UPDATE sys_access_right SET is_read=false, is_add=false, is_update=false, is_delete=false, is_special=false, ' +
+      'deny_read=false, deny_add=false, deny_update=false, deny_delete=false, deny_special=false WHERE sys_user_id = 4');
+    UoW.Connection.ExecSQL('UPDATE sys_access_right SET is_read = true, is_update = true, is_special = ' + BoolToStr(ASpecial, True) +
+      ' WHERE sys_user_id = 4 AND sys_permission_id = (SELECT id FROM sys_permission WHERE permission_code = 1084)');
+  end;
+
+  procedure AsTestUser(AProc: TProc);
+  begin
+    // SetUser eski kullanıcıyı serbest bırakır -> her seferinde taze nesne yükle
+    TAppContext.Instance.CurrentUser.User := URepo.FindById(TValue.From<Int64>(4), False);
+    try
+      AProc();
+    finally
+      TAppContext.Instance.CurrentUser.User := URepo.FindById(TValue.From<Int64>(1), False);
+    end;
+  end;
+
+begin
+  Ctx('Purchasing', 'quotation');
+  Inv1 := Scalar('SELECT min(id) FROM stk_inventory');
+  Inv2 := Scalar('SELECT min(id) FROM stk_inventory WHERE id > ' + Inv1.ToString);
+  S1 := Scalar('SELECT min(id) FROM acc_account');
+  S2 := Scalar('SELECT min(id) FROM acc_account WHERE id > ' + S1.ToString);
+  RSvc := TPurRequestService.Create;
+  QSvc := TPurQuotationService.Create;
+  OSvc := TPurOrderService.Create;
+  URepo := TSysUserRepository.Create(UoW.Connection);
+  Q1 := nil;
+  Q2 := nil;
+  Copy := nil;
+  Ord := nil;
+  try
+    try
+      Begin_;
+      ReqId := MakeRequest(True);
+
+      // ---- talepten tedarikçi başına teklif: kalemler talebe bağlı, açık miktarlar
+      Q1Id := MakeQuotation(ReqId, S1, 2, 3);
+      Q1 := QSvc.BusinessFindById(Q1Id, False, False, True);
+      Check('quotation from request: lines + links', Assigned(Q1) and (Q1.Lines.Count = 2) and (Q1.PurRequestId = ReqId) and
+        (Q1.Lines[0].PurRequestDetailId > 0) and (Q1.Lines[1].PurRequestDetailId > 0) and (Q1.Status = PUR_QUO_DRAFT) and
+        (Q1.QuotationNo <> '') and (Q1.Lines[0].Header = Q1));
+      Check('quotation totals: (10 x 2 + 4 x 3) x 1.2', Near(Q1.TotalAmount, 38.4) and
+        Near(Q('SELECT total_amount FROM pur_quotation WHERE id = ' + Q1Id.ToString), 38.4));
+      Check('quotation keeps terms', (Q1.PaymentTermDays = 30) and (Q1.DeliveryDays = 7) and (Q1.PaymentTerms <> ''));
+      Check('quotation does not touch request quantities',
+        Near(Q('SELECT sum(ordered_quantity) FROM pur_request_detail WHERE pur_request_id = ' + ReqId.ToString), 0));
+      FreeAndNil(Q1);
+      Expect('same supplier twice for a request rejected', procedure begin QSvc.CreateFromRequest(ReqId, S1, True); end);
+
+      Begin_;
+      ReqId := MakeRequest(True);
+      DraftReqId := MakeRequest(False);
+      Expect('quotation for draft request rejected', procedure begin QSvc.CreateFromRequest(DraftReqId, S1, True); end);
+      Begin_;
+      ReqId := MakeRequest(True);
+      Q1Id := MakeQuotation(ReqId, S1, 2, 3);
+      Q2Id := MakeQuotation(ReqId, S2, 1.5, 3.5);
+
+      // ---- karşılaştırma: talep kalemi başına fiyat sırası (ana para biriminde net birim fiyat)
+      Check('comparison: one row per supplier and request line',
+        Q('SELECT count(*) FROM vw_pur_quotation_comparison WHERE pur_request_id = ' + ReqId.ToString) = 4);
+      Check('comparison: best price for Inv1 is supplier 2',
+        Q('SELECT pur_quotation_id FROM vw_pur_quotation_comparison WHERE pur_request_id = ' + ReqId.ToString +
+          ' AND stk_inventory_id = ' + Inv1.ToString + ' AND price_rank = 1') = Q2Id);
+      Check('comparison: best price for Inv2 is supplier 1',
+        Q('SELECT pur_quotation_id FROM vw_pur_quotation_comparison WHERE pur_request_id = ' + ReqId.ToString +
+          ' AND stk_inventory_id = ' + Inv2.ToString + ' AND price_rank = 1') = Q1Id);
+
+      // ---- seçim + onaya gönderme: talep başına tek seçili teklif, taslak dışı kilit
+      QSvc.ChangeStatus(Q2Id, PUR_QUO_PENDING, True);
+      Check('selected quotation pending approval', Q('SELECT status FROM pur_quotation WHERE id = ' + Q2Id.ToString) = PUR_QUO_PENDING);
+      Expect('second selection for the same request rejected', procedure begin QSvc.ChangeStatus(Q1Id, PUR_QUO_PENDING, True); end);
+      Begin_;
+      ReqId := MakeRequest(True);
+      Q1Id := MakeQuotation(ReqId, S1, 2, 3);
+      Q2Id := MakeQuotation(ReqId, S2, 1.5, 3.5);
+      QSvc.ChangeStatus(Q2Id, PUR_QUO_PENDING, True);
+      Q2 := QSvc.BusinessFindById(Q2Id, False, False, True);
+      Q2.Lines[0].UnitPrice := 1;
+      Expect('pending quotation cannot be changed', procedure begin QSvc.BusinessSaveWithDetails(Q2, False, True); end);
+      FreeAndNil(Q2);
+
+      // ---- onay: diğer açık teklifler seçilmedi olur; onay bilgisi yazılır
+      Begin_;
+      ReqId := MakeRequest(True);
+      Q1Id := MakeQuotation(ReqId, S1, 2, 3);
+      Q2Id := MakeQuotation(ReqId, S2, 1.5, 3.5);
+      QSvc.ChangeStatus(Q2Id, PUR_QUO_PENDING, True);
+      Expect('draft cannot be approved directly', procedure begin QSvc.ChangeStatus(Q1Id, PUR_QUO_APPROVED, True); end);
+      Begin_;
+      ReqId := MakeRequest(True);
+      Q1Id := MakeQuotation(ReqId, S1, 2, 3);
+      Q2Id := MakeQuotation(ReqId, S2, 1.5, 3.5);
+      QSvc.ChangeStatus(Q2Id, PUR_QUO_PENDING, True);
+      QSvc.ChangeStatus(Q2Id, PUR_QUO_APPROVED, True);
+      Check('approved', Q('SELECT status FROM pur_quotation WHERE id = ' + Q2Id.ToString) = PUR_QUO_APPROVED);
+      Check('approval time recorded', Q('SELECT count(*) FROM pur_quotation WHERE approved_at IS NOT NULL AND id = ' + Q2Id.ToString) = 1);
+      Check('other quotation not selected', Q('SELECT status FROM pur_quotation WHERE id = ' + Q1Id.ToString) = PUR_QUO_NOT_SELECTED);
+
+      // ---- tekliften sipariş: mevcut sipariş servisi, fiyatlar / koşullar tekliften, kalemler talebe bağlı
+      OrdId := QSvc.CreateOrder(Q2Id, True);
+      Ord := OSvc.BusinessFindById(OrdId, False, False, True);
+      Check('order from quotation: lines, prices, request links', Assigned(Ord) and (Ord.Lines.Count = 2) and
+        (Ord.Status = PUR_ORD_DRAFT) and (Ord.AccAccountId = S2) and (Ord.PaymentTermDays = 30) and
+        (Ord.Lines[0].PurRequestDetailId > 0) and Near(Ord.TotalAmount, (10 * 1.5 + 4 * 3.5) * 1.2));
+      Check('quotation ordered + linked to order',
+        (Q('SELECT status FROM pur_quotation WHERE id = ' + Q2Id.ToString) = PUR_QUO_ORDERED) and
+        (Q('SELECT pur_order_id FROM pur_quotation WHERE id = ' + Q2Id.ToString) = OrdId));
+      Check('request ordered quantity follows the order',
+        Near(Q('SELECT sum(ordered_quantity) FROM pur_request_detail WHERE pur_request_id = ' + ReqId.ToString), 14));
+      Check('request -> quotation -> order link readable',
+        Q('SELECT count(*) FROM vw_pur_quotation WHERE id = ' + Q2Id.ToString + ' AND order_no IS NOT NULL AND request_no IS NOT NULL') = 1);
+      Expect('ordered quotation cannot be converted again', procedure begin QSvc.CreateOrder(Q2Id, True); end);
+
+      // ---- sipariş silinince teklif onaylıya döner, talep miktarı geri alınır
+      Begin_;
+      ReqId := MakeRequest(True);
+      Q2Id := MakeQuotation(ReqId, S2, 1.5, 3.5);
+      QSvc.ChangeStatus(Q2Id, PUR_QUO_PENDING, True);
+      QSvc.ChangeStatus(Q2Id, PUR_QUO_APPROVED, True);
+      OrdId := QSvc.CreateOrder(Q2Id, True);
+      FreeAndNil(Ord);
+      Ord := OSvc.BusinessFindById(OrdId, False, False, True);
+      OSvc.BusinessDelete(Ord, False, False, True);
+      Check('order deleted: quotation back to approved, link cleared',
+        (Q('SELECT status FROM pur_quotation WHERE id = ' + Q2Id.ToString) = PUR_QUO_APPROVED) and
+        (Q('SELECT count(*) FROM pur_quotation WHERE pur_order_id IS NULL AND id = ' + Q2Id.ToString) = 1));
+      Check('order deleted: request quantity released',
+        Near(Q('SELECT sum(ordered_quantity) FROM pur_request_detail WHERE pur_request_id = ' + ReqId.ToString), 0));
+
+      // ---- kopya: yeni taslak, sipariş / onay bağı yok; aynı tedarikçinin açık teklifi varken reddedilir
+      Q2 := QSvc.BusinessFindById(Q2Id, False, False, True);
+      Copy := Q2.Clone;
+      QSvc.PrepareCopy(Copy);
+      Check('copy: new draft without order / approval', (Copy.Id = 0) and (Copy.QuotationNo = '') and
+        (Copy.Status = PUR_QUO_DRAFT) and (Copy.PurOrderId = 0) and (Copy.ApprovedSysUserId = 0) and (Copy.Lines[0].Id < 0));
+      Expect('copy for the same supplier rejected', procedure begin QSvc.BusinessSaveWithDetails(Copy, False, True); end);
+      Begin_;
+      ReqId := MakeRequest(True);
+      Q2Id := MakeQuotation(ReqId, S2, 1.5, 3.5);
+      QSvc.ChangeStatus(Q2Id, PUR_QUO_PENDING, True);
+      QSvc.ChangeStatus(Q2Id, PUR_QUO_APPROVED, True);
+      FreeAndNil(Q2);
+      Q2 := QSvc.BusinessFindById(Q2Id, False, False, True);
+      Expect('approved quotation cannot be deleted', procedure begin QSvc.BusinessDelete(Q2, False, False, True); end);
+      Begin_;
+      ReqId := MakeRequest(True);
+      Q1Id := MakeQuotation(ReqId, S1, 2, 3);
+      Q2Id := MakeQuotation(ReqId, S2, 1.5, 3.5);
+      QSvc.ChangeStatus(Q2Id, PUR_QUO_PENDING, True);
+      QSvc.ChangeStatus(Q2Id, PUR_QUO_REJECTED, True);
+      Check('rejected quotation frees the selection',
+        Q('SELECT status FROM pur_quotation WHERE id = ' + Q2Id.ToString) = PUR_QUO_REJECTED);
+      QSvc.ChangeStatus(Q1Id, PUR_QUO_PENDING, True);
+      Check('another quotation selectable after rejection', Q('SELECT status FROM pur_quotation WHERE id = ' + Q1Id.ToString) = PUR_QUO_PENDING);
+
+      // ---- onay / red özel yetki ister; onaya gönderme güncelleme yetkisiyle yapılır
+      Begin_;
+      ReqId := MakeRequest(True);
+      Q2Id := MakeQuotation(ReqId, S2, 1.5, 3.5);
+      SetTestUserRights(False);
+      AsTestUser(procedure
+        begin
+          Check('without special right: approval not offered', not QSvc.CanApprove);
+          QSvc.ChangeStatus(Q2Id, PUR_QUO_PENDING, True);
+          Check('update right: quotation sent for approval', Num(Scalar('SELECT status FROM pur_quotation WHERE id = ' + Q2Id.ToString)) = PUR_QUO_PENDING);
+          Expect('without special right: approval rejected', procedure begin QSvc.ChangeStatus(Q2Id, PUR_QUO_APPROVED, True); end);
+        end);
+      Begin_;
+      ReqId := MakeRequest(True);
+      Q2Id := MakeQuotation(ReqId, S2, 1.5, 3.5);
+      QSvc.ChangeStatus(Q2Id, PUR_QUO_PENDING, True);
+      SetTestUserRights(False);
+      AsTestUser(procedure
+        begin
+          Expect('without special right: rejection rejected', procedure begin QSvc.ChangeStatus(Q2Id, PUR_QUO_REJECTED, True); end);
+        end);
+      Begin_;
+      ReqId := MakeRequest(True);
+      Q2Id := MakeQuotation(ReqId, S2, 1.5, 3.5);
+      QSvc.ChangeStatus(Q2Id, PUR_QUO_PENDING, True);
+      SetTestUserRights(True);
+      AsTestUser(procedure
+        begin
+          Check('special right: approval offered', QSvc.CanApprove);
+          QSvc.ChangeStatus(Q2Id, PUR_QUO_APPROVED, True);
+        end);
+      Check('special right: approved, approver recorded',
+        (Q('SELECT status FROM pur_quotation WHERE id = ' + Q2Id.ToString) = PUR_QUO_APPROVED) and
+        (Q('SELECT approved_sys_user_id FROM pur_quotation WHERE id = ' + Q2Id.ToString) = 4));
+    except
+      on E: Exception do
+        Check('purchase quotation flow', False, E.Message);
+    end;
+  finally
+    End_;
+    Ord.Free;
+    Copy.Free;
+    Q2.Free;
+    Q1.Free;
+    URepo.Free;
+    OSvc.Free;
+    QSvc.Free;
+    RSvc.Free;
+  end;
+end;
+
+// Giriş kalite kontrol (gevşek bağlı): modül kapalıyken kontrol listesi boş, kayıt reddedilir, mal kabul -> fatura akışı
+// aynen çalışır; açıkken kart / grup kuralı (kart grubu ezer), kontrol sonucu (uygun / uygunsuz / karar), mal kabul
+// kalemi başına tek kayıt, red ambarına transfer, miktar değişince yeniden kontrol, kalem silinince kayıt + transfer
+// silinir. Commit yok.
+procedure TestQualityControl;
+var
+  PSvc: TPurReceiptService;
+  FSvc: TPurInvoiceService;
+  SSvc: TQcSettingService;
+  RuSvc: TQcRuleService;
+  ISvc: TQcInspectionService;
+  TxSvc: TStkTransactionService;
+  Tx: TStkTransaction;
+  Rc: TPurReceipt;
+  Setting: TQcSetting;
+  Rule: TQcRule;
+  Insp: TQcInspection;
+  Inv1, Inv2, Grp1, Supplier, Wh, Wh2, RcId, Line1, Line2: Int64;
+
+  function Q(const ASql: string): Double;
+  begin
+    Result := Num(Scalar(ASql));
+  end;
+
+  // Mal kabul: 10 x Inv1, 5 x Inv2 (birim fiyat 2)
+  function MakeReceipt: Int64;
+  var
+    LRc: TPurReceipt;
+    LL: TPurReceiptDetail;
+  begin
+    LRc := TPurReceipt.Create;
+    try
+      LRc.AccAccountId := Supplier;
+      LRc.StkWarehouseId := Wh;
+      LL := PSvc.NewLine(LRc); LL.StkInventoryId := Inv1; LL.Quantity := 10; LL.UnitPrice := 2;
+      LL := PSvc.NewLine(LRc); LL.StkInventoryId := Inv2; LL.Quantity := 5; LL.UnitPrice := 2;
+      PSvc.BusinessSaveWithDetails(LRc, False, True);
+      Result := LRc.Id;
+    finally
+      LRc.Free;
+    end;
+  end;
+
+  function NewInspection(ALine: Int64; ARejected: Currency; ADisposition: SmallInt): TQcInspection;
+  begin
+    Result := TQcInspection.Create;
+    Result.PurReceiptDetailId := ALine;
+    Result.RejectedQuantity := ARejected;
+    Result.Disposition := ADisposition;
+  end;
+
+  procedure SetEnabled(AEnabled: Boolean; ARejectWh: Int64);
+  begin
+    if not Assigned(Setting) then
+      Setting := SSvc.BusinessFindSetting(False, False, True);
+    if not Assigned(Setting) then
+    begin
+      Setting := TQcSetting.Create;
+      Setting.IsEnabled := AEnabled;
+      Setting.RejectStkWarehouseId := ARejectWh;
+      SSvc.BusinessInsert(Setting, False, False, True);
+    end
+    else
+    begin
+      Setting.IsEnabled := AEnabled;
+      Setting.RejectStkWarehouseId := ARejectWh;
+      SSvc.BusinessUpdate(Setting, False, False, True);
+    end;
+  end;
+
+begin
+  Ctx('Quality', 'incoming inspection');
+  Inv1 := Scalar('SELECT min(id) FROM stk_inventory');
+  Inv2 := Scalar('SELECT min(id) FROM stk_inventory WHERE id > ' + Inv1.ToString);
+  Grp1 := Scalar('SELECT stk_group_id FROM stk_inventory WHERE id = ' + Inv1.ToString);
+  Supplier := Scalar('SELECT min(id) FROM acc_account');
+  Wh := Scalar('SELECT min(id) FROM stk_warehouse');
+  Wh2 := FirstId('SELECT min(id) FROM stk_warehouse WHERE id > ' + Wh.ToString);
+  PSvc := TPurReceiptService.Create;
+  FSvc := TPurInvoiceService.Create;
+  SSvc := TQcSettingService.Create;
+  RuSvc := TQcRuleService.Create;
+  ISvc := TQcInspectionService.Create;
+  TxSvc := TStkTransactionService.Create;
+  Tx := nil;
+  Rc := nil;
+  Setting := nil;
+  Rule := nil;
+  Insp := nil;
+  try
+    try
+      // ---- modül kapalı: kontrol adımı yok, mal kabul -> fatura akışı aynen
+      Begin_;
+      UoW.Connection.ExecSQL('UPDATE qc_setting SET is_enabled = false');
+      RcId := MakeReceipt;
+      Line1 := Scalar('SELECT id FROM pur_receipt_detail WHERE pur_receipt_id = ' + RcId.ToString + ' AND stk_inventory_id = ' + Inv1.ToString);
+      Check('disabled: module reports off', not SSvc.IsEnabled);
+      Check('disabled: nothing awaits inspection', Q('SELECT count(*) FROM vw_qc_receipt_line') = 0);
+      Insp := NewInspection(Line1, 0, 0);
+      Expect('disabled: inspection rejected', procedure begin ISvc.BusinessInsert(Insp, False, False, True); end);
+      FreeAndNil(Insp);
+      Begin_;
+      UoW.Connection.ExecSQL('UPDATE qc_setting SET is_enabled = false');
+      RcId := MakeReceipt;
+      FSvc.CreateFromReceipt(RcId, 'IT-QC-1', True);
+      Check('disabled: receipt stock + invoice unaffected',
+        (Q('SELECT count(*) FROM stk_transaction t JOIN pur_receipt_detail d ON d.id = t.pur_receipt_detail_id WHERE d.pur_receipt_id = ' + RcId.ToString) = 2) and
+        (Q('SELECT count(*) FROM pur_invoice WHERE invoice_no = ''IT-QC-1''') = 1));
+
+      // ---- modül açık + kurallar: grup kuralı Inv1'i kapsar, kart kuralı Inv2'yi muaf tutar
+      Begin_;
+      SetEnabled(True, 0);
+      Check('enabled: module reports on', SSvc.IsEnabled);
+      Rule := TQcRule.Create;
+      Rule.StkGroupId := Grp1;
+      Rule.StkInventoryId := Inv1;
+      Expect('rule: group and card together rejected', procedure begin RuSvc.BusinessInsert(Rule, False, False, True); end);
+      FreeAndNil(Rule);
+      Begin_;
+      FreeAndNil(Setting);
+      SetEnabled(True, 0);
+      Rule := TQcRule.Create;
+      Rule.StkGroupId := Grp1;
+      Rule.InspectionCriteria := 'IT olcu + gorsel kontrol';
+      RuSvc.BusinessInsert(Rule, False, False, True);
+      FreeAndNil(Rule);
+      Rule := TQcRule.Create;
+      Rule.StkGroupId := Grp1;
+      Expect('rule: duplicate group rejected', procedure begin RuSvc.BusinessInsert(Rule, False, False, True); end);
+      FreeAndNil(Rule);
+
+      Begin_;
+      FreeAndNil(Setting);
+      SetEnabled(True, Wh2);
+      Rule := TQcRule.Create;
+      Rule.StkGroupId := Grp1;
+      Rule.InspectionCriteria := 'IT olcu + gorsel kontrol';
+      RuSvc.BusinessInsert(Rule, False, False, True);
+      FreeAndNil(Rule);
+      Rule := TQcRule.Create;
+      Rule.StkInventoryId := Inv2;
+      Rule.IsRequired := False;
+      RuSvc.BusinessInsert(Rule, False, False, True);
+      FreeAndNil(Rule);
+      RcId := MakeReceipt;
+      Line1 := Scalar('SELECT id FROM pur_receipt_detail WHERE pur_receipt_id = ' + RcId.ToString + ' AND stk_inventory_id = ' + Inv1.ToString);
+      Line2 := Scalar('SELECT id FROM pur_receipt_detail WHERE pur_receipt_id = ' + RcId.ToString + ' AND stk_inventory_id = ' + Inv2.ToString);
+      Check('enabled: required line awaits inspection',
+        Q('SELECT qc_status FROM vw_qc_receipt_line WHERE id = ' + Line1.ToString) = QC_STATUS_PENDING);
+      Check('enabled: card rule exempts its stock', Q('SELECT count(*) FROM vw_qc_receipt_line WHERE id = ' + Line2.ToString) = 0);
+      Check('enabled: criteria shown', Q('SELECT count(*) FROM vw_qc_receipt_line WHERE inspection_criteria IS NOT NULL AND id = ' + Line1.ToString) = 1);
+
+      // ---- kontrol kaydı kuralları
+      Insp := NewInspection(Line2, 0, 0);
+      Expect('inspection: stock without requirement rejected', procedure begin ISvc.BusinessInsert(Insp, False, False, True); end);
+      FreeAndNil(Insp);
+      Begin_;
+      FreeAndNil(Setting);
+      SetEnabled(True, Wh2);
+      Rule := TQcRule.Create;
+      Rule.StkGroupId := Grp1;
+      RuSvc.BusinessInsert(Rule, False, False, True);
+      FreeAndNil(Rule);
+      RcId := MakeReceipt;
+      Line1 := Scalar('SELECT id FROM pur_receipt_detail WHERE pur_receipt_id = ' + RcId.ToString + ' AND stk_inventory_id = ' + Inv1.ToString);
+      Insp := NewInspection(Line1, 3, 0);
+      Expect('inspection: disposition required for rejected quantity', procedure begin ISvc.BusinessInsert(Insp, False, False, True); end);
+      FreeAndNil(Insp);
+      Begin_;
+      FreeAndNil(Setting);
+      SetEnabled(True, Wh2);
+      Rule := TQcRule.Create;
+      Rule.StkGroupId := Grp1;
+      RuSvc.BusinessInsert(Rule, False, False, True);
+      FreeAndNil(Rule);
+      RcId := MakeReceipt;
+      Line1 := Scalar('SELECT id FROM pur_receipt_detail WHERE pur_receipt_id = ' + RcId.ToString + ' AND stk_inventory_id = ' + Inv1.ToString);
+      Insp := NewInspection(Line1, 11, QC_DISP_RETURN);
+      Expect('inspection: rejected above received rejected', procedure begin ISvc.BusinessInsert(Insp, False, False, True); end);
+      FreeAndNil(Insp);
+
+      Begin_;
+      FreeAndNil(Setting);
+      SetEnabled(True, Wh2);
+      Rule := TQcRule.Create;
+      Rule.StkGroupId := Grp1;
+      RuSvc.BusinessInsert(Rule, False, False, True);
+      FreeAndNil(Rule);
+      RcId := MakeReceipt;
+      Line1 := Scalar('SELECT id FROM pur_receipt_detail WHERE pur_receipt_id = ' + RcId.ToString + ' AND stk_inventory_id = ' + Inv1.ToString);
+      Insp := NewInspection(Line1, 3, QC_DISP_RETURN);
+      ISvc.BusinessInsert(Insp, False, False, True);
+      Check('inspection: quantities + result from service', (Insp.Id > 0) and (Insp.InspectionNo <> '') and
+        Near(Insp.Quantity, 10) and Near(Insp.AcceptedQuantity, 7) and (Insp.InspectionResult = QC_RESULT_PARTIAL) and
+        (Insp.StkInventoryId = Inv1));
+      Check('inspection: line inspected', Q('SELECT qc_status FROM vw_qc_receipt_line WHERE id = ' + Line1.ToString) = QC_STATUS_DONE);
+      if Wh2 > 0 then
+      begin
+        Check('inspection: rejected quantity transferred to reject warehouse',
+          (Q('SELECT count(*) FROM stk_transaction WHERE transaction_type = 3 AND qc_inspection_id = ' + Insp.Id.ToString +
+             ' AND from_stk_warehouse_id = ' + Wh.ToString + ' AND to_stk_warehouse_id = ' + Wh2.ToString) = 1) and
+          Near(Q('SELECT quantity FROM stk_transaction WHERE qc_inspection_id = ' + Insp.Id.ToString), 3));
+        Insp.RejectedQuantity := 0;
+        ISvc.BusinessUpdate(Insp, False, False, True);
+        Check('inspection: transfer removed when all accepted', (Insp.InspectionResult = QC_RESULT_ACCEPTED) and (Insp.Disposition = 0) and
+          (Q('SELECT count(*) FROM stk_transaction WHERE qc_inspection_id = ' + Insp.Id.ToString) = 0));
+      end;
+      FreeAndNil(Insp);
+      Insp := NewInspection(Line1, 0, 0);
+      Expect('inspection: one record per receipt line', procedure begin ISvc.BusinessInsert(Insp, False, False, True); end);
+      FreeAndNil(Insp);
+
+      // ---- mal kabul değişir: yeniden kontrol; kalem silinir: kayıt + transfer silinir (mal kabul engellenmez)
+      Begin_;
+      FreeAndNil(Setting);
+      SetEnabled(True, Wh2);
+      Rule := TQcRule.Create;
+      Rule.StkGroupId := Grp1;
+      RuSvc.BusinessInsert(Rule, False, False, True);
+      FreeAndNil(Rule);
+      RcId := MakeReceipt;
+      Line1 := Scalar('SELECT id FROM pur_receipt_detail WHERE pur_receipt_id = ' + RcId.ToString + ' AND stk_inventory_id = ' + Inv1.ToString);
+      Insp := NewInspection(Line1, 2, QC_DISP_SCRAP);
+      ISvc.BusinessInsert(Insp, False, False, True);
+      Rc := PSvc.BusinessFindById(RcId, False, False, True);
+      Rc.Lines[0].Quantity := 8;
+      PSvc.BusinessSaveWithDetails(Rc, False, True);
+      Check('receipt changed: re-inspection needed', Q('SELECT qc_status FROM vw_qc_receipt_line WHERE id = ' + Line1.ToString) = QC_STATUS_RECHECK);
+      PSvc.RemoveLine(Rc, Rc.Lines[0]);
+      PSvc.BusinessSaveWithDetails(Rc, False, True);
+      Check('receipt line deleted: inspection + transfer removed',
+        (Q('SELECT count(*) FROM qc_inspection WHERE id = ' + Insp.Id.ToString) = 0) and
+        (Q('SELECT count(*) FROM stk_transaction WHERE qc_inspection_id = ' + Insp.Id.ToString) = 0));
+      FreeAndNil(Insp);
+      FreeAndNil(Rc);
+
+      // ---- red ambarı transferi stok hareketleri ekranından değişmez / silinmez (yalnız kontrol kaydından)
+      if Wh2 > 0 then
+      begin
+        Begin_;
+        FreeAndNil(Setting);
+        SetEnabled(True, Wh2);
+        Rule := TQcRule.Create;
+        Rule.StkGroupId := Grp1;
+        RuSvc.BusinessInsert(Rule, False, False, True);
+        FreeAndNil(Rule);
+        RcId := MakeReceipt;
+        Line1 := Scalar('SELECT id FROM pur_receipt_detail WHERE pur_receipt_id = ' + RcId.ToString + ' AND stk_inventory_id = ' + Inv1.ToString);
+        Insp := NewInspection(Line1, 2, QC_DISP_SCRAP);
+        ISvc.BusinessInsert(Insp, False, False, True);
+        Tx := TxSvc.BusinessFindById(FirstId('SELECT id FROM stk_transaction WHERE qc_inspection_id = ' + Insp.Id.ToString), False, False, True);
+        Check('transfer row readable from stock', Assigned(Tx) and (Tx.TransactionType = 3));
+        Tx.Quantity := 1;
+        Expect('stock screen: inspection transfer cannot be changed', procedure begin TxSvc.BusinessUpdate(Tx, False, False, True); end);
+        FreeAndNil(Tx);
+        FreeAndNil(Insp);
+        Begin_;
+        FreeAndNil(Setting);
+        SetEnabled(True, Wh2);
+        Rule := TQcRule.Create;
+        Rule.StkGroupId := Grp1;
+        RuSvc.BusinessInsert(Rule, False, False, True);
+        FreeAndNil(Rule);
+        RcId := MakeReceipt;
+        Line1 := Scalar('SELECT id FROM pur_receipt_detail WHERE pur_receipt_id = ' + RcId.ToString + ' AND stk_inventory_id = ' + Inv1.ToString);
+        Insp := NewInspection(Line1, 2, QC_DISP_SCRAP);
+        ISvc.BusinessInsert(Insp, False, False, True);
+        Tx := TxSvc.BusinessFindById(FirstId('SELECT id FROM stk_transaction WHERE qc_inspection_id = ' + Insp.Id.ToString), False, False, True);
+        Expect('stock screen: inspection transfer cannot be deleted', procedure begin TxSvc.BusinessDelete(Tx, False, False, True); end);
+        FreeAndNil(Tx);
+        FreeAndNil(Insp);
+        Begin_;
+        FreeAndNil(Setting);
+      end;
+
+      // ---- modül kapatılınca liste boş, mevcut kayıtlar silinebilir
+      SetEnabled(False, 0);
+      Check('disabled again: nothing awaits inspection', Q('SELECT count(*) FROM vw_qc_receipt_line') = 0);
+    except
+      on E: Exception do
+        Check('quality control flow', False, E.Message);
+    end;
+  finally
+    End_;
+    Tx.Free;
+    Insp.Free;
+    Rule.Free;
+    Setting.Free;
+    Rc.Free;
+    TxSvc.Free;
+    ISvc.Free;
+    RuSvc.Free;
+    SSvc.Free;
+    FSvc.Free;
+    PSvc.Free;
+  end;
+end;
+
 // İrsaliye + fatura belgeleri (TDocumentService): siparişten irsaliye (stok hareketi = kalem hook'u, siparişin sevk
 // miktarı + irsaliye durumu = belge hook'u), form dışı düzenleme, belge içi fazla sevk, irsaliyeden fatura (irsaliye
 // kapanır), faturalanan kalem kilidi, faturadan kalem çıkınca irsaliye yeniden bekler, irsaliyeli fatura (stok faturadan),
@@ -6224,6 +6802,8 @@ begin
   TestFinanceMoney;
   TestPurchasing;
   TestPurchaseDocuments;
+  TestPurchaseQuotation;
+  TestQualityControl;
   TestSales;
   TestSalesOfferDocument;
   TestSalesOfferRatesAndAddresses;

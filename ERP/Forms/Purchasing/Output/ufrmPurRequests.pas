@@ -14,11 +14,15 @@ type
   TfrmPurRequests = class(TfrmGrid<TPurRequest, TPurRequestService>)
   private
     FmniApprove, FmniToDraft, FmniReject, FmniClose, FmniToOrder: TMenuItem;
+    FmniRequestQuotation, FmniQuotations, FmniCompare: TMenuItem;
     procedure mniApproveClick(Sender: TObject);
     procedure mniToDraftClick(Sender: TObject);
     procedure mniRejectClick(Sender: TObject);
     procedure mniCloseClick(Sender: TObject);
     procedure mniToOrderClick(Sender: TObject);
+    procedure mniRequestQuotationClick(Sender: TObject);
+    procedure mniQuotationsClick(Sender: TObject);
+    procedure mniCompareClick(Sender: TObject);
     procedure SetStatus(AStatus: SmallInt);
     procedure StatusGetText(Sender: TField; var Text: string; DisplayText: Boolean);
   public
@@ -37,7 +41,9 @@ implementation
 uses
   PurLookup,
   ufrmPurOrderDetail, PurOrder, PurOrder.Service,
-  AccAccount, AccAccount.Service, ufrmAccAccounts;
+  AccAccount, AccAccount.Service, ufrmAccAccounts,
+  PurQuotation, PurQuotation.Service, ufrmPurQuotations, ufrmPurQuotationDetail,
+  PurQuotationComparison, PurQuotationComparison.Service, ufrmPurQuotationComparisons;
 
 procedure TfrmPurRequests.StatusGetText(Sender: TField; var Text: string; DisplayText: Boolean);
 begin
@@ -117,6 +123,69 @@ begin
   end;
 end;
 
+// Tedarikçi seçilir, talebin açık miktarlarıyla taslak teklif açılır ve belge ekranında gösterilir (fiyat / koşul girişi)
+procedure TfrmPurRequests.mniRequestQuotationClick(Sender: TObject);
+var
+  LHelper: TfrmAccAccounts;
+  LQuotationSvc: TPurQuotationService;
+  LQuotation: TPurQuotation;
+  LQuotationId: Int64;
+begin
+  if Grd.DataSource.DataSet.IsEmpty then
+    Exit;
+
+  SetSelectedItem;
+  LQuotationId := 0;
+  LHelper := TfrmAccAccounts.Create(Self, TAccAccountService.Create, TAccAccount.Create);
+  try
+    LHelper.IsHelper := True;
+    LHelper.ShowModal;
+    if LHelper.DataTransfer and not LHelper.CleanAndClose then
+    begin
+      LQuotationSvc := TPurQuotationService.Create;
+      try
+        LQuotationId := LQuotationSvc.CreateFromRequest(Table.Id, LHelper.Table.Id, True);
+      finally
+        LQuotationSvc.Free;
+      end;
+    end;
+  finally
+    LHelper.Free;
+  end;
+  if LQuotationId > 0 then
+  begin
+    LQuotationSvc := TPurQuotationService.Create;
+    LQuotation := LQuotationSvc.FindById(LQuotationId, False, True);
+    TfrmPurQuotationDetail.Create(Self, LQuotationSvc, LQuotation, ifmRewiev, nil, ivmNormal, True).Show;
+  end;
+end;
+
+procedure TfrmPurRequests.mniQuotationsClick(Sender: TObject);
+var
+  LFrm: TfrmPurQuotations;
+begin
+  if Grd.DataSource.DataSet.IsEmpty then
+    Exit;
+
+  SetSelectedItem;
+  LFrm := TfrmPurQuotations.Create(Self, TPurQuotationService.Create, TPurQuotation.Create);
+  LFrm.SetFixedRequest(Table.Id, Table.RequestNo);
+  LFrm.Show;
+end;
+
+procedure TfrmPurRequests.mniCompareClick(Sender: TObject);
+var
+  LFrm: TfrmPurQuotationComparisons;
+begin
+  if Grd.DataSource.DataSet.IsEmpty then
+    Exit;
+
+  SetSelectedItem;
+  LFrm := TfrmPurQuotationComparisons.Create(Self, TPurQuotationComparisonService.Create, TPurQuotationComparison.Create);
+  LFrm.SetFixedRequest(Table.Id, Table.RequestNo);
+  LFrm.Show;
+end;
+
 procedure TfrmPurRequests.PreparePopupMenu;
 begin
   inherited;
@@ -130,6 +199,10 @@ begin
   FmniClose := AddMenu(TLocalizationManager.Translate(TLangKeys.TPurRequest.MenuClose, 'Close'), 'mniClose', mniCloseClick);
   AddPopupMenuSpliter();
   FmniToOrder := AddMenu(TLocalizationManager.Translate(TLangKeys.TPurRequest.MenuToOrder, 'Convert to Order...'), 'mniToOrder', mniToOrderClick);
+  AddPopupMenuSpliter();
+  FmniRequestQuotation := AddMenu(TLocalizationManager.Translate(TLangKeys.TPurRequest.MenuRequestQuotation, 'Request Quotation...'), 'mniRequestQuotation', mniRequestQuotationClick);
+  FmniQuotations := AddMenu(TLocalizationManager.Translate(TLangKeys.TPurRequest.MenuQuotations, 'Quotations'), 'mniQuotations', mniQuotationsClick);
+  FmniCompare := AddMenu(TLocalizationManager.Translate(TLangKeys.TPurQuotation.MenuCompare, 'Compare Quotations'), 'mniCompare', mniCompareClick);
 end;
 
 // Belge ekranı (başlık + kalemler); kopyada belge formu Service.PrepareCopy ile yeni no / taslak / yeni kalemler verir
@@ -201,6 +274,12 @@ begin
     FmniClose.Caption := TLocalizationManager.Translate(TLangKeys.TPurRequest.MenuClose, 'Close');
   if Assigned(FmniToOrder) then
     FmniToOrder.Caption := TLocalizationManager.Translate(TLangKeys.TPurRequest.MenuToOrder, 'Convert to Order...');
+  if Assigned(FmniRequestQuotation) then
+    FmniRequestQuotation.Caption := TLocalizationManager.Translate(TLangKeys.TPurRequest.MenuRequestQuotation, 'Request Quotation...');
+  if Assigned(FmniQuotations) then
+    FmniQuotations.Caption := TLocalizationManager.Translate(TLangKeys.TPurRequest.MenuQuotations, 'Quotations');
+  if Assigned(FmniCompare) then
+    FmniCompare.Caption := TLocalizationManager.Translate(TLangKeys.TPurQuotation.MenuCompare, 'Compare Quotations');
 end;
 
 end.

@@ -92,6 +92,12 @@ uses
   ufrmPurOrders, PurOrder.Service, PurOrder,
   ufrmPurReceipts, PurReceipt.Service, PurReceipt,
   ufrmPurInvoices, PurInvoice.Service, PurInvoice,
+  ufrmPurQuotations, PurQuotation.Service, PurQuotation,
+  ufrmPurQuotationComparisons, PurQuotationComparison.Service, PurQuotationComparison,
+  ufrmQcReceiptLines, QcReceiptLine.Service, QcReceiptLine,
+  ufrmQcInspections, QcInspection.Service, QcInspection,
+  ufrmQcRules, QcRule.Service, QcRule,
+  ufrmQcSetting, QcSetting.Service, QcSetting,
   ufrmSlsOffers, SlsOffer.Service, SlsOffer,
   ufrmSlsOrders, SlsOrder.Service, SlsOrder,
   ufrmSlsDispatches, SlsDispatch.Service, SlsDispatch,
@@ -208,6 +214,12 @@ type
     actpur_orders: TAction;
     actpur_receipts: TAction;
     actpur_invoices: TAction;
+    actpur_quotations: TAction;
+    actpur_quotation_comparisons: TAction;
+    actqc_receipt_lines: TAction;
+    actqc_inspections: TAction;
+    actqc_rules: TAction;
+    actqc_setting: TAction;
     actsls_offers: TAction;
     actsls_orders: TAction;
     actsls_dispatches: TAction;
@@ -249,6 +261,15 @@ type
     mnipur_receipts: TMenuItem;
     mnipur_sep3: TMenuItem;
     mnipur_invoices: TMenuItem;
+    mnipur_sep4: TMenuItem;
+    mnipur_quotations: TMenuItem;
+    mnipur_quotation_comparisons: TMenuItem;
+    mnipur_sep5: TMenuItem;
+    mnipur_quality: TMenuItem;
+    mniqc_receipt_lines: TMenuItem;
+    mniqc_inspections: TMenuItem;
+    mniqc_rules: TMenuItem;
+    mniqc_setting: TMenuItem;
     actfin_money_accounts: TAction;
     actfin_money_transactions: TAction;
     actfin_money_ledger: TAction;
@@ -425,6 +446,12 @@ type
     procedure actpur_ordersExecute(Sender: TObject);
     procedure actpur_receiptsExecute(Sender: TObject);
     procedure actpur_invoicesExecute(Sender: TObject);
+    procedure actpur_quotationsExecute(Sender: TObject);
+    procedure actpur_quotation_comparisonsExecute(Sender: TObject);
+    procedure actqc_receipt_linesExecute(Sender: TObject);
+    procedure actqc_inspectionsExecute(Sender: TObject);
+    procedure actqc_rulesExecute(Sender: TObject);
+    procedure actqc_settingExecute(Sender: TObject);
     procedure actsls_offersExecute(Sender: TObject);
     procedure actsls_ordersExecute(Sender: TObject);
     procedure actsls_dispatchesExecute(Sender: TObject);
@@ -881,6 +908,57 @@ end;
 procedure TfrmDashboard.actpur_invoicesExecute(Sender: TObject);
 begin
   TfrmPurInvoices.Create(Self, TPurInvoiceService.Create, TPurInvoice.Create).Show;
+end;
+
+procedure TfrmDashboard.actpur_quotationsExecute(Sender: TObject);
+begin
+  TfrmPurQuotations.Create(Self, TPurQuotationService.Create, TPurQuotation.Create).Show;
+end;
+
+procedure TfrmDashboard.actpur_quotation_comparisonsExecute(Sender: TObject);
+begin
+  TfrmPurQuotationComparisons.Create(Self, TPurQuotationComparisonService.Create, TPurQuotationComparison.Create).Show;
+end;
+
+procedure TfrmDashboard.actqc_receipt_linesExecute(Sender: TObject);
+begin
+  TfrmQcReceiptLines.Create(Self, TQcReceiptLineService.Create, TQcReceiptLine.Create).Show;
+end;
+
+procedure TfrmDashboard.actqc_inspectionsExecute(Sender: TObject);
+begin
+  TfrmQcInspections.Create(Self, TQcInspectionService.Create, TQcInspection.Create).Show;
+end;
+
+procedure TfrmDashboard.actqc_rulesExecute(Sender: TObject);
+begin
+  TfrmQcRules.Create(Self, TQcRuleService.Create, TQcRule.Create).Show;
+end;
+
+procedure TfrmDashboard.actqc_settingExecute(Sender: TObject);
+var
+  LService: TQcSettingService;
+  LSetting: TQcSetting;
+  LMode: TInputFormMode;
+begin
+  // Firma başına tek kayıt: varsa inceleme modunda, yoksa yeni kayıt olarak aç
+  LService := TQcSettingService.Create;
+  try
+    LSetting := LService.BusinessFindSetting(False, False, True);
+  except
+    LService.Free;
+    raise;
+  end;
+
+  if Assigned(LSetting) then
+    LMode := ifmRewiev
+  else
+  begin
+    LSetting := TQcSetting.Create;
+    LMode := ifmNewRecord;
+  end;
+
+  TfrmQcSetting.Create(Self, LService, LSetting, LMode, nil, ivmNormal, True).Show;
 end;
 
 procedure TfrmDashboard.actsls_offersExecute(Sender: TObject);
@@ -1798,6 +1876,20 @@ begin
     actpur_receipts.Caption := TLocalizationManager.Translate(TLangKeys.TPurReceipt.TitlePlural, 'Goods Receipts');
   if Assigned(actpur_invoices) then
     actpur_invoices.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoice.TitlePlural, 'Purchase Invoices');
+  if Assigned(actpur_quotations) then
+    actpur_quotations.Caption := TLocalizationManager.Translate(TLangKeys.TPurQuotation.TitlePlural, 'Purchase Quotations');
+  if Assigned(actpur_quotation_comparisons) then
+    actpur_quotation_comparisons.Caption := TLocalizationManager.Translate(TLangKeys.TPurQuotationComparison.TitlePlural, 'Quotation Comparison');
+  if Assigned(mnipur_quality) then
+    mnipur_quality.Caption := TLocalizationManager.Translate(TLangKeys.TQcSetting.ModuleName, 'Incoming Quality Control');
+  if Assigned(actqc_receipt_lines) then
+    actqc_receipt_lines.Caption := TLocalizationManager.Translate(TLangKeys.TQcReceiptLine.TitlePlural, 'Receipts Awaiting Inspection');
+  if Assigned(actqc_inspections) then
+    actqc_inspections.Caption := TLocalizationManager.Translate(TLangKeys.TQcInspection.TitlePlural, 'Quality Inspections');
+  if Assigned(actqc_rules) then
+    actqc_rules.Caption := TLocalizationManager.Translate(TLangKeys.TQcRule.TitlePlural, 'Quality Control Rules');
+  if Assigned(actqc_setting) then
+    actqc_setting.Caption := TLocalizationManager.Translate(TLangKeys.TQcSetting.TitleSingular, 'Quality Control Settings');
   if Assigned(actsls_offers) then
     actsls_offers.Caption := TLocalizationManager.Translate(TLangKeys.TSlsOffer.TitlePlural, 'Sales Offers');
   if Assigned(actsls_orders) then

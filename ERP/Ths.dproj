@@ -1164,6 +1164,66 @@
         <DCCReference Include="Forms\Purchasing\Input\ufrmPurInvoiceLine.pas">
             <Form>frmPurInvoiceLine</Form>
         </DCCReference>
+        <DCCReference Include="BackEnd\Purchasing\Domain\PurQuotation.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Exception\PurQuotation.Exception.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Repository\PurQuotation.Repository.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Service\PurQuotation.Service.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Domain\PurQuotationDetail.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Exception\PurQuotationDetail.Exception.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Repository\PurQuotationDetail.Repository.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Service\PurQuotationDetail.Service.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Domain\PurQuotationComparison.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Exception\PurQuotationComparison.Exception.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Repository\PurQuotationComparison.Repository.pas"/>
+        <DCCReference Include="BackEnd\Purchasing\Service\PurQuotationComparison.Service.pas"/>
+        <DCCReference Include="Forms\Purchasing\Output\PurReceiptExtension.pas"/>
+        <DCCReference Include="Forms\Purchasing\Output\ufrmPurQuotations.pas">
+            <Form>frmPurQuotations</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Purchasing\Input\ufrmPurQuotationDetail.pas">
+            <Form>frmPurQuotationDetail</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Purchasing\Input\ufrmPurQuotationLine.pas">
+            <Form>frmPurQuotationLine</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Purchasing\Output\ufrmPurQuotationComparisons.pas">
+            <Form>frmPurQuotationComparisons</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\Quality\Domain\QcLookup.pas"/>
+        <DCCReference Include="BackEnd\Quality\Domain\QcSetting.pas"/>
+        <DCCReference Include="BackEnd\Quality\Exception\QcSetting.Exception.pas"/>
+        <DCCReference Include="BackEnd\Quality\Repository\QcSetting.Repository.pas"/>
+        <DCCReference Include="BackEnd\Quality\Service\QcSetting.Service.pas"/>
+        <DCCReference Include="BackEnd\Quality\Domain\QcRule.pas"/>
+        <DCCReference Include="BackEnd\Quality\Exception\QcRule.Exception.pas"/>
+        <DCCReference Include="BackEnd\Quality\Repository\QcRule.Repository.pas"/>
+        <DCCReference Include="BackEnd\Quality\Service\QcRule.Service.pas"/>
+        <DCCReference Include="BackEnd\Quality\Domain\QcInspection.pas"/>
+        <DCCReference Include="BackEnd\Quality\Exception\QcInspection.Exception.pas"/>
+        <DCCReference Include="BackEnd\Quality\Repository\QcInspection.Repository.pas"/>
+        <DCCReference Include="BackEnd\Quality\Service\QcInspection.Service.pas"/>
+        <DCCReference Include="BackEnd\Quality\Domain\QcReceiptLine.pas"/>
+        <DCCReference Include="BackEnd\Quality\Exception\QcReceiptLine.Exception.pas"/>
+        <DCCReference Include="BackEnd\Quality\Repository\QcReceiptLine.Repository.pas"/>
+        <DCCReference Include="BackEnd\Quality\Service\QcReceiptLine.Service.pas"/>
+        <DCCReference Include="Forms\Quality\Output\ufrmQcReceiptLines.pas">
+            <Form>frmQcReceiptLines</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Quality\Output\ufrmQcInspections.pas">
+            <Form>frmQcInspections</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Quality\Input\ufrmQcInspection.pas">
+            <Form>frmQcInspection</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Quality\Output\ufrmQcRules.pas">
+            <Form>frmQcRules</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Quality\Input\ufrmQcRule.pas">
+            <Form>frmQcRule</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Quality\Input\ufrmQcSetting.pas">
+            <Form>frmQcSetting</Form>
+        </DCCReference>
         <DCCReference Include="BackEnd\Sales\Domain\SlsLookup.pas"/>
         <DCCReference Include="BackEnd\Sales\Domain\SlsOffer.pas"/>
         <DCCReference Include="BackEnd\Sales\Exception\SlsOffer.Exception.pas"/>

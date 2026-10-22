@@ -105,6 +105,8 @@ begin
       if SameText(P.Name, 'RefCount') then Continue;
       // stok kartı resmi yalnız FindById'de yüklenir (tasarım gereği)
       if SameText(P.Name, 'ImageLoaded') or SameText(P.Name, 'Image') then Continue;
+      // cari kart adresleri yalnız FindById'de yüklenir (tasarım gereği): yükleme bayrağı veri değildir
+      if SameText(P.Name, 'AddressesAssigned') then Continue;
       try
         VA := P.GetValue(TObject(A));
         VB := P.GetValue(TObject(B));
@@ -300,7 +302,7 @@ begin
       R('WARN', 'data', 'table empty - write tests skipped');
       Exit;
     end;
-    if MatchText(AEntity, ['TSysViewTable', 'TStkInventorySummary']) then
+    if MatchText(AEntity, ['TSysViewTable', 'TStkInventorySummary', 'TPurQuotationComparison', 'TQcReceiptLine']) then
     begin
       R('INFO', 'write', 'read-only entity - write tests skipped');
       Exit;
@@ -356,7 +358,12 @@ begin
           SafeRollback;
         end;
       except
-        on Ex: Exception do R('FAIL', 'update roundtrip', Format('id %d: %s: %s', [Ids[i], Ex.ClassName, Ex.Message]));
+        on Ex: Exception do
+          // durum kilitli belge (taslak dışı): servis güncellemeyi tasarım gereği reddeder
+          if EndsText('ExceptionDraftOnly', Ex.ClassName) or EndsText('ExceptionNotEditable', Ex.ClassName) then
+            R('INFO', 'update roundtrip', Format('id %d: status-locked record rejected by business rule: %s', [Ids[i], Ex.Message]))
+          else
+            R('FAIL', 'update roundtrip', Format('id %d: %s: %s', [Ids[i], Ex.ClassName, Ex.Message]));
       end;
     end;
 

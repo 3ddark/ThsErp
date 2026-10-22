@@ -90,6 +90,24 @@ LEFT JOIN public.sys_x_translation t ON t.sys_x_id = x.id AND t.sys_language_id 
   is written by `TPurReceiptDetailRepository.UpsertStockTransaction`; the stock transaction service refuses to update / delete
   such rows. Purchase quantities are service-maintained: `pur_request_detail.ordered_quantity` (non-cancelled order lines),
   `pur_order_detail.received_quantity` (receipt lines); header totals = sum of line amounts; order / request status 3-4 automatic.
+- Purchase quotation (2026-10-22): request → `pur_quotation` (per supplier, `pur_request_id` SET NULL, lines `pur_quotation_detail`
+  with `pur_request_detail_id`) → comparison `vw_pur_quotation_comparison` (read-only, `price_rank` per request line on the
+  net unit price in base currency) → status 1 draft / 2 pending approval / 3 approved / 4 rejected / 5 ordered / 6 not selected
+  (`PurLookup` `PUR_QUO_*`; one selected quotation per request = partial UNIQUE index on status 2/3/5; approval sets
+  `approved_sys_user_id` / `approved_at` and the request's other open quotations to 6) → `TPurQuotationService.CreateOrder`
+  writes the order through `TPurOrderService` (order lines keep `pur_request_detail_id`, so the request quantities follow) and
+  sets `pur_quotation.pur_order_id` (UNIQUE, SET NULL; trigger `order_unlinked` returns status 5 → 3 when the order is
+  deleted). Quotations never change request quantities; `pur_order` / `pur_request` tables are unchanged.
+- Incoming quality control (loosely coupled, `qc_` prefix, `BackEnd/Quality`): `qc_setting` (one row per
+  `sys_application_setting`, `is_enabled`, optional `reject_stk_warehouse_id`), `qc_rule` (stock group XOR stock card,
+  `is_required`, criteria; card rule overrides group), `qc_inspection` (UNIQUE `pur_receipt_detail_id`, CASCADE; quantity /
+  stock from the receipt line, accepted = quantity − rejected, `result` 1-3 and `disposition` 1-4 (required when rejected > 0)
+  from the service). `vw_qc_receipt_line` = receipt lines needing inspection, empty while the module is off (`qc_status`
+  1 pending / 2 re-check after the receipt line changed / 3 done). Optional reject transfer: `stk_transaction.qc_inspection_id`
+  (UNIQUE, CASCADE, type 3 only) written by `TQcInspectionRepository.SyncRejectTransfer`; the stock transaction service
+  refuses to update / delete such rows (`IsQualityInspectionLinked`, reads only its own column). Purchasing / stock / invoice code
+  never references `qc_*`; the goods receipt list shows "Kalite Kontrol" only through the hook `PurReceiptExtension`
+  (assigned in `ufrmQcReceiptLines` initialization, visible when the module is on + read right 1085).
 - Sales mirror purchasing (offer → order → delivery note → invoice, `SlsLookup`): stock goes out on the delivery note line
   (`stk_transaction.sls_dispatch_detail_id`, type 2, amount = net sales amount) or, for an invoice line without a delivery
   note ("irsaliyeli fatura"), on the invoice line (`stk_transaction.sls_invoice_detail_id`, from `sls_invoice.stk_warehouse_id`,

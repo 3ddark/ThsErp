@@ -316,6 +316,42 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 88
       OnExecute = actpur_invoicesExecute
     end
+    object actpur_quotations: TAction
+      Category = 'SatinAlma'
+      Caption = 'Al'#305#351' Teklifleri'
+      ImageIndex = 88
+      OnExecute = actpur_quotationsExecute
+    end
+    object actpur_quotation_comparisons: TAction
+      Category = 'SatinAlma'
+      Caption = 'Teklif Kar'#351#305'la'#351't'#305'rma'
+      ImageIndex = 88
+      OnExecute = actpur_quotation_comparisonsExecute
+    end
+    object actqc_receipt_lines: TAction
+      Category = 'SatinAlma'
+      Caption = 'Kontrol Bekleyen Mal Kabuller'
+      ImageIndex = 88
+      OnExecute = actqc_receipt_linesExecute
+    end
+    object actqc_inspections: TAction
+      Category = 'SatinAlma'
+      Caption = 'Kalite Kontrol Kay'#305'tlar'#305
+      ImageIndex = 88
+      OnExecute = actqc_inspectionsExecute
+    end
+    object actqc_rules: TAction
+      Category = 'SatinAlma'
+      Caption = 'Kalite Kontrol Kurallar'#305
+      ImageIndex = 88
+      OnExecute = actqc_rulesExecute
+    end
+    object actqc_setting: TAction
+      Category = 'SatinAlma'
+      Caption = 'Kalite Kontrol Ayarlar'#305
+      ImageIndex = 88
+      OnExecute = actqc_settingExecute
+    end
     object actsls_offers: TAction
       Category = 'Satis'
       Caption = 'Sat'#305#351' Teklifleri'
@@ -814,6 +850,33 @@ inherited frmDashboard: TfrmDashboard
       end
       object mnipur_invoices: TMenuItem
         Action = actpur_invoices
+      end
+      object mnipur_sep4: TMenuItem
+        Caption = '-'
+      end
+      object mnipur_quotations: TMenuItem
+        Action = actpur_quotations
+      end
+      object mnipur_quotation_comparisons: TMenuItem
+        Action = actpur_quotation_comparisons
+      end
+      object mnipur_sep5: TMenuItem
+        Caption = '-'
+      end
+      object mnipur_quality: TMenuItem
+        Caption = 'Giri'#351' Kalite Kontrol'
+        object mniqc_receipt_lines: TMenuItem
+          Action = actqc_receipt_lines
+        end
+        object mniqc_inspections: TMenuItem
+          Action = actqc_inspections
+        end
+        object mniqc_rules: TMenuItem
+          Action = actqc_rules
+        end
+        object mniqc_setting: TMenuItem
+          Action = actqc_setting
+        end
       end
     end
     object mnimenu_sales: TMenuItem

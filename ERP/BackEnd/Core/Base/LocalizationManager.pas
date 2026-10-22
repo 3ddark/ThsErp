@@ -1332,6 +1332,7 @@ type
         const OpeningOnlyIncoming = 'stk_transaction.opening_only_incoming';
         const ReceiptLinked = 'stk_transaction.receipt_linked';
         const SalesLinked = 'stk_transaction.sales_linked';
+        const QualityLinked = 'stk_transaction.quality_linked';
       end;
 
       TStkInventorySummary = record
@@ -1827,6 +1828,12 @@ type
         const OrdPartial = 'pur_option.ord_partial';
         const OrdReceived = 'pur_option.ord_received';
         const OrdCancelled = 'pur_option.ord_cancelled';
+        const QuoDraft = 'pur_option.quo_draft';
+        const QuoPending = 'pur_option.quo_pending';
+        const QuoApproved = 'pur_option.quo_approved';
+        const QuoRejected = 'pur_option.quo_rejected';
+        const QuoOrdered = 'pur_option.quo_ordered';
+        const QuoNotSelected = 'pur_option.quo_not_selected';
       end;
 
       TPurRequest = record
@@ -1852,6 +1859,8 @@ type
         const HasOrders = 'pur_request.has_orders';
         const RequiredDate = 'pur_request.required_date';
         const InvalidStatus = 'pur_request.invalid_status';
+        const MenuRequestQuotation = 'pur_request.popup.request_quotation';
+        const MenuQuotations = 'pur_request.popup.quotations';
       end;
 
       TPurRequestDetail = record
@@ -1975,6 +1984,7 @@ type
         const KeyFieldsLocked = 'pur_receipt.key_fields_locked';
         const HasInvoices = 'pur_receipt.has_invoices';
         const NothingToReceive = 'pur_receipt.nothing_to_receive';
+        const MenuQuality = 'pur_receipt.popup.quality';
       end;
 
       TPurReceiptDetail = record
@@ -2057,6 +2067,179 @@ type
         const InventoryMismatch = 'pur_invoice_detail.inventory_mismatch';
         const SupplierMismatch = 'pur_invoice_detail.supplier_mismatch';
         const OverInvoice = 'pur_invoice_detail.over_invoice';
+      end;
+
+      TPurQuotation = record
+        const TitlePlural = 'pur_quotation.title_plural';
+        const TitleSingular = 'pur_quotation.title_singular';
+        const ColQuotationNo = 'pur_quotation.col_quotation_no';
+        const ColQuotationDate = 'pur_quotation.col_quotation_date';
+        const ColPurRequestId = 'pur_quotation.col_pur_request_id';
+        const ColRequestNo = 'pur_quotation.col_request_no';
+        const ColAccAccountId = 'pur_quotation.col_acc_account_id';
+        const ColAccountCode = 'pur_quotation.col_account_code';
+        const ColAccountName = 'pur_quotation.col_account_name';
+        const ColSupplierRefNo = 'pur_quotation.col_supplier_ref_no';
+        const ColValidUntil = 'pur_quotation.col_valid_until';
+        const ColDeliveryDays = 'pur_quotation.col_delivery_days';
+        const ColDeliveryDate = 'pur_quotation.col_delivery_date';
+        const ColCurrency = 'pur_quotation.col_currency';
+        const ColExchangeRate = 'pur_quotation.col_exchange_rate';
+        const ColPaymentTermDays = 'pur_quotation.col_payment_term_days';
+        const ColPaymentTerms = 'pur_quotation.col_payment_terms';
+        const ColStatus = 'pur_quotation.col_status';
+        const ColGrossAmount = 'pur_quotation.col_gross_amount';
+        const ColDiscountAmount = 'pur_quotation.col_discount_amount';
+        const ColNetAmount = 'pur_quotation.col_net_amount';
+        const ColVatAmount = 'pur_quotation.col_vat_amount';
+        const ColTotalAmount = 'pur_quotation.col_total_amount';
+        const ColNetAmountBase = 'pur_quotation.col_net_amount_base';
+        const ColTotalAmountBase = 'pur_quotation.col_total_amount_base';
+        const ColOrderNo = 'pur_quotation.col_order_no';
+        const ColApprovedBy = 'pur_quotation.col_approved_by';
+        const ColApprovedAt = 'pur_quotation.col_approved_at';
+        const ColLineCount = 'pur_quotation.col_line_count';
+        const ColDescription = 'pur_quotation.col_description';
+        const MenuLines = 'pur_quotation.popup.lines';
+        const MenuSubmit = 'pur_quotation.popup.submit';
+        const MenuToDraft = 'pur_quotation.popup.to_draft';
+        const MenuApprove = 'pur_quotation.popup.approve';
+        const MenuReject = 'pur_quotation.popup.reject';
+        const MenuToOrder = 'pur_quotation.popup.to_order';
+        const MenuCompare = 'pur_quotation.popup.compare';
+        const QuickClosed = 'pur_quotation.quick.closed';
+        const NoUnique = 'pur_quotation.no_unique';
+        const NoLines = 'pur_quotation.no_lines';
+        const DeleteStatus = 'pur_quotation.delete_status';
+        const NotEditable = 'pur_quotation.not_editable';
+        const ValidUntil = 'pur_quotation.valid_until';
+        const DeliveryDate = 'pur_quotation.delivery_date';
+        const DeliveryDays = 'pur_quotation.delivery_days';
+        const PaymentTerm = 'pur_quotation.payment_term';
+        const RequestNotApproved = 'pur_quotation.request_not_approved';
+        const NothingToQuote = 'pur_quotation.nothing_to_quote';
+        const SupplierHasQuotation = 'pur_quotation.supplier_has_quotation';
+        const AlreadySelected = 'pur_quotation.already_selected';
+        const NotApproved = 'pur_quotation.not_approved';
+        const InvalidStatus = 'pur_quotation.invalid_status';
+        const NoRequest = 'pur_quotation.no_request';
+      end;
+
+      TPurQuotationDetail = record
+        const TitleSingular = 'pur_quotation_detail.title_singular';
+        const ColPurQuotationId = 'pur_quotation_detail.col_pur_quotation_id';
+        const ColLineNo = 'pur_quotation_detail.col_line_no';
+        const ColStkInventoryId = 'pur_quotation_detail.col_stk_inventory_id';
+        const ColInventoryCode = 'pur_quotation_detail.col_inventory_code';
+        const ColInventoryName = 'pur_quotation_detail.col_inventory_name';
+        const ColUomCode = 'pur_quotation_detail.col_uom_code';
+        const ColQuantity = 'pur_quotation_detail.col_quantity';
+        const ColUnitPrice = 'pur_quotation_detail.col_unit_price';
+        const ColDiscountRate = 'pur_quotation_detail.col_discount_rate';
+        const ColVatRate = 'pur_quotation_detail.col_vat_rate';
+        const ColGrossAmount = 'pur_quotation_detail.col_gross_amount';
+        const ColDiscountAmount = 'pur_quotation_detail.col_discount_amount';
+        const ColNetAmount = 'pur_quotation_detail.col_net_amount';
+        const ColVatAmount = 'pur_quotation_detail.col_vat_amount';
+        const ColTotalAmount = 'pur_quotation_detail.col_total_amount';
+        const ColDeliveryDate = 'pur_quotation_detail.col_delivery_date';
+        const ColRequestNo = 'pur_quotation_detail.col_request_no';
+        const ColDescription = 'pur_quotation_detail.col_description';
+        const RateRange = 'pur_quotation_detail.rate_range';
+        const LineUnique = 'pur_quotation_detail.line_unique';
+        const DraftOnly = 'pur_quotation_detail.draft_only';
+        const InventoryMismatch = 'pur_quotation_detail.inventory_mismatch';
+        const RequestMismatch = 'pur_quotation_detail.request_mismatch';
+      end;
+
+      TPurQuotationComparison = record
+        const TitlePlural = 'pur_quotation_comparison.title_plural';
+        const ColRequestLineNo = 'pur_quotation_comparison.col_request_line_no';
+        const ColRequestQuantity = 'pur_quotation_comparison.col_request_quantity';
+        const ColNetUnitPrice = 'pur_quotation_comparison.col_net_unit_price';
+        const ColNetUnitPriceBase = 'pur_quotation_comparison.col_net_unit_price_base';
+        const ColPriceRank = 'pur_quotation_comparison.col_price_rank';
+        const MenuOpenQuotation = 'pur_quotation_comparison.popup.open_quotation';
+        const ReadOnly = 'pur_quotation_comparison.read_only';
+      end;
+
+      TQcOption = record
+        const ResAccepted = 'qc_option.res_accepted';
+        const ResRejected = 'qc_option.res_rejected';
+        const ResPartial = 'qc_option.res_partial';
+        const DispReturn = 'qc_option.disp_return';
+        const DispScrap = 'qc_option.disp_scrap';
+        const DispRework = 'qc_option.disp_rework';
+        const DispConcession = 'qc_option.disp_concession';
+        const StatusPending = 'qc_option.status_pending';
+        const StatusRecheck = 'qc_option.status_recheck';
+        const StatusDone = 'qc_option.status_done';
+      end;
+
+      TQcInspection = record
+        const TitlePlural = 'qc_inspection.title_plural';
+        const TitleSingular = 'qc_inspection.title_singular';
+        const ColInspectionNo = 'qc_inspection.col_inspection_no';
+        const ColInspectionDate = 'qc_inspection.col_inspection_date';
+        const ColPurReceiptDetailId = 'qc_inspection.col_pur_receipt_detail_id';
+        const ColReceiptNo = 'qc_inspection.col_receipt_no';
+        const ColReceiptDate = 'qc_inspection.col_receipt_date';
+        const ColReceiptLineNo = 'qc_inspection.col_receipt_line_no';
+        const ColAccountName = 'qc_inspection.col_account_name';
+        const ColWarehouseName = 'qc_inspection.col_warehouse_name';
+        const ColInventoryCode = 'qc_inspection.col_inventory_code';
+        const ColInventoryName = 'qc_inspection.col_inventory_name';
+        const ColUomCode = 'qc_inspection.col_uom_code';
+        const ColQuantity = 'qc_inspection.col_quantity';
+        const ColAcceptedQuantity = 'qc_inspection.col_accepted_quantity';
+        const ColRejectedQuantity = 'qc_inspection.col_rejected_quantity';
+        const ColResult = 'qc_inspection.col_result';
+        const ColDisposition = 'qc_inspection.col_disposition';
+        const ColEmployeeName = 'qc_inspection.col_employee_name';
+        const ColDescription = 'qc_inspection.col_description';
+        const QuickNonconforming = 'qc_inspection.quick.nonconforming';
+        const ModuleDisabled = 'qc_inspection.module_disabled';
+        const NoUnique = 'qc_inspection.no_unique';
+        const LineInspected = 'qc_inspection.line_inspected';
+        const ReceiptLineNotFound = 'qc_inspection.receipt_line_not_found';
+        const NotRequired = 'qc_inspection.not_required';
+        const RejectedQuantity = 'qc_inspection.rejected_quantity';
+        const DispositionRequired = 'qc_inspection.disposition_required';
+      end;
+
+      TQcReceiptLine = record
+        const TitlePlural = 'qc_receipt_line.title_plural';
+        const ColQuantity = 'qc_receipt_line.col_quantity';
+        const ColInspectedQuantity = 'qc_receipt_line.col_inspected_quantity';
+        const ColQcStatus = 'qc_receipt_line.col_qc_status';
+        const MenuInspect = 'qc_receipt_line.popup.inspect';
+        const QuickPending = 'qc_receipt_line.quick.pending';
+        const QuickDone = 'qc_receipt_line.quick.done';
+        const ReadOnly = 'qc_receipt_line.read_only';
+      end;
+
+      TQcRule = record
+        const TitlePlural = 'qc_rule.title_plural';
+        const TitleSingular = 'qc_rule.title_singular';
+        const ColGroupName = 'qc_rule.col_group_name';
+        const ColInventoryCode = 'qc_rule.col_inventory_code';
+        const ColInventoryName = 'qc_rule.col_inventory_name';
+        const ColIsRequired = 'qc_rule.col_is_required';
+        const ColInspectionCriteria = 'qc_rule.col_inspection_criteria';
+        const Target = 'qc_rule.target';
+        const GroupUnique = 'qc_rule.group_unique';
+        const InventoryUnique = 'qc_rule.inventory_unique';
+      end;
+
+      TQcSetting = record
+        const TitleSingular = 'qc_setting.title_singular';
+        const ModuleName = 'qc_setting.module_name';
+        const ColCompanyTitle = 'qc_setting.col_company_title';
+        const ColIsEnabled = 'qc_setting.col_is_enabled';
+        const ColRejectStkWarehouseId = 'qc_setting.col_reject_stk_warehouse_id';
+        const ColDescription = 'qc_setting.col_description';
+        const NoCompany = 'qc_setting.no_company';
+        const SettingUnique = 'qc_setting.setting_unique';
       end;
 
       //Finance Module (company bank accounts)

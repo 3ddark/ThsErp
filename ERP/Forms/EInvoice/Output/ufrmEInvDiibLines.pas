@@ -16,8 +16,6 @@ type
   private
     procedure LineKindGetText(Sender: TField; var Text: string; DisplayText: Boolean);
     procedure HolderTypeGetText(Sender: TField; var Text: string; DisplayText: Boolean);
-  protected
-    procedure ApplyPermissionState; override;
   public
     // Fatura kalemi seçimi: belge sahibi (1 firmamız / 2 müşteri) + müşteri, yalnız aktif satırlar
     procedure SetFixedHolder(AHolderType: SmallInt; AAccountId: Int64);
@@ -26,6 +24,8 @@ type
     procedure DefineColumnWidths; override;
     procedure FormShow(Sender: TObject); override;
     procedure ApplyLocalization; override;
+
+    procedure ApplyPermissionState; override;
   end;
 
 implementation

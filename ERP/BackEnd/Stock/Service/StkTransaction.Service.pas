@@ -131,6 +131,10 @@ begin
   if (AOperation in [coUpdate, coDelete]) and TStkTransactionRepository(FRepo).IsSalesDocumentLinked(AEntity.Id) then
     raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TStkTransaction.SalesLinked,
       'This stock transaction was created by a delivery note or sales invoice. Change it from that document.'));
+  // giriş kalite kontrolün red ambarı transferi yalnız kontrol kaydından değişir
+  if (AOperation in [coUpdate, coDelete]) and TStkTransactionRepository(FRepo).IsQualityInspectionLinked(AEntity.Id) then
+    raise Exception.Create(TLocalizationManager.Translate(TLangKeys.TStkTransaction.QualityLinked,
+      'This stock transaction was created by a quality inspection. Change it from the inspection record.'));
 
   if AOperation in [coInsert, coUpdate] then
   begin

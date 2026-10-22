@@ -770,7 +770,7 @@ var
   L: TList<TControl>;
   C: TControl;
   Col, T, DBS, Msg: string;
-  JV: TJSONValue;
+  JV, JM: TJSONValue;
   DBNull: Boolean;
   N1, N2: Double;
   D1, D2: TDateTime;
@@ -836,9 +836,23 @@ begin
       else if C is TMemo then
       begin
         T := Trim(StringReplace(TMemo(C).Lines.Text, #13#10, #10, [rfReplaceAll]));
+        if (JV is TJSONObject) or (JV is TJSONArray) then
+        begin
+          // jsonb kolonu: anlamsal karşılaştırma (Value nesnede boştur; boşluk biçimi fark sayılmaz)
+          JM := TJSONObject.ParseJSONValue(T);
+          try
+            if (JM = nil) or (JM.ToJSON <> JV.ToJSON) then
+              Msg := Format('memo [%s] <> DB [%s]', [Copy(T, 1, 30), Copy(JV.ToJSON, 1, 30)]);
+          finally
+            JM.Free;
+          end;
+        end
+        else
+        begin
         if DBNull then DBS := '';
         DBS := Trim(StringReplace(DBS, #13#10, #10, [rfReplaceAll]));
         if T <> DBS then Msg := Format('memo [%s] <> DB [%s]', [Copy(T, 1, 30), Copy(DBS, 1, 30)]);
+        end;
       end;
 
       if Msg <> '' then
@@ -1379,7 +1393,10 @@ begin
               D := TUi.TakeDialogs;
               JN := TUi.RowJson(Tbl, FirstId);
               try
-                if S <> '' then
+                if (S <> '') and TRegEx.IsMatch(S, '^E\w+Exception(DraftOnly|NotEditable):') then
+                  // durum kilitli belge (taslak dışı): servis güncellemeyi tasarım gereği reddeder
+                  TUi.R('INFO', 'update same values', 'status-locked record rejected by business rule: ' + S)
+                else if S <> '' then
                   TUi.R('FAIL', 'update same values', S + ' ' + D)
                 else if TUi.Alive(F) then
                   TUi.R('FAIL', 'update same values', 'form still open: ' + D)
