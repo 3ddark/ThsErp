@@ -157,6 +157,26 @@ LEFT JOIN public.sys_x_translation t ON t.sys_x_id = x.id AND t.sys_language_id 
   `TfrmAccAccountTransactions.OpenSourceDocument` (opens the source form via its service → read permission enforced).
 - Read-only list entities may have no table (`FinMoneyLedger` → `vw_fin_money_ledger` only, window function: no `FOR UPDATE`;
   its repository ignores `ALock`).
+- Document trail (evrak izi, 2026-10-22): `vw_sys_document` (header of the 9 purchasing / sales documents in one shape),
+  `vw_sys_document_link` (header-level previous → next edges from the line / header links), `fn_document_trail(table, id)`
+  (ancestors < 0, descendants > 0, no siblings, nearest level; indexed `id = ANY` per step) and `vw_sys_document_trail`
+  (read only with `source_table` + `source_id`; `id` unique within one trail). A new document link (e.g. return invoice →
+  invoice) goes into `vw_sys_document_link` (+ `vw_sys_document` and `TRAIL_DOCUMENTS` in `SysDocumentTrail.Service` for a
+  new document table); keep every link column indexed.
+- Document party snapshot (2026-10-22, user decision: "old document keeps the old title / tax no"): the 8 account documents
+  (`sls_offer`, `sls_order`, `sls_dispatch`, `sls_invoice`, `pur_quotation`, `pur_order`, `pur_receipt`, `pur_invoice`) have
+  `account_title`, `taxpayer_type`, `taxpayer_name`, `taxpayer_name2`, `taxpayer_surname`, `tax_office`, `tax_no`, written only by
+  the BEFORE trigger `party_snapshot` (`fn_document_party_snapshot` ← `fn_acc_account_party(acc_account_id)`): on insert, when
+  `acc_account_id` changes or when `account_title` is NULL. Repositories never write these columns; views expose them
+  (`vw_sls_offer.tax_office / tax_no` are the snapshot now). e-Invoice / e-Despatch party (`ReadAccountParty` with the document)
+  reads the snapshot; the address still comes from the account (document addresses = pending item 6). A new account document
+  table gets the same columns + trigger.
+- Document tax summary (2026-10-22): `{doc}_tax_summary` for `sls_offer`, `sls_order`, `sls_invoice`, `pur_quotation`,
+  `pur_order`, `pur_invoice` (`summary_type` 1 = VAT per rate: base = Σ net, tax = Σ VAT; 2 = VAT withholding per
+  `einv_withholding_id` (sales invoice only): base = Σ VAT of those lines, tax = Σ withholding, rate = withholding rate;
+  UNIQUE NULLS NOT DISTINCT (doc, type, rate, withholding)). Rewritten by statement-level triggers on `{doc}_detail`
+  (`tax_summary_ins/upd/del`, transition tables → `fn_tax_summary_refresh(doc, ids)`); the application never computes it.
+  Read via `vw_sys_document_tax_summary` (`doc_table` + `doc_id`; `TSysDocumentTrailService.TaxSummary`). No audit (derived).
 
 ## Menu tree (`sys_menu`)
 

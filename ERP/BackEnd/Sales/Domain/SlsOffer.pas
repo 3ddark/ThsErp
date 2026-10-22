@@ -57,6 +57,8 @@ type
     FDeliveryTermName: string;
     FTaxOffice: string;
     FTaxNo: string;
+    FAccountTitle: string;
+    FTaxpayerType: SmallInt;
     FDeliveryTermIsIncoterms: Boolean;
   public
     [Column('offer_no')]
@@ -181,12 +183,19 @@ type
     [NotMapped]
     property DeliveryTermIsIncoterms: Boolean read FDeliveryTermIsIncoterms write FDeliveryTermIsIncoterms;
 
-    // Müşterinin vergi bilgileri (acc_account_taxpayer; belgede saklanmaz, cari kartından gösterilir)
+    // Belgedeki cari kopyası (belge düzenlendiği andaki ünvan / vergi bilgisi; DB tetikleyicisi party_snapshot yazar:
+    // yeni kayıtta, cari değişince ya da kopya boşken cari kartından)
     [NotMapped]
     property TaxOffice: string read FTaxOffice write FTaxOffice;
 
     [NotMapped]
     property TaxNo: string read FTaxNo write FTaxNo;
+
+    [NotMapped]
+    property AccountTitle: string read FAccountTitle write FAccountTitle;
+
+    [NotMapped]
+    property TaxpayerType: SmallInt read FTaxpayerType write FTaxpayerType;
 
     // Kolon değil (nesne özelliği): servis yükler (BusinessFindById) ve teklifle birlikte yazar
     property BillingAddress: TSysAddress read FBillingAddress;
@@ -286,6 +295,8 @@ begin
   Result.DeliveryTermName := Self.DeliveryTermName;
   Result.TaxOffice := Self.TaxOffice;
   Result.TaxNo := Self.TaxNo;
+  Result.AccountTitle := Self.AccountTitle;
+  Result.TaxpayerType := Self.TaxpayerType;
   Result.BillingAddressText := Self.BillingAddressText;
   Result.ShippingAddressText := Self.ShippingAddressText;
   Result.TotalAmountBase := Self.TotalAmountBase;

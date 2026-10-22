@@ -73,6 +73,10 @@ SELECT (SELECT id FROM fin_money_account WHERE code = 'B01'), 3, (SELECT id FROM
 INSERT INTO fin_money_transaction (fin_money_account_id, transaction_type, amount, description)
 SELECT (SELECT id FROM fin_money_account WHERE code = 'K01'), 4, 15.50, 'UI MASRAF';
 
+-- satış faturası kuralı: ihracat dışında cari vergi no zorunlu; belgeler kayıtta cari kopyasını (party_snapshot) alır
+INSERT INTO acc_account_taxpayer (acc_account_id, taxpayer_type, tax_office, tax_no) SELECT min(id), 1, 'UI VD', '9999999999' FROM acc_account
+  ON CONFLICT (acc_account_id) DO UPDATE SET taxpayer_type = 1, tax_office = COALESCE(NULLIF(acc_account_taxpayer.tax_office, ''), 'UI VD'),
+  tax_no = COALESCE(NULLIF(acc_account_taxpayer.tax_no, ''), '9999999999');
 -- satın alma: taslak talep + taslak sipariş (düzenlenebilir), kısmi teslim alınmış sipariş + mal kabul + fatura
 INSERT INTO pur_request (request_no, emp_employee_id, description) SELECT 'PT900001', min(id), 'UI TALEP' FROM emp_employee;
 INSERT INTO pur_request_detail (pur_request_id, line_no, stk_inventory_id, quantity) SELECT (SELECT max(id) FROM pur_request), 1, min(id), 10 FROM stk_inventory;

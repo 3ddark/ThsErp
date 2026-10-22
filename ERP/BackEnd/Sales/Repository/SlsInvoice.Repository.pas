@@ -89,6 +89,9 @@ type
     // Faturanın irsaliyeli kalemlerinin irsaliyeleri (tekil; irsaliye durumu)
     function DispatchIdsOfInvoice(AInvoiceId: Int64): TArray<Int64>;
     function GetDefaultCurrency: string;
+    // Kayıtta faturada olacak cari vergi bilgisi (party_snapshot tetikleyicisiyle aynı kural): kayıtlı faturada cari
+    // aynı ve kopya doluysa faturadaki, değilse cari kartındaki
+    procedure ReadEffectiveParty(AInvoiceId, AAccountId: Int64; out ATaxpayerType: Integer; out ATaxOffice, ATaxNo: string);
 
     // ---- e-Belge (UBL-TR) kuralları için okumalar
     function ReadEInvRules(AProfileId, ATypeId, AExemptionId, ADeliveryTermId, ATransportModeId, APaymentMeansId: Int64): TSlsEInvRules;
@@ -287,6 +290,39 @@ begin
     LogQuery(Q, 'GetDefaultCurrency');
     Q.Open;
     Result := Q.FieldByName('currency').AsString;
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TSlsInvoiceRepository.ReadEffectiveParty(AInvoiceId, AAccountId: Int64; out ATaxpayerType: Integer;
+  out ATaxOffice, ATaxNo: string);
+var
+  Q: TFDQuery;
+begin
+  ATaxpayerType := 0;
+  ATaxOffice := '';
+  ATaxNo := '';
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text :=
+      'SELECT x.taxpayer_type, x.tax_office, x.tax_no FROM (' +
+      '  SELECT 1 AS pri, d.taxpayer_type, d.tax_office, d.tax_no FROM public.sls_invoice d ' +
+      '   WHERE d.id = :invoice_id AND d.acc_account_id = :account_id AND d.account_title IS NOT NULL ' +
+      '  UNION ALL ' +
+      '  SELECT 2, p.taxpayer_type, p.tax_office, p.tax_no FROM public.fn_acc_account_party(:account_id) p' +
+      ') x ORDER BY x.pri LIMIT 1';
+    Q.ParamByName('invoice_id').AsLargeInt := AInvoiceId;
+    Q.ParamByName('account_id').AsLargeInt := AAccountId;
+    LogQuery(Q, 'ReadEffectiveParty');
+    Q.Open;
+    if not Q.IsEmpty then
+    begin
+      ATaxpayerType := Q.FieldByName('taxpayer_type').AsInteger;
+      ATaxOffice := Q.FieldByName('tax_office').AsString;
+      ATaxNo := Q.FieldByName('tax_no').AsString;
+    end;
   finally
     Q.Free;
   end;
@@ -689,6 +725,10 @@ begin
   Result.Description := Q.FieldByName('description').AsString;
   Result.AccountCode := Q.FieldByName('account_code').AsString;
   Result.AccountName := Q.FieldByName('account_name').AsString;
+  Result.AccountTitle := Q.FieldByName('account_title').AsString;
+  Result.TaxpayerType := Q.FieldByName('taxpayer_type').AsInteger;
+  Result.TaxOffice := Q.FieldByName('tax_office').AsString;
+  Result.TaxNo := Q.FieldByName('tax_no').AsString;
   Result.WarehouseName := Q.FieldByName('warehouse_name').AsString;
   Result.EinvProfileId := Q.FieldByName('einv_profile_id').AsLargeInt;
   Result.EinvInvoiceTypeId := Q.FieldByName('einv_invoice_type_id').AsLargeInt;

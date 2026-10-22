@@ -74,7 +74,7 @@ begin
   Q := TFDQuery.Create(nil);
   try
     Q.Connection := Connection;
-    Q.SQL.Text := 'SELECT (SELECT count(*) FROM public.sls_invoice WHERE einv_invoice_type_id = :id) + (SELECT count(*) FROM public.einv_tax_exemption WHERE einv_invoice_type_id = :id) + (SELECT count(*) FROM public.pur_offer WHERE operation_type_id = :id) AS cnt';
+    Q.SQL.Text := 'SELECT (SELECT count(*) FROM public.sls_invoice WHERE einv_invoice_type_id = :id) + (SELECT count(*) FROM public.einv_tax_exemption WHERE einv_invoice_type_id = :id) AS cnt';
     Q.ParamByName('id').AsLargeInt := AId;
     LogQuery(Q, 'UsageCount');
     Q.Open;

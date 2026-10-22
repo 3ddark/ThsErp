@@ -18,6 +18,16 @@ type
     class function GetMessage: string; override;
   end;
 
+  ESlsInvoiceExceptionTaxNoRequired = class(ESlsInvoiceException)
+  protected
+    class function GetMessage: string; override;
+  end;
+
+  ESlsInvoiceExceptionTaxOfficeRequired = class(ESlsInvoiceException)
+  protected
+    class function GetMessage: string; override;
+  end;
+
   ESlsInvoiceExceptionKeyFieldsLocked = class(ESlsInvoiceException)
   protected
     class function GetMessage: string; override;
@@ -54,6 +64,18 @@ end;
 class function ESlsInvoiceExceptionDueDate.GetMessage: string;
 begin
   Result := TLocalizationManager.Translate(TLangKeys.TSlsInvoice.DueDate, 'Due date cannot be earlier than the invoice date.');
+end;
+
+class function ESlsInvoiceExceptionTaxNoRequired.GetMessage: string;
+begin
+  Result := TLocalizationManager.Translate(TLangKeys.TSlsInvoice.TaxNoRequired,
+    'The customer has no tax / identity number. It is required on a sales invoice other than export; complete the account card.');
+end;
+
+class function ESlsInvoiceExceptionTaxOfficeRequired.GetMessage: string;
+begin
+  Result := TLocalizationManager.Translate(TLangKeys.TSlsInvoice.TaxOfficeRequired,
+    'The customer (legal entity) has no tax office. It is required on a sales invoice other than export; complete the account card.');
 end;
 
 class function ESlsInvoiceExceptionKeyFieldsLocked.GetMessage: string;

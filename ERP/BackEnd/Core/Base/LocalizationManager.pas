@@ -642,6 +642,52 @@ type
         const MsgNoChanges = 'sys_audit_log.msg.no_changes';
       end;
 
+      TSysDocumentTrail = record
+        const TitlePlural = 'sys_document_trail.title_plural';
+        const ColTrailLevel = 'sys_document_trail.col_trail_level';
+        const ColDocTable = 'sys_document_trail.col_doc_table';
+        const ColDocNo = 'sys_document_trail.col_doc_no';
+        const ColDocDate = 'sys_document_trail.col_doc_date';
+        const ColAccountCode = 'sys_document_trail.col_account_code';
+        const ColAccountName = 'sys_document_trail.col_account_name';
+        const ColStatus = 'sys_document_trail.col_status';
+        const ColCurrency = 'sys_document_trail.col_currency';
+        const ColTotalAmount = 'sys_document_trail.col_total_amount';
+        const LevelSource = 'sys_document_trail.level_source';
+        const LevelPrevious = 'sys_document_trail.level_previous';
+        const LevelNext = 'sys_document_trail.level_next';
+        const DocPurRequest = 'sys_document_trail.doc_pur_request';
+        const DocPurQuotation = 'sys_document_trail.doc_pur_quotation';
+        const DocPurOrder = 'sys_document_trail.doc_pur_order';
+        const DocPurReceipt = 'sys_document_trail.doc_pur_receipt';
+        const DocPurInvoice = 'sys_document_trail.doc_pur_invoice';
+        const DocSlsOffer = 'sys_document_trail.doc_sls_offer';
+        const DocSlsOrder = 'sys_document_trail.doc_sls_order';
+        const DocSlsDispatch = 'sys_document_trail.doc_sls_dispatch';
+        const DocSlsInvoice = 'sys_document_trail.doc_sls_invoice';
+        const MenuDocumentTrail = 'sys_document_trail.popup.document_trail';
+        const ReadOnly = 'sys_document_trail.read_only';
+        const MsgNoSource = 'sys_document_trail.msg.no_source';
+        const MsgUnknownDocument = 'sys_document_trail.msg.unknown_document';
+      end;
+
+      TDocumentTaxInfo = record
+        const TabTitle = 'document_tax_info.tab_title';
+        const GroupParty = 'document_tax_info.group_party';
+        const LblTitle = 'document_tax_info.lbl_title';
+        const LblTaxOffice = 'document_tax_info.lbl_tax_office';
+        const LblTaxNo = 'document_tax_info.lbl_tax_no';
+        const LblCitizenNo = 'document_tax_info.lbl_citizen_no';
+        const LblSummary = 'document_tax_info.lbl_summary';
+        const ColTax = 'document_tax_info.col_tax';
+        const ColDescription = 'document_tax_info.col_description';
+        const ColRate = 'document_tax_info.col_rate';
+        const ColBase = 'document_tax_info.col_base';
+        const ColAmount = 'document_tax_info.col_amount';
+        const TypeVat = 'document_tax_info.type_vat';
+        const TypeWithholding = 'document_tax_info.type_withholding';
+      end;
+
       TSysPermission = record
         const TitlePlural = 'sys_permission.title_plural';
         const TitleSingular = 'sys_permission.title_singular';
@@ -2598,6 +2644,8 @@ type
         const MenuLines = 'sls_invoice.popup.lines';
         const NoUnique = 'sls_invoice.no_unique';
         const DueDate = 'sls_invoice.due_date';
+        const TaxNoRequired = 'sls_invoice.tax_no_required';
+        const TaxOfficeRequired = 'sls_invoice.tax_office_required';
         const KeyFieldsLocked = 'sls_invoice.key_fields_locked';
         const NothingToInvoice = 'sls_invoice.nothing_to_invoice';
         const WarehouseRequired = 'sls_invoice.warehouse_required';

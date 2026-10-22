@@ -29,6 +29,7 @@ uses
   PurReceipt, PurReceipt.Service, PurReceiptDetail, PurReceiptDetail.Service,
   PurInvoice, PurInvoice.Service, PurInvoiceDetail, PurInvoiceDetail.Service,
   PurQuotation, PurQuotation.Service, PurQuotationDetail,
+  SysDocumentTrail, SysDocumentTrail.Service,
   QcLookup, QcSetting, QcSetting.Service, QcRule, QcRule.Service, QcInspection, QcInspection.Service,
   SlsLookup, SlsOffer, SlsOffer.Service, SlsOfferDetail, SlsOfferDetail.Service,
   AccExchangeRate, AccExchangeRate.Service, Tcmb.ExchangeRates,
@@ -103,10 +104,23 @@ begin
   Result := Abs(A - B) < 0.00001;
 end;
 
+var
+  // Satış faturası kuralı (ihracat dışında cari vergi no zorunlu): bu carilere her test transaction'ında (ROLLBACK)
+  // vergi bilgisi verilir; vergi bilgisi olmayan cariyle fatura kesen eski senaryolar değişmeden çalışır
+  GTaxCustomers: TArray<Int64>;
+
 procedure Begin_;
+var
+  LId: Int64;
 begin
   if UoW.InTransaction then UoW.Rollback;
   UoW.BeginTransaction;
+  for LId in GTaxCustomers do
+    UoW.Connection.ExecSQL('INSERT INTO acc_account_taxpayer (acc_account_id, taxpayer_type, tax_office, tax_no) ' +
+      'VALUES (' + LId.ToString + ', 1, ''IT VD'', ''9999999999'') ON CONFLICT (acc_account_id) DO UPDATE SET ' +
+      'taxpayer_type = COALESCE(acc_account_taxpayer.taxpayer_type, 1), ' +
+      'tax_office = COALESCE(NULLIF(acc_account_taxpayer.tax_office, ''''), ''IT VD''), ' +
+      'tax_no = COALESCE(NULLIF(acc_account_taxpayer.tax_no, ''''), ''9999999999'')');
 end;
 
 procedure End_;
@@ -127,6 +141,30 @@ begin
   Result.Quantity := AQty;
   Result.Amount := AAmount;
   Result.IsOpening := AOpening;
+end;
+
+// Evrak izi: kaynak belgenin izinde belgenin düzeyi (izde yoksa -99)
+function TrailLevel(const ASourceTable: string; ASourceId: Int64; const ADocTable: string; ADocId: Int64): Integer;
+var
+  LSvc: TSysDocumentTrailService;
+  LList: TList<TSysDocumentTrail>;
+  LItem: TSysDocumentTrail;
+begin
+  Result := -99;
+  LSvc := TSysDocumentTrailService.Create;
+  try
+    LSvc.SetSource(ASourceTable, ASourceId);
+    LList := LSvc.BusinessFind(nil, False, False, True);
+    try
+      for LItem in LList do
+        if (LItem.DocTable = ADocTable) and (LItem.DocId = ADocId) then
+          Exit(LItem.TrailLevel);
+    finally
+      LList.Free;
+    end;
+  finally
+    LSvc.Free;
+  end;
 end;
 
 procedure CheckSummary(const AStep: string; AInv: Int64; AQty, AAvg: Double);
@@ -3040,6 +3078,7 @@ begin
   Inv3 := Scalar('SELECT min(id) FROM stk_inventory WHERE id > ' + Inv1.ToString);
   Customer := Scalar('SELECT min(id) FROM acc_account');
   Customer2 := Scalar('SELECT max(id) FROM acc_account');
+  GTaxCustomers := [Customer, Customer2];
   Wh := Scalar('SELECT min(id) FROM stk_warehouse');
   FfSvc := TSlsOfferService.Create;
   FfDSvc := TSlsOfferDetailService.Create;
@@ -3336,6 +3375,7 @@ begin
     end;
   finally
     End_;
+    GTaxCustomers := [];
     Off.Free;
     StSvc.Free;
     FDSvc.Free; FSvc.Free; PDSvc.Free; PSvc.Free; ODSvc.Free; OSvc.Free; FfDSvc.Free; FfSvc.Free;
@@ -4105,6 +4145,12 @@ begin
       Check('invoice from receipt: lines + totals', Assigned(Fi) and (Fi.Lines.Count = 1) and Near(Fi.Lines[0].Quantity, 10) and
         Near(Fi.TotalAmount, 24) and Near(Q('SELECT total_amount FROM pur_invoice WHERE id = ' + FiId.ToString), 24));
       Check('receipt line invoiced', Near(Q('SELECT invoiced_quantity FROM vw_pur_receipt_detail WHERE pur_receipt_id = ' + RcId.ToString), 10));
+      Check('document trail: invoice <- receipt <- order <- request',
+        (TrailLevel('pur_invoice', FiId, 'pur_invoice', FiId) = 0) and
+        (TrailLevel('pur_invoice', FiId, 'pur_receipt', RcId) = -1) and
+        (TrailLevel('pur_receipt', RcId, 'pur_invoice', FiId) = 1) and
+        (Q('SELECT count(*) FROM vw_sys_document_trail WHERE source_table = ''pur_invoice'' AND source_id = ' + FiId.ToString +
+           ' AND doc_table = ''pur_request'' AND trail_level = -3') = 1));
       FL := FSvc.NewLine(Fi); FL.StkInventoryId := Inv1; FL.Quantity := 1; FL.UnitPrice := 2; FL.VatRate := 20;
       FL.PurReceiptDetailId := Fi.Lines[0].PurReceiptDetailId;
       Expect('invoice: over-invoice within document rejected', procedure begin FSvc.BusinessSaveWithDetails(Fi, False, True); end);
@@ -4342,6 +4388,13 @@ begin
         Near(Q('SELECT sum(ordered_quantity) FROM pur_request_detail WHERE pur_request_id = ' + ReqId.ToString), 14));
       Check('request -> quotation -> order link readable',
         Q('SELECT count(*) FROM vw_pur_quotation WHERE id = ' + Q2Id.ToString + ' AND order_no IS NOT NULL AND request_no IS NOT NULL') = 1);
+      Check('document trail: request -> quotation -> order (shortest level, no sibling quotation)',
+        (TrailLevel('pur_order', OrdId, 'pur_request', ReqId) = -1) and
+        (TrailLevel('pur_order', OrdId, 'pur_quotation', Q2Id) = -1) and
+        (TrailLevel('pur_request', ReqId, 'pur_order', OrdId) = 1) and
+        (TrailLevel('pur_request', ReqId, 'pur_quotation', Q1Id) = 1) and
+        (TrailLevel('pur_quotation', Q2Id, 'pur_order', OrdId) = 1) and
+        (TrailLevel('pur_order', OrdId, 'pur_quotation', Q1Id) = -99));
       Expect('ordered quotation cannot be converted again', procedure begin QSvc.CreateOrder(Q2Id, True); end);
 
       // ---- sipariş silinince teklif onaylıya döner, talep miktarı geri alınır
@@ -4782,6 +4835,7 @@ begin
   Inv1 := Scalar('SELECT min(id) FROM stk_inventory');
   Inv3 := Scalar('SELECT min(id) FROM stk_inventory WHERE id > ' + Inv1.ToString);
   Customer := Scalar('SELECT min(id) FROM acc_account');
+  GTaxCustomers := [Customer];
   Wh := Scalar('SELECT min(id) FROM stk_warehouse');
   OffSvc := TSlsOfferService.Create;
   OrdSvc := TSlsOrderService.Create;
@@ -4887,6 +4941,7 @@ begin
     end;
   finally
     End_;
+    GTaxCustomers := [];
     Inv.Free;
     Dsp.Free;
     Off.Free;
@@ -5133,6 +5188,132 @@ begin
   end;
 end;
 
+// Belgede cari vergi bilgisi kopyası (party_snapshot) + ihracat dışı satış faturasında vergi no zorunluluğu +
+// belge vergi özeti (KDV oran bazında, KDV tevkifatı kod bazında)
+procedure TestDocumentPartyAndTaxSummary;
+var
+  Svc: TSlsInvoiceService;
+  TrSvc: TSysDocumentTrailService;
+  Inv: TSlsInvoice;
+  L: TSlsInvoiceDetail;
+  Rows: TArray<TSysDocumentTaxRow>;
+  Row: TSysDocumentTaxRow;
+  Customer, Inv1, Wh, OldId, NewId: Int64;
+  SumVat, SumWh: Currency;
+  HasWh: Boolean;
+
+  function Q(const ASql: string): string;
+  begin
+    Result := VarToStr(Scalar(ASql));
+  end;
+
+  procedure SetCard(const AName, AOffice, ATaxNo: string);
+  begin
+    UoW.Connection.ExecSQL('UPDATE acc_account SET name = ' + QuotedStr(AName) + ' WHERE id = ' + Customer.ToString);
+    UoW.Connection.ExecSQL('INSERT INTO acc_account_taxpayer (acc_account_id, taxpayer_type, tax_office, tax_no) VALUES (' +
+      Customer.ToString + ', 1, ' + QuotedStr(AOffice) + ', ' + QuotedStr(ATaxNo) + ') ON CONFLICT (acc_account_id) DO UPDATE SET ' +
+      'taxpayer_type = 1, tax_office = EXCLUDED.tax_office, tax_no = EXCLUDED.tax_no');
+  end;
+
+  function NewInvoice(AWithholding: Boolean): TSlsInvoice;
+  begin
+    Result := TSlsInvoice.Create;
+    Result.AccAccountId := Customer;
+    Result.StkWarehouseId := Wh;
+    L := Svc.NewLine(Result); L.StkInventoryId := Inv1; L.Quantity := 2; L.UnitPrice := 50; L.VatRate := 20;
+    L := Svc.NewLine(Result); L.StkInventoryId := Inv1; L.Quantity := 1; L.UnitPrice := 30; L.VatRate := 10;
+    if AWithholding then
+    begin
+      L := Svc.NewLine(Result); L.StkInventoryId := Inv1; L.Quantity := 1; L.UnitPrice := 100; L.VatRate := 20;
+      L.EinvWithholdingId := Scalar('SELECT min(id) FROM einv_withholding WHERE is_active');
+    end;
+  end;
+
+  function Party(AId: Int64): string;
+  begin
+    Result := Q('SELECT account_title || ''|'' || coalesce(tax_office, '''') || ''|'' || coalesce(tax_no, '''') FROM sls_invoice WHERE id = ' + AId.ToString);
+  end;
+
+begin
+  Ctx('Sales', 'document party + tax summary');
+  Customer := Scalar('SELECT min(id) FROM acc_account');
+  Inv1 := Scalar('SELECT min(id) FROM stk_inventory');
+  Wh := Scalar('SELECT min(id) FROM stk_warehouse');
+  Svc := TSlsInvoiceService.Create;
+  TrSvc := TSysDocumentTrailService.Create;
+  Inv := nil;
+  try
+    try
+      // ---- kopya: düzenlendiği andaki ünvan / vergi no kalır, yeni belge yenisini alır
+      Begin_;
+      SetCard('IT CARI LTD', 'IT VD', '1111111111');
+      Inv := NewInvoice(False);
+      Svc.BusinessSaveWithDetails(Inv, False, True);
+      OldId := Inv.Id;
+      Check('snapshot on insert', Party(OldId) = 'IT CARI LTD|IT VD|1111111111', Party(OldId));
+      Check('snapshot loaded into entity', (Inv.AccountTitle = 'IT CARI LTD') and (Inv.TaxNo = '1111111111'));
+      SetCard('IT CARI A.S.', 'IT VD 2', '2222222222');
+      Inv.Description := 'IT party changed';
+      Svc.BusinessSaveWithDetails(Inv, False, True);
+      Check('old invoice keeps its snapshot after card change', Party(OldId) = 'IT CARI LTD|IT VD|1111111111', Party(OldId));
+      FreeAndNil(Inv);
+      Inv := NewInvoice(False);
+      Svc.BusinessSaveWithDetails(Inv, False, True);
+      NewId := Inv.Id;
+      Check('new invoice takes the current card', Party(NewId) = 'IT CARI A.S.|IT VD 2|2222222222', Party(NewId));
+      FreeAndNil(Inv);
+
+      // ---- vergi özeti: KDV oran bazında = satırlar, başlık KDV'si ile aynı
+      Rows := TrSvc.TaxSummary('sls_invoice', OldId, True);
+      SumVat := 0;
+      for Row in Rows do
+        if Row.SummaryType = DOC_TAX_VAT then
+          SumVat := SumVat + Row.TaxAmount;
+      Check('tax summary: two VAT rates', (Length(Rows) = 2) and (Rows[0].TaxRate = 20) and (Rows[0].BaseAmount = 100) and
+        (Rows[1].TaxRate = 10) and (Rows[1].BaseAmount = 30));
+      Check('tax summary VAT = header VAT',
+        Near(SumVat, StrToFloat(Q('SELECT vat_amount FROM sls_invoice WHERE id = ' + OldId.ToString), TFormatSettings.Invariant)));
+
+      // ---- tevkifat: kod bazında satır, tutar = başlık tevkifatı
+      Inv := NewInvoice(True);
+      Svc.BusinessSaveWithDetails(Inv, False, True);
+      Rows := TrSvc.TaxSummary('sls_invoice', Inv.Id, True);
+      SumWh := 0;
+      HasWh := False;
+      for Row in Rows do
+        if Row.SummaryType = DOC_TAX_VAT_WITHHOLDING then
+        begin
+          HasWh := (Row.WithholdingCode <> '') and Near(Row.BaseAmount, 20);
+          SumWh := SumWh + Row.TaxAmount;
+        end;
+      Check('tax summary: withholding row (base = VAT of the line)', HasWh);
+      Check('tax summary withholding = header withholding', (SumWh > 0) and Near(SumWh, Inv.WithholdingAmount));
+      FreeAndNil(Inv);
+
+      // ---- ihracat dışı faturada vergi no / tüzel kişide vergi dairesi zorunlu
+      Begin_;
+      UoW.Connection.ExecSQL('DELETE FROM acc_account_taxpayer WHERE acc_account_id = ' + Customer.ToString);
+      Inv := NewInvoice(False);
+      Expect('invoice without customer tax no rejected', procedure begin Svc.BusinessSaveWithDetails(Inv, False, True); end);
+      FreeAndNil(Inv);
+      Begin_;
+      UoW.Connection.ExecSQL('INSERT INTO acc_account_taxpayer (acc_account_id, taxpayer_type, tax_no) VALUES (' +
+        Customer.ToString + ', 1, ''1111111111'') ON CONFLICT (acc_account_id) DO UPDATE SET taxpayer_type = 1, tax_office = NULL, tax_no = EXCLUDED.tax_no');
+      Inv := NewInvoice(False);
+      Expect('legal entity without tax office rejected', procedure begin Svc.BusinessSaveWithDetails(Inv, False, True); end);
+      FreeAndNil(Inv);
+      End_;
+    except
+      on Ex: Exception do Report('FAIL', GMod, GEnt, 'flow', Ex.ClassName + ': ' + Ex.Message);
+    end;
+  finally
+    End_;
+    Inv.Free;
+    TrSvc.Free;
+    Svc.Free;
+  end;
+end;
+
 procedure TestEInvoice;
 var
   GtipSvc: TEInvGtipService;
@@ -5300,6 +5481,7 @@ begin
   Inv1 := Scalar('SELECT min(id) FROM stk_inventory');
   Customer := Scalar('SELECT min(id) FROM acc_account');
   Customer2 := Scalar('SELECT min(id) FROM acc_account WHERE id > ' + Customer.ToString);
+  GTaxCustomers := [Customer, Customer2];
   Wh := Scalar('SELECT min(id) FROM stk_warehouse');
   PIdArchive := IdOf('einv_profile', 'EARSIVFATURA');
   PIdExport := IdOf('einv_profile', 'IHRACAT');
@@ -5689,6 +5871,7 @@ begin
       Begin_;
       Inv := NewInvoice(Customer, PIdArchive, TWithholding, 0, 20);
       Expect('TEVKIFAT without withholding line rejected', procedure begin InvSvc.BusinessSaveWithDetails(Inv, False, True); end);
+      Begin_;
       Inv.Lines[0].EinvWithholdingId := Wh602;
       InvSvc.BusinessSaveWithDetails(Inv, False, True);
       InvId := Inv.Id;
@@ -5760,6 +5943,7 @@ begin
     end;
   finally
     End_;
+    GTaxCustomers := [];
     Inv.Free;
     DL.Free;
     D.Free;
@@ -6810,6 +6994,7 @@ begin
   TestSalesOfferCurrencyChange;
   TestSalesOrderDocument;
   TestSalesDispatchInvoiceDocument;
+  TestDocumentPartyAndTaxSummary;
   TestProductionDocuments;
   TestAccountingVoucher;
   TestEInvoice;

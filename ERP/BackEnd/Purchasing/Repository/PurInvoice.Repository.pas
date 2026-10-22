@@ -247,6 +247,10 @@ begin
   Result.Description := Q.FieldByName('description').AsString;
   Result.AccountCode := Q.FieldByName('account_code').AsString;
   Result.AccountName := Q.FieldByName('account_name').AsString;
+  Result.AccountTitle := Q.FieldByName('account_title').AsString;
+  Result.TaxpayerType := Q.FieldByName('taxpayer_type').AsInteger;
+  Result.TaxOffice := Q.FieldByName('tax_office').AsString;
+  Result.TaxNo := Q.FieldByName('tax_no').AsString;
 end;
 
 function TPurInvoiceRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;

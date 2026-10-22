@@ -447,6 +447,8 @@ begin
   Result.DeliveryTermName := Q.FieldByName('delivery_term_name').AsString;
   Result.TaxOffice := Q.FieldByName('tax_office').AsString;
   Result.TaxNo := Q.FieldByName('tax_no').AsString;
+  Result.AccountTitle := Q.FieldByName('account_title').AsString;
+  Result.TaxpayerType := Q.FieldByName('taxpayer_type').AsInteger;
   Result.SaleType := Q.FieldByName('sale_type').AsInteger;
   Result.DeliveryTermIsIncoterms := Q.FieldByName('delivery_term_is_incoterms').AsBoolean;
 end;

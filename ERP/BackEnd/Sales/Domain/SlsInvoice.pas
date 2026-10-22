@@ -43,6 +43,10 @@ type
     // View (vw_sls_invoice) okunabilir alanları
     FAccountCode: string;
     FAccountName: string;
+    FAccountTitle: string;
+    FTaxpayerType: SmallInt;
+    FTaxOffice: string;
+    FTaxNo: string;
     FWarehouseName: string;
     FProfileCode: string;
     FInvoiceTypeCode: string;
@@ -103,6 +107,20 @@ type
 
     [NotMapped]
     property AccountName: string read FAccountName write FAccountName;
+
+    // Belgedeki cari kopyası (belge düzenlendiği andaki ünvan / vergi bilgisi; DB tetikleyicisi party_snapshot yazar:
+    // yeni kayıtta, cari değişince ya da kopya boşken cari kartından)
+    [NotMapped]
+    property AccountTitle: string read FAccountTitle write FAccountTitle;
+
+    [NotMapped]
+    property TaxpayerType: SmallInt read FTaxpayerType write FTaxpayerType;
+
+    [NotMapped]
+    property TaxOffice: string read FTaxOffice write FTaxOffice;
+
+    [NotMapped]
+    property TaxNo: string read FTaxNo write FTaxNo;
 
     [NotMapped]
     property WarehouseName: string read FWarehouseName write FWarehouseName;
@@ -243,6 +261,10 @@ begin
   Result.Description := Self.Description;
   Result.AccountCode := Self.AccountCode;
   Result.AccountName := Self.AccountName;
+  Result.AccountTitle := Self.AccountTitle;
+  Result.TaxpayerType := Self.TaxpayerType;
+  Result.TaxOffice := Self.TaxOffice;
+  Result.TaxNo := Self.TaxNo;
   Result.WarehouseName := Self.WarehouseName;
   Result.EinvProfileId := Self.EinvProfileId;
   Result.EinvInvoiceTypeId := Self.EinvInvoiceTypeId;

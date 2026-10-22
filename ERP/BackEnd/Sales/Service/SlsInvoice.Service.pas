@@ -34,6 +34,8 @@ type
     procedure CheckEInvoiceFromDb(AEntity: TSlsInvoice);
     // Sipariş kurundan / vadesinden fatura başlığı
     procedure ApplyOrderTerms(AInvoice: TSlsInvoice; AOrderId: Int64);
+    // İhracat dışındaki faturada cari vergi no (tüzel kişide vergi dairesi de) zorunlu; faturada saklanacak kopyaya bakılır
+    procedure CheckPartyTaxInfo(AEntity: TSlsInvoice);
   protected
     // ---- belge yapısı / kayıt adımları (TDocumentService)
     function GetLines(AHeader: TSlsInvoice): TObjectList<TSlsInvoiceDetail>; override;
@@ -114,7 +116,7 @@ implementation
 uses
   SysPermission.Service, SlsLookup, SlsInvoiceDetail.Service, SlsInvoiceDetail.Exception,
   SlsOfferDetail, SlsOfferDetail.Repository, SlsOfferDetail.Service, EInvLookup,
-  EInvDocument, EInvDocument.Repository, EInvDocument.Service, EInvSeries, EInvSeries.Repository;
+  EInvDocument, EInvDocument.Repository, EInvDocument.Service, EInvSeries, EInvSeries.Repository, AccLookup;
 
 // Alan adı + "zorunludur" (sınıf metotları için)
 procedure RaiseRequired(const AKey, ADefault: string);
@@ -191,6 +193,20 @@ begin
   R := ARepo.ReadEInvRules(AHeader.EinvProfileId, AHeader.EinvInvoiceTypeId, AHeader.EinvTaxExemptionId,
     AHeader.EinvDeliveryTermId, AHeader.EinvTransportModeId, AHeader.EinvPaymentMeansId);
   Result := ScopeFromRules(R, AHeader, ALines);
+end;
+
+procedure TSlsInvoiceService.CheckPartyTaxInfo(AEntity: TSlsInvoice);
+var
+  LTaxpayerType: Integer;
+  LTaxOffice, LTaxNo: string;
+begin
+  if (AEntity.AccAccountId <= 0) or EInvScope(AEntity).IsExport then
+    Exit;
+  TSlsInvoiceRepository(FRepo).ReadEffectiveParty(AEntity.Id, AEntity.AccAccountId, LTaxpayerType, LTaxOffice, LTaxNo);
+  if Trim(LTaxNo) = '' then
+    raise ESlsInvoiceExceptionTaxNoRequired.Create;
+  if (LTaxpayerType = ACC_TAXPAYER_LEGAL) and (Trim(LTaxOffice) = '') then
+    raise ESlsInvoiceExceptionTaxOfficeRequired.Create;
 end;
 
 function TSlsInvoiceService.EInvScope(AHeader: TSlsInvoice): TSlsEInvScope;
@@ -1107,6 +1123,8 @@ begin
   else
     CheckEInvoiceFromDb(AEntity);
   FEInvCheckedHeader := nil;
+
+  CheckPartyTaxInfo(AEntity);
 
   LFilter := TFilterCriteria.Create;
   try

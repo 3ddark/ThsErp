@@ -68,9 +68,15 @@ type
   TRecordHistoryAvailable = function(const ATableName: string): Boolean;
   TRecordHistoryShow = procedure(AOwner: TComponent; const ATableName: string; ARowId: Int64; const ARecordCaption: string);
 
+  // Evrak izi kancası: ufrmSysDocumentTrails initialization'da bağlanır (liste ve belge formu ona bağımlı olmasın)
+  TDocumentTrailAvailable = function(const ATableName: string): Boolean;
+  TDocumentTrailShow = procedure(AOwner: TComponent; const ATableName: string; ADocId: Int64; const ADocCaption: string);
+
 var
   GRecordHistoryAvailable: TRecordHistoryAvailable = nil;
   GRecordHistoryShow: TRecordHistoryShow = nil;
+  GDocumentTrailAvailable: TDocumentTrailAvailable = nil;
+  GDocumentTrailShow: TDocumentTrailShow = nil;
 
 implementation
 

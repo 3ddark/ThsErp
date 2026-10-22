@@ -37,7 +37,10 @@ type
     // UBL tarafları (fatura / irsaliye ortak)
     procedure ReadAddress(Q: TFDQuery; AAddressId: Int64; var AParty: TEInvUblParty);
     procedure ReadSupplier(Q: TFDQuery; var AParty: TEInvUblParty);
-    procedure ReadAccountParty(Q: TFDQuery; AAccountId: Int64; const AAddressType: string; var AParty: TEInvUblParty);
+    // Cari tarafı: ADocTable / ADocId verilirse ünvan / mükellef / vergi bilgisi belgenin kopyasından (belge düzenlendiği
+    // andaki bilgi), değilse cari kartından; adres her durumda cari adresinden
+    procedure ReadAccountParty(Q: TFDQuery; AAccountId: Int64; const AAddressType: string; var AParty: TEInvUblParty;
+      const ADocTable: string = ''; ADocId: Int64 = 0);
     procedure ReadAliases(Q: TFDQuery; AScope: Integer; AAccountId: Int64; var ASenderAlias, AReceiverAlias: string);
 
     function DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery; override;
@@ -286,7 +289,12 @@ end;
 
 // Cari: mükellef bilgisi (1 tüzel, 2 gerçek kişi) + adres (önce AAddressType, sonra birincil / yasal)
 procedure TEInvDocumentRepository.ReadAccountParty(Q: TFDQuery; AAccountId: Int64; const AAddressType: string;
-  var AParty: TEInvUblParty);
+  var AParty: TEInvUblParty; const ADocTable: string; ADocId: Int64);
+const
+  ADDRESS_SQL =
+    '       (SELECT aa.sys_address_id FROM public.acc_account_address aa WHERE aa.acc_account_id = :id ' +
+    '         ORDER BY (aa.address_type = :address_type) DESC, aa.is_primary DESC, (aa.address_type = ''LEGAL'') DESC, aa.id ' +
+    '         LIMIT 1) AS sys_address_id ';
 var
   LAddressId: Int64;
 begin
@@ -294,13 +302,21 @@ begin
   if AAccountId <= 0 then
     Exit;
   Q.Close;
-  Q.SQL.Text :=
-    'SELECT a.name, t.taxpayer_type, t.taxpayer_name, t.taxpayer_name2, t.taxpayer_surname, t.tax_office, t.tax_no, ' +
-    '       (SELECT aa.sys_address_id FROM public.acc_account_address aa WHERE aa.acc_account_id = a.id ' +
-    '         ORDER BY (aa.address_type = :address_type) DESC, aa.is_primary DESC, (aa.address_type = ''LEGAL'') DESC, aa.id ' +
-    '         LIMIT 1) AS sys_address_id ' +
-    '  FROM public.acc_account a LEFT JOIN public.acc_account_taxpayer t ON t.acc_account_id = a.id ' +
-    ' WHERE a.id = :id';
+  if ADocId > 0 then
+  begin
+    // ADocTable yalnız bu birimin sabitlerinden gelir (sls_invoice / sls_dispatch)
+    Q.SQL.Text :=
+      'SELECT d.account_title AS name, d.taxpayer_type, d.taxpayer_name, d.taxpayer_name2, d.taxpayer_surname, ' +
+      '       d.tax_office, d.tax_no, ' + ADDRESS_SQL +
+      '  FROM public.' + ADocTable + ' d WHERE d.id = :doc_id';
+    Q.ParamByName('doc_id').AsLargeInt := ADocId;
+  end
+  else
+    Q.SQL.Text :=
+      'SELECT a.name, t.taxpayer_type, t.taxpayer_name, t.taxpayer_name2, t.taxpayer_surname, t.tax_office, t.tax_no, ' +
+      ADDRESS_SQL +
+      '  FROM public.acc_account a LEFT JOIN public.acc_account_taxpayer t ON t.acc_account_id = a.id ' +
+      ' WHERE a.id = :id';
   Q.ParamByName('id').AsLargeInt := AAccountId;
   Q.ParamByName('address_type').AsWideString := AAddressType;
   LogQuery(Q, 'ReadAccountParty');
@@ -649,7 +665,7 @@ begin
 
       // ---- satıcı: uygulama ayarları; alıcı: cari + fatura adresi (yoksa birincil / yasal adres)
       ReadSupplier(Q, Result.Supplier);
-      ReadAccountParty(Q, LAccountId, 'BILLING', Result.Customer);
+      ReadAccountParty(Q, LAccountId, 'BILLING', Result.Customer, 'sls_invoice', AInvoiceId);
       // e-Arşiv: kimlik numarası bilinmeyen nihai tüketici
       if Result.Customer.Found and not Result.IsExport and (Result.Customer.TaxNo = '') and
         (Result.ProfileCode = EINV_PROFILE_ARCHIVE) then
@@ -804,7 +820,7 @@ begin
 
       // ---- sevk eden: uygulama ayarları; teslim alan: cari + sevk adresi; taşıyıcı: cari
       ReadSupplier(Q, LDoc.Supplier);
-      ReadAccountParty(Q, LAccountId, 'SHIPPING', LDoc.Customer);
+      ReadAccountParty(Q, LAccountId, 'SHIPPING', LDoc.Customer, 'sls_dispatch', ADispatchId);
       LDoc.HasCarrier := LCarrierId > 0;
       if LDoc.HasCarrier then
         ReadAccountParty(Q, LCarrierId, 'LEGAL', LDoc.Carrier);

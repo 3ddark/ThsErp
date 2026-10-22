@@ -214,6 +214,12 @@ document's old lines).
 - Defined VAT rates: `TAccSetTaxRateRepository.GetTaxRates` + `TAccSetTaxRateService.CheckDefinedRate` (stock group /
   card, purchase order / invoice lines; purchase invoice also allows 0). Line forms show the stock card's unit
   (`GetUomCode`) and fill VAT from the card (else group) when a stock card is picked.
+- Sales invoice customer tax rule (user decision 2026-10-22, "7a"): except export (`GetEInvScope(...).IsExport`), the tax /
+  identity no is required, plus the tax office for a legal entity (`TSlsInvoiceService.CheckPartyTaxInfo`, called from
+  `ValidateBusinessRules`, so header and document saves share it). It checks what the document will hold after the save
+  (`TSlsInvoiceRepository.ReadEffectiveParty`: same rule as the `party_snapshot` trigger). The account card keeps its own
+  rule (taxpayer type legal / real → fields required and red, no type = foreign / accounting account → not required).
+  Note: this also blocks an e-Archive invoice to an unidentified final consumer (no TCKN) — open question to the user.
 - Sales line VAT rate must be one of `acc_set_tax_rate` (`TSlsOfferDetailService.CheckVatRate`; line forms offer a
   combo of the defined rates); discount 0-100. Invoice exception: 0 % VAT only when the invoice has a tax exemption code.
 - Sales invoice e-document rules: `TSlsInvoiceService.CheckEInvoice` (class method; document save calls it from

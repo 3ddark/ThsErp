@@ -17,7 +17,7 @@ uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes, System.Math,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls,
   System.Generics.Collections,
-  ufrmInputDetailedDB, Detail.Lines, Detail.Totals, SharedFormTypes, LocalizationManager,
+  ufrmInputDetailedDB, Detail.Lines, Detail.Totals, Detail.TaxInfo, SharedFormTypes, LocalizationManager,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
   SlsInvoice.Service, SlsInvoice, SlsInvoice.Repository, SlsInvoiceDetail.Service, SlsInvoiceDetail;
 
@@ -73,7 +73,11 @@ type
     FTotals: TTotalsPanel;
     FPageLines: TTabSheet;
     FLines: TDetailSet<TSlsInvoiceDetail>;
+    FPageTax: TTabSheet;
+    FTaxInfo: TDocumentTaxInfo;
     FScope: TSlsEInvScope;
+    // Vergi Bilgisi sekmesi: belgedeki cari kopyası; ALoadSummary ise kayıtlı belgenin vergi dökümü de okunur
+    procedure ShowTaxInfo(ALoadSummary: Boolean);
     procedure ShowTotals;
     procedure ShowTotalValues;
     procedure ShowEInvFields;
@@ -95,7 +99,7 @@ implementation
 
 uses
   SysDecimalPlace.Cache,
-  SlsLookup, Grid.Types, ufrmSlsInvoiceLine,
+  SlsLookup, Grid.Types, ufrmSlsInvoiceLine, SysDocumentTrail.Service,
   AccAccount, AccAccount.Service, ufrmAccAccounts,
   StkWarehouse, StkWarehouse.Service, ufrmStkWarehouses,
   SysCurrency, SysCurrency.Service, ufrmSysCurrencies,
@@ -160,6 +164,8 @@ begin
 
   // Kalemler = Table.Lines (servis satır no sırasıyla okur); ekle / çıkar / hesap fatura servisinde
   FPageLines := AddDetailPage(TLocalizationManager.Translate(TLangKeys.TSlsInvoice.MenuLines, 'Lines'));
+  FPageTax := AddDetailPage(TLocalizationManager.Translate(TLangKeys.TDocumentTaxInfo.TabTitle, 'Tax Information'));
+  FTaxInfo := TDocumentTaxInfo.Create(Self, FPageTax);
   FLines := AddDetail<TSlsInvoiceDetail>(FPageLines, 'vw_sls_invoice_detail',
     function: TObjectList<TSlsInvoiceDetail>
     begin
@@ -211,6 +217,7 @@ end;
 destructor TfrmSlsInvoiceDetail.Destroy;
 begin
   FreeAndNil(FTotals);
+  FreeAndNil(FTaxInfo);
   inherited;
 end;
 
@@ -290,6 +297,30 @@ begin
   ShowEInvField(lblCustomsDeclarationNo, edtCustomsDeclarationNo, FScope.IsExport, False);
   ShowEInvField(lblGtbRefNo, edtGtbRefNo, FScope.IsExport, False);
   ShowEInvField(lblActualExportDate, edtActualExportDate, FScope.IsExport, False);
+  ShowTaxInfo(False);
+end;
+
+procedure TfrmSlsInvoiceDetail.ShowTaxInfo(ALoadSummary: Boolean);
+var
+  LSvc: TSysDocumentTrailService;
+begin
+  if not Assigned(FTaxInfo) or not Assigned(Table) then
+    Exit;
+  // ihracat dışında vergi no (tüzel kişide vergi dairesi de) zorunlu: boşsa kırmızı (cari kartında tamamlanır)
+  FTaxInfo.SetParty(Table.AccountTitle, Table.TaxOffice, Table.TaxNo, Table.TaxpayerType, not FScope.IsExport);
+  if not ALoadSummary then
+    Exit;
+  if Table.Id <= 0 then
+  begin
+    FTaxInfo.SetSummary([], Table.Currency);
+    Exit;
+  end;
+  LSvc := TSysDocumentTrailService.Create;
+  try
+    FTaxInfo.SetSummary(LSvc.TaxSummary('sls_invoice', Table.Id, True), Table.Currency);
+  finally
+    LSvc.Free;
+  end;
 end;
 
 procedure TfrmSlsInvoiceDetail.ShowEInvFields;
@@ -366,6 +397,10 @@ begin
 
   if Assigned(FPageLines) then
     FPageLines.Caption := TLocalizationManager.Translate(TLangKeys.TSlsInvoice.MenuLines, 'Lines');
+  if Assigned(FPageTax) then
+    FPageTax.Caption := TLocalizationManager.Translate(TLangKeys.TDocumentTaxInfo.TabTitle, 'Tax Information');
+  if Assigned(FTaxInfo) then
+    FTaxInfo.ApplyLocalization;
   if Assigned(FLines) then
   begin
     FLines.Grid.SetColumnTitle('line_no', TLocalizationManager.Translate(TLangKeys.TSlsInvoiceDetail.ColLineNo, 'Line No'));
@@ -426,7 +461,12 @@ begin
           Table.AccAccountId := 0;
           Table.AccountCode := '';
           Table.AccountName := '';
+          Table.AccountTitle := '';
+          Table.TaxpayerType := 0;
+          Table.TaxOffice := '';
+          Table.TaxNo := '';
           LEdit.Clear;
+          ShowTaxInfo(False);
         end
         else
         begin
@@ -434,6 +474,12 @@ begin
           Table.AccountCode := LFrmAccAccountId.Table.Code;
           Table.AccountName := LFrmAccAccountId.Table.Name;
           LEdit.Text := Table.AccountName;
+          // belgeye cari kartının güncel bilgisi gelir (kayıtta tetikleyici aynısını belgeye yazar)
+          Table.AccountTitle := LFrmAccAccountId.Table.Name;
+          Table.TaxpayerType := LFrmAccAccountId.Table.TaxpayerType;
+          Table.TaxOffice := LFrmAccAccountId.Table.TaxOffice;
+          Table.TaxNo := LFrmAccAccountId.Table.TaxNo;
+          ShowTaxInfo(False);
           // e-belge senaryosu boşsa cariye göre önerilir (e-Fatura mükellefi / e-Arşiv)
           Service.SuggestEInv(Table, LFrmAccAccountId.Table.EInvoiceActive);
           ShowEInvFields;
@@ -667,6 +713,7 @@ begin
     ShowTotals
   else
     ShowTotalValues;
+  ShowTaxInfo(True);
 end;
 
 end.

@@ -60,6 +60,74 @@ begin
   end;
 end;
 
+// Evrak izi: belge listesi kancası, kaynak belgeden iz (sipariş -> irsaliye / fatura), satırdan belgenin açılması
+procedure TestDocumentTrail;
+var
+  Outer, Before: TList<TForm>;
+  LFrm: TfrmSysDocumentTrails;
+  F: TForm;
+  V: Variant;
+  LOrderId: Int64;
+  LFound: Boolean;
+begin
+  TUi.Module := 'System';
+  TUi.FormName := 'TfrmSysDocumentTrails';
+  Outer := TUi.Snapshot;
+  try
+    try
+      if Assigned(GDocumentTrailAvailable) and GDocumentTrailAvailable('sls_order') and not GDocumentTrailAvailable('sys_city') then
+        TUi.R('PASS', 'trail hook', 'sls_order yes, sys_city no')
+      else
+        TUi.R('FAIL', 'trail hook', 'availability wrong');
+      V := TUi.Sql('SELECT id FROM sls_order WHERE order_no = :n', ['SS900002']);
+      if VarIsNull(V) or VarIsEmpty(V) then
+      begin
+        TUi.R('WARN', 'trail', 'seed order SS900002 missing');
+        Exit;
+      end;
+      LOrderId := V;
+      Before := TUi.Snapshot;
+      try
+        TfrmSysDocumentTrails.ShowDocumentTrail(Application, 'sls_order', LOrderId, 'SS900002');
+        TUi.Pump;
+        F := TUi.NewForm(Before);
+        if not (F is TfrmSysDocumentTrails) then
+        begin
+          TUi.R('FAIL', 'trail open', 'no trail form ' + TUi.TakeDialogs);
+          Exit;
+        end;
+        LFrm := TfrmSysDocumentTrails(F);
+        LFound := LFrm.Qry.Locate('doc_table', 'sls_dispatch', []);
+        if LFound and LFrm.Qry.Locate('doc_table', 'sls_order', []) and (LFrm.Qry.FieldByName('trail_level').AsInteger = 0) then
+          TUi.R('PASS', 'trail rows', IntToStr(LFrm.Qry.RecordCount) + ' rows: order (0) + delivery note')
+        else
+          TUi.R('FAIL', 'trail rows', 'order / delivery note missing, rows ' + IntToStr(LFrm.Qry.RecordCount) + ' caption ' + LFrm.Caption + ' active ' + BoolToStr(LFrm.Qry.Active, True) + ' sql ' + LFrm.Qry.SQL.Text);
+        if LFrm.Qry.Locate('doc_table', 'sls_dispatch', []) then
+        begin
+          LFrm.SetSelectedItem;
+          Before.Free;
+          Before := TUi.Snapshot;
+          LFrm.ShowInputForm(nil, ifmRewiev);
+          TUi.Pump;
+          F := TUi.NewForm(Before);
+          if (F <> nil) and SameText(F.ClassName, 'TfrmSlsDispatchDetail') then
+            TUi.R('PASS', 'trail opens document', F.ClassName + ' ' + TUi.Mode(F))
+          else
+            TUi.R('FAIL', 'trail opens document', 'no TfrmSlsDispatchDetail ' + TUi.TakeDialogs);
+        end;
+      finally
+        Before.Free;
+      end;
+    except
+      on E: Exception do TUi.R('FAIL', 'trail', E.ClassName + ': ' + E.Message);
+    end;
+    TUi.CloseNewForms(Outer);
+    TUi.TakeDialogs;
+  finally
+    Outer.Free;
+  end;
+end;
+
 // Ana ekran: PageControl yok, göstergeler çizilen kartlar (TDashTile) + genel bakış grafikleri (TDashChart),
 // karta / grafiğe tıklayınca liste açılır, yetkisi kısıtlı kullanıcıda yalnız izinli kartlar görünür
 procedure TestDashboardForm(AURepo: TSysUserRepository);
@@ -932,6 +1000,8 @@ begin
 {{CALLS}}
       if TUi.Want('Account', 'TfrmAccAccountTransactions') then
         TestShowSources;
+      if TUi.Want('System', 'TfrmSysDocumentTrails') then
+        TestDocumentTrail;
       if TUi.Want('System', 'TfrmSysApplicationSetting') then
         TestAppSettingForm;
       if TUi.Want('Core', 'TfrmDashboard') then

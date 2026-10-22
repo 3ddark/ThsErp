@@ -8,7 +8,8 @@
 // kaydı kilitleyip belgeyi yeniden okur ve kalemleri düzenlenebilir yapar; Kapat değişiklikleri bırakır (rollback).
 // Kopya: Service.PrepareCopy(Table) (başlık ve kalemler yeni).
 // Başlık (pnlContent) altındaki çubuktaki düğmeyle daraltılır (kalemlere daha çok satır); daraltılmışken çubukta
-// HeaderSummary gösterilir, durum oturum boyunca form sınıfı başına hatırlanır.
+// HeaderSummary gösterilir, durum oturum boyunca form sınıfı başına hatırlanır. Kayıtlı belgede çubuğun sağında
+// "Evrak İzi" (önceki / sonraki belgeler; belge türü izliyse, kanca GDocumentTrailShow).
 // Kısayollar: F5 Onayla, F6 Kapat, F7 satır ekle, Enter satırı aç, Ctrl+Del satır sil, PgUp / PgDn (incelemede)
 // liste kayıtlarında gezinti.
 
@@ -46,10 +47,13 @@ type
     FHeaderBar: TPanel;
     FBtnHeaderToggle: TSpeedButton;
     FLblHeaderSummary: TLabel;
+    FBtnDocumentTrail: TSpeedButton;
+    FDocumentTrailAvailable: Boolean;
     FHeaderCollapsed: Boolean;
     procedure CreateDetailArea;
     procedure CreateHeaderBar;
     procedure HeaderToggleClick(Sender: TObject);
+    procedure DocumentTrailClick(Sender: TObject);
     procedure SetHeaderCollapsed(AValue: Boolean);
     procedure DetailSetChanged(Sender: TObject);
     procedure PageResize(Sender: TObject);
@@ -103,7 +107,7 @@ type
 implementation
 
 uses
-  LocalizationManager, Ths.DialogHelper;
+  LocalizationManager, Ths.DialogHelper, EntitySchemaCache, Grid.Types;
 
 { TDetailHeaderState }
 
@@ -201,6 +205,16 @@ begin
   FBtnHeaderToggle.Font.Name := 'Segoe UI';
   FBtnHeaderToggle.OnClick := HeaderToggleClick;
 
+  FDocumentTrailAvailable := Assigned(GDocumentTrailAvailable) and Assigned(GDocumentTrailShow) and
+    GDocumentTrailAvailable(TEntitySchemaCache.GetSchema(TE).TableName);
+  FBtnDocumentTrail := TSpeedButton.Create(Self);
+  FBtnDocumentTrail.Parent := FHeaderBar;
+  FBtnDocumentTrail.Align := alRight;
+  FBtnDocumentTrail.Width := 120;
+  FBtnDocumentTrail.Flat := True;
+  FBtnDocumentTrail.Font.Name := 'Segoe UI';
+  FBtnDocumentTrail.OnClick := DocumentTrailClick;
+
   FLblHeaderSummary := TLabel.Create(Self);
   FLblHeaderSummary.Parent := FHeaderBar;
   FLblHeaderSummary.Align := alClient;
@@ -218,6 +232,12 @@ procedure TfrmInputDetailedDB<TE, TS>.HeaderToggleClick(Sender: TObject);
 begin
   SetHeaderCollapsed(not FHeaderCollapsed);
   TDetailHeaderState.SetCollapsed(ClassName, FHeaderCollapsed);
+end;
+
+procedure TfrmInputDetailedDB<TE, TS>.DocumentTrailClick(Sender: TObject);
+begin
+  if Assigned(GDocumentTrailShow) and (Table.Id > 0) then
+    GDocumentTrailShow(Self, TEntitySchemaCache.GetSchema(TE).TableName, Table.Id, Self.Caption);
 end;
 
 procedure TfrmInputDetailedDB<TE, TS>.SetHeaderCollapsed(AValue: Boolean);
@@ -262,6 +282,10 @@ procedure TfrmInputDetailedDB<TE, TS>.UpdateHeaderBar;
 begin
   if not Assigned(FHeaderBar) then
     Exit;
+  // kayıtlı belge (yeni / kopya değil)
+  FBtnDocumentTrail.Visible := FDocumentTrailAvailable and (Table.Id > 0) and
+    not (FormMode in [ifmNewRecord, ifmCopyNewRecord]);
+  FBtnDocumentTrail.Caption := TLocalizationManager.Translate(TLangKeys.TSysDocumentTrail.MenuDocumentTrail, 'Document Trail');
   if FHeaderCollapsed then
   begin
     FBtnHeaderToggle.Caption := GLYPH_EXPAND + '  ' +

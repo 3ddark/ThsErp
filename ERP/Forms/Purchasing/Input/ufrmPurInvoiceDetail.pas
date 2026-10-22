@@ -12,7 +12,7 @@ uses
   Winapi.Windows, System.SysUtils, System.Variants, System.Classes, System.Math,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls,
   System.Generics.Collections,
-  ufrmInputDetailedDB, Detail.Lines, Detail.Totals, SharedFormTypes, LocalizationManager,
+  ufrmInputDetailedDB, Detail.Lines, Detail.Totals, Detail.TaxInfo, SharedFormTypes, LocalizationManager,
   Ths.Helper.BaseTypes, Ths.Helper.Edit, Ths.Helper.Memo, Ths.Helper.ComboBox,
   PurInvoice.Service, PurInvoice, PurInvoiceDetail.Service, PurInvoiceDetail;
 
@@ -41,6 +41,10 @@ type
     FTotals: TTotalsPanel;
     FPageLines: TTabSheet;
     FLines: TDetailSet<TPurInvoiceDetail>;
+    FPageTax: TTabSheet;
+    FTaxInfo: TDocumentTaxInfo;
+    // Vergi Bilgisi sekmesi: belgedeki cari kopyası; ALoadSummary ise kayıtlı belgenin vergi dökümü de okunur
+    procedure ShowTaxInfo(ALoadSummary: Boolean);
     procedure ShowTotals;
     // Table toplamları panelde (para birimiyle)
     procedure ShowTotalValues;
@@ -59,7 +63,7 @@ implementation
 
 uses
   SysDecimalPlace.Cache,
-  Grid.Types, ufrmPurInvoiceLine,
+  Grid.Types, ufrmPurInvoiceLine, SysDocumentTrail.Service,
   AccAccount, AccAccount.Service, ufrmAccAccounts,        // TfrmAccAccounts helper output form
   SysCurrency, SysCurrency.Service, ufrmSysCurrencies;    // TfrmSysCurrencies helper output form
 
@@ -99,6 +103,8 @@ begin
   // Kalemler = Table.Lines (servis satır no sırasıyla okur); ekle / çıkar / hesap fatura servisinde,
   // satır formu modal, kayıt faturayla birlikte
   FPageLines := AddDetailPage(TLocalizationManager.Translate(TLangKeys.TPurInvoice.MenuLines, 'Lines'));
+  FPageTax := AddDetailPage(TLocalizationManager.Translate(TLangKeys.TDocumentTaxInfo.TabTitle, 'Tax Information'));
+  FTaxInfo := TDocumentTaxInfo.Create(Self, FPageTax);
   FLines := AddDetail<TPurInvoiceDetail>(FPageLines, 'vw_pur_order_detail',
     function: TObjectList<TPurInvoiceDetail>
     begin
@@ -144,6 +150,7 @@ end;
 destructor TfrmPurInvoiceDetail.Destroy;
 begin
   FreeAndNil(FTotals);
+  FreeAndNil(FTaxInfo);
   inherited;
 end;
 
@@ -202,6 +209,10 @@ begin
 
   if Assigned(FPageLines) then
     FPageLines.Caption := TLocalizationManager.Translate(TLangKeys.TPurInvoice.MenuLines, 'Lines');
+  if Assigned(FPageTax) then
+    FPageTax.Caption := TLocalizationManager.Translate(TLangKeys.TDocumentTaxInfo.TabTitle, 'Tax Information');
+  if Assigned(FTaxInfo) then
+    FTaxInfo.ApplyLocalization;
   if Assigned(FLines) then
   begin
     FLines.Grid.SetColumnTitle('line_no', TLocalizationManager.Translate(TLangKeys.TPurInvoiceDetail.ColLineNo, 'Line No'));
@@ -244,7 +255,12 @@ begin
           Table.AccAccountId := 0;
           Table.AccountCode := '';
           Table.AccountName := '';
+          Table.AccountTitle := '';
+          Table.TaxpayerType := 0;
+          Table.TaxOffice := '';
+          Table.TaxNo := '';
           LEdit.Clear;
+          ShowTaxInfo(False);
         end
         else
         begin
@@ -252,6 +268,12 @@ begin
           Table.AccountCode := LFrmAccAccountId.Table.Code;
           Table.AccountName := LFrmAccAccountId.Table.Name;
           LEdit.Text := Table.AccountName;
+          // belgeye cari kartının güncel bilgisi gelir (kayıtta tetikleyici aynısını belgeye yazar)
+          Table.AccountTitle := LFrmAccAccountId.Table.Name;
+          Table.TaxpayerType := LFrmAccAccountId.Table.TaxpayerType;
+          Table.TaxOffice := LFrmAccAccountId.Table.TaxOffice;
+          Table.TaxNo := LFrmAccAccountId.Table.TaxNo;
+          ShowTaxInfo(False);
         end;
     finally
       LFrmAccAccountId.Free;
@@ -284,6 +306,28 @@ begin
   end;
 end;
 
+procedure TfrmPurInvoiceDetail.ShowTaxInfo(ALoadSummary: Boolean);
+var
+  LSvc: TSysDocumentTrailService;
+begin
+  if not Assigned(FTaxInfo) or not Assigned(Table) then
+    Exit;
+  FTaxInfo.SetParty(Table.AccountTitle, Table.TaxOffice, Table.TaxNo, Table.TaxpayerType, False);
+  if not ALoadSummary then
+    Exit;
+  if Table.Id <= 0 then
+  begin
+    FTaxInfo.SetSummary([], Table.Currency);
+    Exit;
+  end;
+  LSvc := TSysDocumentTrailService.Create;
+  try
+    FTaxInfo.SetSummary(LSvc.TaxSummary('pur_invoice', Table.Id, True), Table.Currency);
+  finally
+    LSvc.Free;
+  end;
+end;
+
 procedure TfrmPurInvoiceDetail.RefreshData;
 begin
   inherited;
@@ -305,6 +349,7 @@ begin
     ShowTotals
   else
     ShowTotalValues;
+  ShowTaxInfo(True);
 end;
 
 end.

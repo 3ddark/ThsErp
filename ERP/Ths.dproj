@@ -276,6 +276,7 @@
         <DCCReference Include="Forms\Core\Base\Detail\Detail.Grid.pas"/>
         <DCCReference Include="Forms\Core\Base\Detail\Detail.Lines.pas"/>
         <DCCReference Include="Forms\Core\Base\Detail\Detail.Totals.pas"/>
+        <DCCReference Include="Forms\Core\Base\Detail\Detail.TaxInfo.pas"/>
         <DCCReference Include="Forms\Core\Base\Detail\Detail.Address.pas"/>
         <DCCReference Include="Forms\Core\Base\ufrmInputLineDB.pas"/>
         <DCCReference Include="Forms\Core\Base\ufrmInputDetailedDB.pas"/>
@@ -424,6 +425,13 @@
         </DCCReference>
         <DCCReference Include="Forms\System\Output\ufrmSysAuditLogs.pas">
             <Form>frmSysAuditLogs</Form>
+        </DCCReference>
+        <DCCReference Include="BackEnd\System\Domain\SysDocumentTrail.pas"/>
+        <DCCReference Include="BackEnd\System\Exception\SysDocumentTrail.Exception.pas"/>
+        <DCCReference Include="BackEnd\System\Repository\SysDocumentTrail.Repository.pas"/>
+        <DCCReference Include="BackEnd\System\Service\SysDocumentTrail.Service.pas"/>
+        <DCCReference Include="Forms\System\Output\ufrmSysDocumentTrails.pas">
+            <Form>frmSysDocumentTrails</Form>
         </DCCReference>
         <DCCReference Include="BackEnd\Core\ApiService.Config.pas"/>
         <DCCReference Include="BackEnd\System\Domain\SysLookup.pas"/>

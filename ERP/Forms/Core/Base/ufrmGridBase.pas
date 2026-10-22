@@ -39,6 +39,7 @@ type
     FmniPrint: TMenuItem;
     FmniRemoveGridSort: TMenuItem;
     FmniRecordHistory: TMenuItem;
+    FmniDocumentTrail: TMenuItem;
 
     FPanelMain: TPanel;
     FPanelContent: TPanel;
@@ -147,6 +148,7 @@ type
     property mniPrint: TMenuItem read FmniPrint write FmniPrint;
     property mniRemoveGridSort: TMenuItem read FmniRemoveGridSort write FmniRemoveGridSort;
     property mniRecordHistory: TMenuItem read FmniRecordHistory write FmniRecordHistory;
+    property mniDocumentTrail: TMenuItem read FmniDocumentTrail write FmniDocumentTrail;
 
     // False (FormShow öncesi): eski davranış, tüm kayıtlar belleğe alınır, filtre / sıralama istemcide
     property PagingEnabled: Boolean read GetPagingEnabled write SetPagingEnabled;
@@ -248,6 +250,7 @@ type
     procedure mniPrintClick(Sender: TObject); virtual;
     procedure mniRemoveSortClick(Sender: TObject); virtual;
     procedure mniRecordHistoryClick(Sender: TObject); virtual;
+    procedure mniDocumentTrailClick(Sender: TObject); virtual;
     procedure mniColumnsClick(Sender: TObject); virtual;
     function GridTableName: string;
 
@@ -549,6 +552,9 @@ begin
   // Görünürlüğü FormShow'da: tablo işlem geçmişi tutuyorsa ve okuma yetkisi varsa
   mniRecordHistory := AddMenu(TLocalizationManager.Translate(TLangKeys.TSysAuditLog.MenuRecordHistory, 'Audit Log'),
     'mniRecordHistory', mniRecordHistoryClick, False, TextToShortCut('Ctrl+H'));
+  // Görünürlüğü FormShow'da: belge listesi (talep / teklif / sipariş / irsaliye / fatura) ise
+  mniDocumentTrail := AddMenu(TLocalizationManager.Translate(TLangKeys.TSysDocumentTrail.MenuDocumentTrail, 'Document Trail'),
+    'mniDocumentTrail', mniDocumentTrailClick, False, TextToShortCut('Ctrl+T'));
 end;
 
 function TfrmGridBase.AddMenu(ATitle, AMenuName: string; AClickEvent: TNotifyEvent; AVibisle: Boolean;
@@ -665,6 +671,9 @@ begin
     end;
   end;
 
+  if Assigned(mniDocumentTrail) then
+    mniDocumentTrail.Visible := not FIsHelper and Assigned(GDocumentTrailAvailable) and GDocumentTrailAvailable(GridTableName);
+
   if FIsHelper then
     EdtFilter.SetFocus
   else if Self.Parent = nil then
@@ -714,6 +723,8 @@ begin
     mniRemoveGridSort.Caption := TLocalizationManager.Translate(TLangKeys.TPopupMenu.RemoveSort, 'Remove Sort');
   if Assigned(mniRecordHistory) then
     mniRecordHistory.Caption := TLocalizationManager.Translate(TLangKeys.TSysAuditLog.MenuRecordHistory, 'Audit Log');
+  if Assigned(mniDocumentTrail) then
+    mniDocumentTrail.Caption := TLocalizationManager.Translate(TLangKeys.TSysDocumentTrail.MenuDocumentTrail, 'Document Trail');
 
   if Assigned(FPagingBar) then
     FPagingBar.ApplyLocalization;
@@ -1746,6 +1757,16 @@ begin
     Exit;
   LRowId := FQry.FieldByName('id').AsLargeInt;
   GRecordHistoryShow(Self, GridTableName, LRowId, Self.Caption + ' #' + LRowId.ToString);
+end;
+
+procedure TfrmGridBase.mniDocumentTrailClick(Sender: TObject);
+var
+  LRowId: Int64;
+begin
+  if not Assigned(GDocumentTrailShow) or not Assigned(FQry) or not FQry.Active or FQry.IsEmpty or not HasIdField then
+    Exit;
+  LRowId := FQry.FieldByName('id').AsLargeInt;
+  GDocumentTrailShow(Self, GridTableName, LRowId, Self.Caption + ' #' + LRowId.ToString);
 end;
 
 { Dışa aktarım }

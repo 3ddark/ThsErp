@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
-\restrict itPdCh6th8aoYd48PNq1BWYFQ1audGxXARkg8vsif2ola5u8E1HArIb7IrwOLaR
+\restrict FJnOQd8j0XCm8SYapnxYrFH3wAbwIHsdkhOC5PWTfyU04tfuY7Ak66qL7Oqgdog
 
--- Dumped from database version 18.1
--- Dumped by pg_dump version 18.1
+-- Dumped from database version 18.3
+-- Dumped by pg_dump version 18.3
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -203,6 +203,22 @@ $$;
 ALTER FUNCTION public.audit_flush(p_batch_size integer, p_max_batches integer, OUT moved integer, OUT error_message text) OWNER TO postgres;
 
 --
+-- Name: fn_acc_account_party(bigint); Type: FUNCTION; Schema: public; Owner: ths_admin
+--
+
+CREATE FUNCTION public.fn_acc_account_party(p_acc_account_id bigint) RETURNS TABLE(account_title character varying, taxpayer_type smallint, taxpayer_name character varying, taxpayer_name2 character varying, taxpayer_surname character varying, tax_office character varying, tax_no character varying)
+    LANGUAGE sql STABLE
+    AS $$
+  SELECT a.name, t.taxpayer_type, t.taxpayer_name, t.taxpayer_name2, t.taxpayer_surname, t.tax_office, t.tax_no
+    FROM public.acc_account a
+    LEFT JOIN public.acc_account_taxpayer t ON t.acc_account_id = a.id
+   WHERE a.id = p_acc_account_id
+$$;
+
+
+ALTER FUNCTION public.fn_acc_account_party(p_acc_account_id bigint) OWNER TO ths_admin;
+
+--
 -- Name: fn_active_period(); Type: FUNCTION; Schema: public; Owner: ths_admin
 --
 
@@ -248,6 +264,100 @@ CREATE FUNCTION public.fn_default_product_type_id() RETURNS integer
 
 
 ALTER FUNCTION public.fn_default_product_type_id() OWNER TO postgres;
+
+--
+-- Name: fn_document_party_snapshot(); Type: FUNCTION; Schema: public; Owner: ths_admin
+--
+
+CREATE FUNCTION public.fn_document_party_snapshot() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  IF TG_OP = 'UPDATE' THEN
+    IF NEW.acc_account_id IS NOT DISTINCT FROM OLD.acc_account_id AND NEW.account_title IS NOT NULL THEN
+      RETURN NEW;
+    END IF;
+  END IF;
+  SELECT p.account_title, p.taxpayer_type, p.taxpayer_name, p.taxpayer_name2, p.taxpayer_surname, p.tax_office, p.tax_no
+    INTO NEW.account_title, NEW.taxpayer_type, NEW.taxpayer_name, NEW.taxpayer_name2, NEW.taxpayer_surname,
+         NEW.tax_office, NEW.tax_no
+    FROM public.fn_acc_account_party(NEW.acc_account_id) p;
+  RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION public.fn_document_party_snapshot() OWNER TO ths_admin;
+
+--
+-- Name: fn_document_trail(character varying, bigint); Type: FUNCTION; Schema: public; Owner: ths_admin
+--
+
+CREATE FUNCTION public.fn_document_trail(p_doc_table character varying, p_doc_id bigint) RETURNS TABLE(trail_level integer, doc_table character varying, doc_id bigint, doc_no character varying, doc_date date, acc_account_id bigint, account_code character varying, account_name character varying, status smallint, currency character varying, total_amount numeric)
+    LANGUAGE plpgsql STABLE
+    AS $$
+DECLARE
+  v_tables varchar[] := ARRAY[p_doc_table];
+  v_ids bigint[] := ARRAY[p_doc_id];
+  v_levels integer[] := ARRAY[0];
+  v_keys text[] := ARRAY[p_doc_table || ':' || p_doc_id];
+  v_front_tables varchar[];
+  v_front_ids bigint[];
+  v_next_tables varchar[];
+  v_next_ids bigint[];
+  v_dir integer;
+  v_level integer;
+  v_table varchar;
+  v_link record;
+BEGIN
+  FOREACH v_dir IN ARRAY ARRAY[-1, 1] LOOP
+    v_front_tables := ARRAY[p_doc_table];
+    v_front_ids := ARRAY[p_doc_id];
+    v_level := 0;
+    WHILE cardinality(v_front_ids) > 0 AND abs(v_level) < 10 LOOP
+      v_level := v_level + v_dir;
+      v_next_tables := '{}';
+      v_next_ids := '{}';
+      FOR v_table IN SELECT DISTINCT f.t FROM unnest(v_front_tables) f(t) LOOP
+        FOR v_link IN
+          SELECT DISTINCT
+                 CASE WHEN v_dir < 0 THEN l.from_table ELSE l.to_table END AS t,
+                 CASE WHEN v_dir < 0 THEN l.from_id ELSE l.to_id END AS i
+            FROM public.vw_sys_document_link l
+           WHERE (v_dir < 0 AND l.to_table = v_table
+                   AND l.to_id = ANY (ARRAY(SELECT f.i FROM unnest(v_front_tables, v_front_ids) f(t, i) WHERE f.t = v_table)))
+              OR (v_dir > 0 AND l.from_table = v_table
+                   AND l.from_id = ANY (ARRAY(SELECT f.i FROM unnest(v_front_tables, v_front_ids) f(t, i) WHERE f.t = v_table)))
+        LOOP
+          IF NOT (v_link.t || ':' || v_link.i) = ANY (v_keys) THEN
+            v_keys := v_keys || (v_link.t || ':' || v_link.i);
+            v_tables := v_tables || v_link.t::varchar;
+            v_ids := v_ids || v_link.i;
+            v_levels := v_levels || v_level;
+            v_next_tables := v_next_tables || v_link.t::varchar;
+            v_next_ids := v_next_ids || v_link.i;
+          END IF;
+        END LOOP;
+      END LOOP;
+      v_front_tables := v_next_tables;
+      v_front_ids := v_next_ids;
+    END LOOP;
+  END LOOP;
+
+  FOR v_table IN SELECT DISTINCT r.t FROM unnest(v_tables) r(t) LOOP
+    RETURN QUERY
+      SELECT r.lv, d.doc_table::varchar, d.id, d.doc_no::varchar, d.doc_date, d.acc_account_id, d.account_code::varchar,
+             d.account_name::varchar, d.status, d.currency::varchar, d.total_amount
+        FROM public.vw_sys_document d
+        JOIN unnest(v_tables, v_ids, v_levels) r(t, i, lv) ON r.t = d.doc_table AND r.i = d.id
+       WHERE d.doc_table = v_table
+         AND d.id = ANY (ARRAY(SELECT r2.i FROM unnest(v_tables, v_ids) r2(t, i) WHERE r2.t = v_table));
+  END LOOP;
+END;
+$$;
+
+
+ALTER FUNCTION public.fn_document_trail(p_doc_table character varying, p_doc_id bigint) OWNER TO ths_admin;
 
 --
 -- Name: fn_exchange_rate(character varying, date); Type: FUNCTION; Schema: public; Owner: ths_admin
@@ -568,6 +678,69 @@ $$;
 ALTER FUNCTION public.fn_sys_address_text(p_sys_address_id bigint, p_locale character varying) OWNER TO ths_admin;
 
 --
+-- Name: fn_tax_summary_refresh(character varying, bigint[]); Type: FUNCTION; Schema: public; Owner: ths_admin
+--
+
+CREATE FUNCTION public.fn_tax_summary_refresh(p_doc character varying, p_ids bigint[]) RETURNS void
+    LANGUAGE plpgsql
+    AS $_$
+DECLARE
+  v_summary text := p_doc || '_tax_summary';
+  v_detail text := p_doc || '_detail';
+  v_fk text := p_doc || '_id';
+BEGIN
+  IF p_ids IS NULL OR cardinality(p_ids) = 0 THEN
+    RETURN;
+  END IF;
+  EXECUTE format('DELETE FROM public.%I WHERE %I = ANY ($1)', v_summary, v_fk) USING p_ids;
+  EXECUTE format(
+    'INSERT INTO public.%1$I (%2$I, summary_type, tax_rate, base_amount, tax_amount)
+     SELECT d.%2$I, 1, d.vat_rate, sum(d.net_amount), sum(d.vat_amount)
+       FROM public.%3$I d
+      WHERE d.%2$I = ANY ($1)
+      GROUP BY d.%2$I, d.vat_rate', v_summary, v_fk, v_detail) USING p_ids;
+  IF p_doc = 'sls_invoice' THEN
+    INSERT INTO public.sls_invoice_tax_summary (sls_invoice_id, summary_type, tax_rate, einv_withholding_id, base_amount, tax_amount)
+    SELECT d.sls_invoice_id, 2, w.rate, d.einv_withholding_id, sum(d.vat_amount), sum(d.withholding_amount)
+      FROM public.sls_invoice_detail d
+      JOIN public.einv_withholding w ON w.id = d.einv_withholding_id
+     WHERE d.sls_invoice_id = ANY (p_ids)
+     GROUP BY d.sls_invoice_id, d.einv_withholding_id, w.rate;
+  END IF;
+END;
+$_$;
+
+
+ALTER FUNCTION public.fn_tax_summary_refresh(p_doc character varying, p_ids bigint[]) OWNER TO ths_admin;
+
+--
+-- Name: fn_tax_summary_trigger(); Type: FUNCTION; Schema: public; Owner: ths_admin
+--
+
+CREATE FUNCTION public.fn_tax_summary_trigger() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $_$
+DECLARE
+  v_fk text := TG_ARGV[0] || '_id';
+  v_ids bigint[];
+BEGIN
+  IF TG_OP = 'INSERT' THEN
+    EXECUTE format('SELECT array_agg(DISTINCT %I) FROM new_rows', v_fk) INTO v_ids;
+  ELSIF TG_OP = 'DELETE' THEN
+    EXECUTE format('SELECT array_agg(DISTINCT %I) FROM old_rows', v_fk) INTO v_ids;
+  ELSE
+    EXECUTE format('SELECT array_agg(DISTINCT x) FROM (SELECT %1$I AS x FROM new_rows UNION SELECT %1$I FROM old_rows) s', v_fk)
+      INTO v_ids;
+  END IF;
+  PERFORM public.fn_tax_summary_refresh(TG_ARGV[0], v_ids);
+  RETURN NULL;
+END;
+$_$;
+
+
+ALTER FUNCTION public.fn_tax_summary_trigger() OWNER TO ths_admin;
+
+--
 -- Name: personel_adsoyad(); Type: FUNCTION; Schema: public; Owner: ths_admin
 --
 
@@ -687,7 +860,7 @@ CREATE SERVER audit_server FOREIGN DATA WRAPPER postgres_fdw OPTIONS (
     dbname 'ths_audit',
     fetch_size '1000',
     host 'localhost',
-    port '5433'
+    port '5432'
 );
 
 
@@ -3303,8 +3476,16 @@ CREATE TABLE public.pur_invoice (
     vat_amount numeric(18,2) DEFAULT 0 NOT NULL,
     total_amount numeric(18,2) DEFAULT 0 NOT NULL,
     description character varying(256),
+    account_title character varying(128),
+    taxpayer_type smallint,
+    taxpayer_name character varying(32),
+    taxpayer_name2 character varying(32),
+    taxpayer_surname character varying(32),
+    tax_office character varying(64),
+    tax_no character varying(32),
     CONSTRAINT pur_invoice_due_date_check CHECK (((due_date IS NULL) OR (due_date >= invoice_date))),
-    CONSTRAINT pur_invoice_exchange_rate_check CHECK ((exchange_rate > (0)::numeric))
+    CONSTRAINT pur_invoice_exchange_rate_check CHECK ((exchange_rate > (0)::numeric)),
+    CONSTRAINT pur_invoice_taxpayer_type_check CHECK (((taxpayer_type IS NULL) OR (taxpayer_type = ANY (ARRAY[1, 2]))))
 );
 
 
@@ -3368,127 +3549,30 @@ ALTER TABLE public.pur_invoice ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY 
 
 
 --
--- Name: pur_offer; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: pur_invoice_tax_summary; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.pur_offer (
-    id bigint CONSTRAINT als_teklifler_id_not_null NOT NULL,
-    order_id bigint,
-    irsaliye_id bigint,
-    fatura_id bigint,
-    is_confirmed boolean CONSTRAINT pur_offer_is_confirmed_nn NOT NULL,
-    total_amount numeric(18,6) DEFAULT 0 CONSTRAINT pur_offer_total_amount_nn NOT NULL,
-    discount_amount numeric(18,6) DEFAULT 0 CONSTRAINT pur_offer_discount_amount_nn NOT NULL,
-    ara_toplam numeric(18,6) DEFAULT 0 CONSTRAINT als_teklifler_ara_toplam_not_null NOT NULL,
-    tax_rate_1 integer DEFAULT 0 CONSTRAINT pur_offer_tax_rate_1_nn NOT NULL,
-    tax_amount_1 numeric(18,6) DEFAULT 0 CONSTRAINT pur_offer_tax_amount_1_nn NOT NULL,
-    tax_rate_2 integer DEFAULT 0 CONSTRAINT pur_offer_tax_rate_2_nn NOT NULL,
-    tax_amount_2 numeric(18,6) DEFAULT 0 CONSTRAINT pur_offer_tax_amount_2_nn NOT NULL,
-    tax_rate_3 integer DEFAULT 0 CONSTRAINT pur_offer_tax_rate_3_nn NOT NULL,
-    tax_amount_3 numeric(18,6) DEFAULT 0 CONSTRAINT pur_offer_tax_amount_3_nn NOT NULL,
-    tax_rate_4 integer DEFAULT 0 CONSTRAINT pur_offer_tax_rate_4_nn NOT NULL,
-    tax_amount_4 numeric(18,6) DEFAULT 0 CONSTRAINT pur_offer_tax_amount_4_nn NOT NULL,
-    tax_rate_5 integer DEFAULT 0 CONSTRAINT pur_offer_tax_rate_5_nn NOT NULL,
-    tax_amount_5 numeric(18,6) DEFAULT 0 CONSTRAINT pur_offer_tax_amount_5_nn NOT NULL,
-    genel_toplam numeric(18,6) DEFAULT 0 CONSTRAINT als_teklifler_genel_toplam_not_null NOT NULL,
-    operation_type_id bigint,
-    offer_number character varying(16) CONSTRAINT als_teklifler_teklif_no_not_null NOT NULL,
-    offer_date date CONSTRAINT als_teklifler_teklif_tarihi_not_null NOT NULL,
-    validity_date date CONSTRAINT als_teklifler_gecerlilik_tarihi_not_null NOT NULL,
-    customer_code character varying(16),
-    customer_name character varying(128),
-    tax_office character varying(32) CONSTRAINT als_teklifler_vergi_dairesi_not_null NOT NULL,
-    tax_number character varying(32) CONSTRAINT als_teklifler_vergi_no_not_null NOT NULL,
-    country_id bigint,
-    city_id bigint,
-    district character varying(64),
-    mahalle character varying(64),
-    semt character varying(64),
-    cadde character varying(64),
-    sokak character varying(64),
-    building_name character varying(64),
-    door_number character varying(16),
-    posta_kodu character varying(16),
-    web character varying(64),
-    email character varying(128),
-    customer_representative character varying(64),
-    contact_name character varying(32),
-    contact_phone character varying(24),
-    referans character varying(128),
-    currency_code character varying(3) CONSTRAINT pur_offer_currency_code_nn NOT NULL,
-    exchange_rate_usd numeric(7,4) DEFAULT 1,
-    exchange_rate_eur numeric(7,4) DEFAULT 1,
-    description character varying(128),
-    withholding_code character varying(8),
-    withholding_description character varying(128),
-    withholding_share smallint,
-    withholding_denominator smallint
+CREATE TABLE public.pur_invoice_tax_summary (
+    id bigint NOT NULL,
+    pur_invoice_id bigint NOT NULL,
+    summary_type smallint NOT NULL,
+    tax_rate numeric(5,2) NOT NULL,
+    einv_withholding_id bigint,
+    base_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    tax_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    CONSTRAINT pur_invoice_tax_summary_type_check CHECK ((summary_type = ANY (ARRAY[1, 2]))),
+    CONSTRAINT pur_invoice_tax_summary_withholding_check CHECK (((summary_type = 2) = (einv_withholding_id IS NOT NULL)))
 );
 
 
-ALTER TABLE public.pur_offer OWNER TO ths_admin;
+ALTER TABLE public.pur_invoice_tax_summary OWNER TO ths_admin;
 
 --
--- Name: pur_offer_detail; Type: TABLE; Schema: public; Owner: ths_admin
+-- Name: pur_invoice_tax_summary_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
 --
 
-CREATE TABLE public.pur_offer_detail (
-    id bigint CONSTRAINT als_teklif_detaylari_id_not_null NOT NULL,
-    header_id bigint,
-    order_detail_id bigint,
-    delivery_note_detail_id bigint,
-    invoice_detail_id bigint,
-    sku_code character varying(32),
-    stock_description character varying(128),
-    user_description character varying(128),
-    referans character varying(128),
-    miktar double precision DEFAULT 1 CONSTRAINT als_teklif_detaylari_miktar_not_null NOT NULL,
-    uom_code character varying(8),
-    discount_rate numeric(6,3) DEFAULT 0,
-    tax_rate integer DEFAULT 0,
-    fiyat numeric(18,6) DEFAULT 0,
-    net_fiyat numeric(18,6) DEFAULT 0 CONSTRAINT als_teklif_detaylari_net_fiyat_not_null NOT NULL,
-    amount numeric(18,6) DEFAULT 0 CONSTRAINT pur_offer_detail_amount_nn NOT NULL,
-    discount_amount numeric(18,6) DEFAULT 0 CONSTRAINT pur_offer_detail_discount_amount_nn NOT NULL,
-    net_amount numeric(18,6) DEFAULT 0 CONSTRAINT pur_offer_detail_net_amount_nn NOT NULL,
-    tax_amount numeric(18,6) DEFAULT 0 CONSTRAINT pur_offer_detail_tax_amount_nn NOT NULL,
-    total_amount numeric(18,6) DEFAULT 0 CONSTRAINT pur_offer_detail_total_amount_nn NOT NULL,
-    is_ana_urun boolean DEFAULT false CONSTRAINT als_teklif_detaylari_is_ana_urun_not_null NOT NULL,
-    referans_ana_urun_id bigint,
-    gtip_no character varying(16),
-    mensei_ulke_adi character varying(128)
-);
-
-
-ALTER TABLE public.pur_offer_detail OWNER TO ths_admin;
-
---
--- Name: pur_offer_detail_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-CREATE SEQUENCE public.pur_offer_detail_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public.pur_offer_detail_id_seq OWNER TO ths_admin;
-
---
--- Name: pur_offer_detail_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ths_admin
---
-
-ALTER SEQUENCE public.pur_offer_detail_id_seq OWNED BY public.pur_offer_detail.id;
-
-
---
--- Name: pur_offer_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE public.pur_offer ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
-    SEQUENCE NAME public.pur_offer_id_seq
+ALTER TABLE public.pur_invoice_tax_summary ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.pur_invoice_tax_summary_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3519,10 +3603,18 @@ CREATE TABLE public.pur_order (
     vat_amount numeric(18,2) DEFAULT 0 NOT NULL,
     total_amount numeric(18,2) DEFAULT 0 NOT NULL,
     description character varying(256),
+    account_title character varying(128),
+    taxpayer_type smallint,
+    taxpayer_name character varying(32),
+    taxpayer_name2 character varying(32),
+    taxpayer_surname character varying(32),
+    tax_office character varying(64),
+    tax_no character varying(32),
     CONSTRAINT pur_order_delivery_date_check CHECK (((delivery_date IS NULL) OR (delivery_date >= order_date))),
     CONSTRAINT pur_order_exchange_rate_check CHECK ((exchange_rate > (0)::numeric)),
     CONSTRAINT pur_order_payment_term_check CHECK (((payment_term_days >= 0) AND (payment_term_days <= 365))),
-    CONSTRAINT pur_order_status_check CHECK (((status >= 1) AND (status <= 5)))
+    CONSTRAINT pur_order_status_check CHECK (((status >= 1) AND (status <= 5))),
+    CONSTRAINT pur_order_taxpayer_type_check CHECK (((taxpayer_type IS NULL) OR (taxpayer_type = ANY (ARRAY[1, 2]))))
 );
 
 
@@ -3589,6 +3681,39 @@ ALTER TABLE public.pur_order ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
+-- Name: pur_order_tax_summary; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.pur_order_tax_summary (
+    id bigint NOT NULL,
+    pur_order_id bigint NOT NULL,
+    summary_type smallint NOT NULL,
+    tax_rate numeric(5,2) NOT NULL,
+    einv_withholding_id bigint,
+    base_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    tax_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    CONSTRAINT pur_order_tax_summary_type_check CHECK ((summary_type = ANY (ARRAY[1, 2]))),
+    CONSTRAINT pur_order_tax_summary_withholding_check CHECK (((summary_type = 2) = (einv_withholding_id IS NOT NULL)))
+);
+
+
+ALTER TABLE public.pur_order_tax_summary OWNER TO ths_admin;
+
+--
+-- Name: pur_order_tax_summary_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.pur_order_tax_summary ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.pur_order_tax_summary_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: pur_quotation; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
@@ -3616,12 +3741,20 @@ CREATE TABLE public.pur_quotation (
     approved_sys_user_id bigint,
     approved_at timestamp without time zone,
     description character varying(256),
+    account_title character varying(128),
+    taxpayer_type smallint,
+    taxpayer_name character varying(32),
+    taxpayer_name2 character varying(32),
+    taxpayer_surname character varying(32),
+    tax_office character varying(64),
+    tax_no character varying(32),
     CONSTRAINT pur_quotation_delivery_date_check CHECK (((delivery_date IS NULL) OR (delivery_date >= quotation_date))),
     CONSTRAINT pur_quotation_delivery_days_check CHECK (((delivery_days >= 0) AND (delivery_days <= 999))),
     CONSTRAINT pur_quotation_exchange_rate_check CHECK ((exchange_rate > (0)::numeric)),
     CONSTRAINT pur_quotation_order_check CHECK (((pur_order_id IS NULL) OR (status = 5))),
     CONSTRAINT pur_quotation_payment_term_check CHECK (((payment_term_days >= 0) AND (payment_term_days <= 365))),
     CONSTRAINT pur_quotation_status_check CHECK (((status >= 1) AND (status <= 6))),
+    CONSTRAINT pur_quotation_taxpayer_type_check CHECK (((taxpayer_type IS NULL) OR (taxpayer_type = ANY (ARRAY[1, 2])))),
     CONSTRAINT pur_quotation_valid_until_check CHECK (((valid_until IS NULL) OR (valid_until >= quotation_date)))
 );
 
@@ -3687,6 +3820,39 @@ ALTER TABLE public.pur_quotation ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTIT
 
 
 --
+-- Name: pur_quotation_tax_summary; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.pur_quotation_tax_summary (
+    id bigint NOT NULL,
+    pur_quotation_id bigint NOT NULL,
+    summary_type smallint NOT NULL,
+    tax_rate numeric(5,2) NOT NULL,
+    einv_withholding_id bigint,
+    base_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    tax_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    CONSTRAINT pur_quotation_tax_summary_type_check CHECK ((summary_type = ANY (ARRAY[1, 2]))),
+    CONSTRAINT pur_quotation_tax_summary_withholding_check CHECK (((summary_type = 2) = (einv_withholding_id IS NOT NULL)))
+);
+
+
+ALTER TABLE public.pur_quotation_tax_summary OWNER TO ths_admin;
+
+--
+-- Name: pur_quotation_tax_summary_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.pur_quotation_tax_summary ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.pur_quotation_tax_summary_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: pur_receipt; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
@@ -3699,7 +3865,15 @@ CREATE TABLE public.pur_receipt (
     waybill_no character varying(32),
     pur_order_id bigint,
     currency character varying(3) DEFAULT public.fn_default_currency() NOT NULL,
-    description character varying(256)
+    description character varying(256),
+    account_title character varying(128),
+    taxpayer_type smallint,
+    taxpayer_name character varying(32),
+    taxpayer_name2 character varying(32),
+    taxpayer_surname character varying(32),
+    tax_office character varying(64),
+    tax_no character varying(32),
+    CONSTRAINT pur_receipt_taxpayer_type_check CHECK (((taxpayer_type IS NULL) OR (taxpayer_type = ANY (ARRAY[1, 2]))))
 );
 
 
@@ -3943,11 +4117,19 @@ CREATE TABLE public.sls_dispatch (
     trailer2_einv_vehicle_id bigint,
     driver1_einv_driver_id bigint,
     driver2_einv_driver_id bigint,
+    account_title character varying(128),
+    taxpayer_type smallint,
+    taxpayer_name character varying(32),
+    taxpayer_name2 character varying(32),
+    taxpayer_surname character varying(32),
+    tax_office character varying(64),
+    tax_no character varying(32),
     CONSTRAINT sls_dispatch_driver_check CHECK (((driver2_einv_driver_id IS NULL) OR (driver1_einv_driver_id IS NOT NULL))),
     CONSTRAINT sls_dispatch_einv_check CHECK ((((einv_profile_id IS NULL) = (einv_status IS NULL)) AND ((einv_profile_id IS NULL) = (einv_uuid IS NULL)))),
     CONSTRAINT sls_dispatch_einv_no_check CHECK (((einv_no IS NULL) OR ((einv_no)::text ~ '^[A-Z0-9]{3}[0-9]{4}[0-9]{9}$'::text))),
     CONSTRAINT sls_dispatch_einv_status_check CHECK (((einv_status >= 1) AND (einv_status <= 7))),
     CONSTRAINT sls_dispatch_status_check CHECK ((status = ANY (ARRAY[1, 2]))),
+    CONSTRAINT sls_dispatch_taxpayer_type_check CHECK (((taxpayer_type IS NULL) OR (taxpayer_type = ANY (ARRAY[1, 2])))),
     CONSTRAINT sls_dispatch_trailer_check CHECK (((trailer2_einv_vehicle_id IS NULL) OR (trailer1_einv_vehicle_id IS NOT NULL)))
 );
 
@@ -4034,11 +4216,19 @@ CREATE TABLE public.sls_invoice (
     actual_export_date date,
     withholding_amount numeric(18,2) DEFAULT 0 NOT NULL,
     einv_no character varying(16),
+    account_title character varying(128),
+    taxpayer_type smallint,
+    taxpayer_name character varying(32),
+    taxpayer_name2 character varying(32),
+    taxpayer_surname character varying(32),
+    tax_office character varying(64),
+    tax_no character varying(32),
     CONSTRAINT sls_invoice_due_date_check CHECK (((due_date IS NULL) OR (due_date >= invoice_date))),
     CONSTRAINT sls_invoice_einv_check CHECK ((((einv_profile_id IS NULL) = (einv_invoice_type_id IS NULL)) AND ((einv_profile_id IS NULL) = (einv_status IS NULL)) AND ((einv_profile_id IS NULL) = (einv_uuid IS NULL)))),
     CONSTRAINT sls_invoice_einv_no_check CHECK (((einv_no IS NULL) OR ((einv_no)::text ~ '^[A-Z0-9]{3}[0-9]{4}[0-9]{9}$'::text))),
     CONSTRAINT sls_invoice_einv_status_check CHECK (((einv_status >= 1) AND (einv_status <= 7))),
     CONSTRAINT sls_invoice_exchange_rate_check CHECK ((exchange_rate > (0)::numeric)),
+    CONSTRAINT sls_invoice_taxpayer_type_check CHECK (((taxpayer_type IS NULL) OR (taxpayer_type = ANY (ARRAY[1, 2])))),
     CONSTRAINT sls_invoice_withholding_amount_check CHECK ((withholding_amount >= (0)::numeric))
 );
 
@@ -4130,6 +4320,39 @@ ALTER TABLE public.sls_invoice ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY 
 
 
 --
+-- Name: sls_invoice_tax_summary; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.sls_invoice_tax_summary (
+    id bigint NOT NULL,
+    sls_invoice_id bigint NOT NULL,
+    summary_type smallint NOT NULL,
+    tax_rate numeric(5,2) NOT NULL,
+    einv_withholding_id bigint,
+    base_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    tax_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    CONSTRAINT sls_invoice_tax_summary_type_check CHECK ((summary_type = ANY (ARRAY[1, 2]))),
+    CONSTRAINT sls_invoice_tax_summary_withholding_check CHECK (((summary_type = 2) = (einv_withholding_id IS NOT NULL)))
+);
+
+
+ALTER TABLE public.sls_invoice_tax_summary OWNER TO ths_admin;
+
+--
+-- Name: sls_invoice_tax_summary_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.sls_invoice_tax_summary ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sls_invoice_tax_summary_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: sls_offer; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
@@ -4162,6 +4385,13 @@ CREATE TABLE public.sls_offer (
     einv_payment_means_id bigint,
     einv_delivery_term_id bigint,
     sale_type smallint DEFAULT 1 NOT NULL,
+    account_title character varying(128),
+    taxpayer_type smallint,
+    taxpayer_name character varying(32),
+    taxpayer_name2 character varying(32),
+    taxpayer_surname character varying(32),
+    tax_office character varying(64),
+    tax_no character varying(32),
     CONSTRAINT sls_offer_billing_shipping_address_check CHECK (((billing_sys_address_id IS NULL) OR (shipping_sys_address_id IS NULL) OR (billing_sys_address_id <> shipping_sys_address_id))),
     CONSTRAINT sls_offer_delivery_date_check CHECK (((delivery_date IS NULL) OR (delivery_date >= offer_date))),
     CONSTRAINT sls_offer_eur_rate_check CHECK (((eur_rate IS NULL) OR (eur_rate > (0)::numeric))),
@@ -4169,6 +4399,7 @@ CREATE TABLE public.sls_offer (
     CONSTRAINT sls_offer_payment_term_check CHECK (((payment_term_days >= 0) AND (payment_term_days <= 365))),
     CONSTRAINT sls_offer_sale_type_check CHECK (((sale_type >= 1) AND (sale_type <= 5))),
     CONSTRAINT sls_offer_status_check CHECK (((status >= 1) AND (status <= 5))),
+    CONSTRAINT sls_offer_taxpayer_type_check CHECK (((taxpayer_type IS NULL) OR (taxpayer_type = ANY (ARRAY[1, 2])))),
     CONSTRAINT sls_offer_usd_rate_check CHECK (((usd_rate IS NULL) OR (usd_rate > (0)::numeric))),
     CONSTRAINT sls_offer_valid_until_check CHECK (((valid_until IS NULL) OR (valid_until >= offer_date)))
 );
@@ -4284,6 +4515,39 @@ ALTER TABLE public.sls_offer ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
+-- Name: sls_offer_tax_summary; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.sls_offer_tax_summary (
+    id bigint NOT NULL,
+    sls_offer_id bigint NOT NULL,
+    summary_type smallint NOT NULL,
+    tax_rate numeric(5,2) NOT NULL,
+    einv_withholding_id bigint,
+    base_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    tax_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    CONSTRAINT sls_offer_tax_summary_type_check CHECK ((summary_type = ANY (ARRAY[1, 2]))),
+    CONSTRAINT sls_offer_tax_summary_withholding_check CHECK (((summary_type = 2) = (einv_withholding_id IS NOT NULL)))
+);
+
+
+ALTER TABLE public.sls_offer_tax_summary OWNER TO ths_admin;
+
+--
+-- Name: sls_offer_tax_summary_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.sls_offer_tax_summary ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sls_offer_tax_summary_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
 -- Name: sls_order; Type: TABLE; Schema: public; Owner: ths_admin
 --
 
@@ -4306,10 +4570,18 @@ CREATE TABLE public.sls_order (
     vat_amount numeric(18,2) DEFAULT 0 NOT NULL,
     total_amount numeric(18,2) DEFAULT 0 NOT NULL,
     description character varying(256),
+    account_title character varying(128),
+    taxpayer_type smallint,
+    taxpayer_name character varying(32),
+    taxpayer_name2 character varying(32),
+    taxpayer_surname character varying(32),
+    tax_office character varying(64),
+    tax_no character varying(32),
     CONSTRAINT sls_order_delivery_date_check CHECK (((delivery_date IS NULL) OR (delivery_date >= order_date))),
     CONSTRAINT sls_order_exchange_rate_check CHECK ((exchange_rate > (0)::numeric)),
     CONSTRAINT sls_order_payment_term_check CHECK (((payment_term_days >= 0) AND (payment_term_days <= 365))),
-    CONSTRAINT sls_order_status_check CHECK (((status >= 1) AND (status <= 5)))
+    CONSTRAINT sls_order_status_check CHECK (((status >= 1) AND (status <= 5))),
+    CONSTRAINT sls_order_taxpayer_type_check CHECK (((taxpayer_type IS NULL) OR (taxpayer_type = ANY (ARRAY[1, 2]))))
 );
 
 
@@ -4367,6 +4639,39 @@ ALTER TABLE public.sls_order_detail ALTER COLUMN id ADD GENERATED ALWAYS AS IDEN
 
 ALTER TABLE public.sls_order ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
     SEQUENCE NAME public.sls_order_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: sls_order_tax_summary; Type: TABLE; Schema: public; Owner: ths_admin
+--
+
+CREATE TABLE public.sls_order_tax_summary (
+    id bigint NOT NULL,
+    sls_order_id bigint NOT NULL,
+    summary_type smallint NOT NULL,
+    tax_rate numeric(5,2) NOT NULL,
+    einv_withholding_id bigint,
+    base_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    tax_amount numeric(18,2) DEFAULT 0 NOT NULL,
+    CONSTRAINT sls_order_tax_summary_type_check CHECK ((summary_type = ANY (ARRAY[1, 2]))),
+    CONSTRAINT sls_order_tax_summary_withholding_check CHECK (((summary_type = 2) = (einv_withholding_id IS NOT NULL)))
+);
+
+
+ALTER TABLE public.sls_order_tax_summary OWNER TO ths_admin;
+
+--
+-- Name: sls_order_tax_summary_id_seq; Type: SEQUENCE; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE public.sls_order_tax_summary ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public.sls_order_tax_summary_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -7539,7 +7844,14 @@ CREATE VIEW public.vw_pur_invoice AS
     (( SELECT count(*) AS count
            FROM public.pur_invoice_detail d
           WHERE (d.pur_invoice_id = f.id)))::integer AS line_count,
-    f.description
+    f.description,
+    f.account_title,
+    f.taxpayer_type,
+    f.taxpayer_name,
+    f.taxpayer_name2,
+    f.taxpayer_surname,
+    f.tax_office,
+    f.tax_no
    FROM (public.pur_invoice f
      JOIN public.acc_account a ON ((a.id = f.acc_account_id)));
 
@@ -7610,7 +7922,14 @@ CREATE VIEW public.vw_pur_order AS
     (( SELECT count(*) AS count
            FROM public.pur_order_detail d
           WHERE (d.pur_order_id = o.id)))::integer AS line_count,
-    o.description
+    o.description,
+    o.account_title,
+    o.taxpayer_type,
+    o.taxpayer_name,
+    o.taxpayer_name2,
+    o.taxpayer_surname,
+    o.tax_office,
+    o.tax_no
    FROM ((public.pur_order o
      JOIN public.acc_account a ON ((a.id = o.acc_account_id)))
      LEFT JOIN public.stk_warehouse w ON ((w.id = o.stk_warehouse_id)));
@@ -7696,7 +8015,14 @@ CREATE VIEW public.vw_pur_quotation AS
     (( SELECT count(*) AS count
            FROM public.pur_quotation_detail d
           WHERE (d.pur_quotation_id = q.id)))::integer AS line_count,
-    q.description
+    q.description,
+    q.account_title,
+    q.taxpayer_type,
+    q.taxpayer_name,
+    q.taxpayer_name2,
+    q.taxpayer_surname,
+    q.tax_office,
+    q.tax_no
    FROM ((((public.pur_quotation q
      JOIN public.acc_account a ON ((a.id = q.acc_account_id)))
      LEFT JOIN public.pur_request r ON ((r.id = q.pur_request_id)))
@@ -7817,7 +8143,14 @@ CREATE VIEW public.vw_pur_receipt AS
     (( SELECT COALESCE(sum(round((d.quantity * d.unit_price), 2)), (0)::numeric) AS "coalesce"
            FROM public.pur_receipt_detail d
           WHERE (d.pur_receipt_id = p.id)))::numeric(18,2) AS total_amount,
-    p.description
+    p.description,
+    p.account_title,
+    p.taxpayer_type,
+    p.taxpayer_name,
+    p.taxpayer_name2,
+    p.taxpayer_surname,
+    p.tax_office,
+    p.tax_no
    FROM (((public.pur_receipt p
      JOIN public.acc_account a ON ((a.id = p.acc_account_id)))
      JOIN public.stk_warehouse w ON ((w.id = p.stk_warehouse_id)))
@@ -8090,7 +8423,14 @@ CREATE VIEW public.vw_sls_dispatch AS
     p.driver2_einv_driver_id,
     ((((d2.first_name)::text || ' '::text) || (d2.family_name)::text))::character varying(129) AS driver2_name,
     a.e_despatch_active AS account_e_despatch_active,
-    ed.is_valid AS einv_xml_valid
+    ed.is_valid AS einv_xml_valid,
+    p.account_title,
+    p.taxpayer_type,
+    p.taxpayer_name,
+    p.taxpayer_name2,
+    p.taxpayer_surname,
+    p.tax_office,
+    p.tax_no
    FROM (((((((((((public.sls_dispatch p
      JOIN public.acc_account a ON ((a.id = p.acc_account_id)))
      JOIN public.stk_warehouse w ON ((w.id = p.stk_warehouse_id)))
@@ -8193,7 +8533,14 @@ CREATE VIEW public.vw_sls_invoice AS
     ((f.total_amount - f.withholding_amount))::numeric(18,2) AS payable_amount,
     a.e_invoice_active AS account_e_invoice_active,
     f.einv_no,
-    ed.is_valid AS einv_xml_valid
+    ed.is_valid AS einv_xml_valid,
+    f.account_title,
+    f.taxpayer_type,
+    f.taxpayer_name,
+    f.taxpayer_name2,
+    f.taxpayer_surname,
+    f.tax_office,
+    f.tax_no
    FROM (((((((((public.sls_invoice f
      JOIN public.acc_account a ON ((a.id = f.acc_account_id)))
      LEFT JOIN public.stk_warehouse w ON ((w.id = f.stk_warehouse_id)))
@@ -8302,11 +8649,13 @@ CREATE VIEW public.vw_sls_offer AS
     o.description,
     o.billing_address_id,
     o.billing_sys_address_id,
-    (replace((public.fn_sys_address_text(o.billing_sys_address_id, NULL::character varying))::text, '
+    (replace((public.fn_sys_address_text(o.billing_sys_address_id, NULL::character varying))::text, '
+
 '::text, ', '::text))::character varying(512) AS billing_address,
     o.shipping_address_id,
     o.shipping_sys_address_id,
-    (replace((public.fn_sys_address_text(o.shipping_sys_address_id, NULL::character varying))::text, '
+    (replace((public.fn_sys_address_text(o.shipping_sys_address_id, NULL::character varying))::text, '
+
 '::text, ', '::text))::character varying(512) AS shipping_address,
     o.base_currency,
     o.usd_rate,
@@ -8318,16 +8667,20 @@ CREATE VIEW public.vw_sls_offer AS
     o.einv_delivery_term_id,
     dt.code AS delivery_term_code,
     dt.name AS delivery_term_name,
-    tp.tax_office,
-    tp.tax_no,
+    o.tax_office,
+    o.tax_no,
     o.sale_type,
-    dt.is_incoterms AS delivery_term_is_incoterms
-   FROM (((((public.sls_offer o
+    dt.is_incoterms AS delivery_term_is_incoterms,
+    o.account_title,
+    o.taxpayer_type,
+    o.taxpayer_name,
+    o.taxpayer_name2,
+    o.taxpayer_surname
+   FROM ((((public.sls_offer o
      JOIN public.acc_account a ON ((a.id = o.acc_account_id)))
      LEFT JOIN public.emp_employee e ON ((e.id = o.emp_employee_id)))
      LEFT JOIN public.einv_payment_means pm ON ((pm.id = o.einv_payment_means_id)))
-     LEFT JOIN public.einv_delivery_term dt ON ((dt.id = o.einv_delivery_term_id)))
-     LEFT JOIN public.acc_account_taxpayer tp ON ((tp.acc_account_id = o.acc_account_id)));
+     LEFT JOIN public.einv_delivery_term dt ON ((dt.id = o.einv_delivery_term_id)));
 
 
 ALTER VIEW public.vw_sls_offer OWNER TO ths_admin;
@@ -8397,7 +8750,14 @@ CREATE VIEW public.vw_sls_order AS
     (( SELECT count(*) AS count
            FROM public.sls_order_detail d
           WHERE (d.sls_order_id = o.id)))::integer AS line_count,
-    o.description
+    o.description,
+    o.account_title,
+    o.taxpayer_type,
+    o.taxpayer_name,
+    o.taxpayer_name2,
+    o.taxpayer_surname,
+    o.tax_office,
+    o.tax_no
    FROM (((public.sls_order o
      JOIN public.acc_account a ON ((a.id = o.acc_account_id)))
      LEFT JOIN public.stk_warehouse w ON ((w.id = o.stk_warehouse_id)))
@@ -9013,6 +9373,311 @@ CREATE VIEW public.vw_sys_decimal_place AS
 ALTER VIEW public.vw_sys_decimal_place OWNER TO ths_admin;
 
 --
+-- Name: vw_sys_document; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_sys_document AS
+ SELECT 'pur_request'::character varying(32) AS doc_table,
+    r.id,
+    (r.request_no)::character varying(32) AS doc_no,
+    r.request_date AS doc_date,
+    NULL::bigint AS acc_account_id,
+    NULL::character varying AS account_code,
+    (r.employee_name)::character varying AS account_name,
+    r.status,
+    NULL::character varying(3) AS currency,
+    NULL::numeric AS total_amount
+   FROM public.vw_pur_request r
+UNION ALL
+ SELECT 'pur_quotation'::character varying AS doc_table,
+    q.id,
+    q.quotation_no AS doc_no,
+    q.quotation_date AS doc_date,
+    q.acc_account_id,
+    q.account_code,
+    q.account_name,
+    q.status,
+    q.currency,
+    q.total_amount
+   FROM public.vw_pur_quotation q
+UNION ALL
+ SELECT 'pur_order'::character varying AS doc_table,
+    o.id,
+    o.order_no AS doc_no,
+    o.order_date AS doc_date,
+    o.acc_account_id,
+    o.account_code,
+    o.account_name,
+    o.status,
+    o.currency,
+    o.total_amount
+   FROM public.vw_pur_order o
+UNION ALL
+ SELECT 'pur_receipt'::character varying AS doc_table,
+    r.id,
+    r.receipt_no AS doc_no,
+    r.receipt_date AS doc_date,
+    r.acc_account_id,
+    r.account_code,
+    r.account_name,
+    NULL::smallint AS status,
+    r.currency,
+    r.total_amount
+   FROM public.vw_pur_receipt r
+UNION ALL
+ SELECT 'pur_invoice'::character varying AS doc_table,
+    i.id,
+    i.invoice_no AS doc_no,
+    i.invoice_date AS doc_date,
+    i.acc_account_id,
+    i.account_code,
+    i.account_name,
+    NULL::smallint AS status,
+    i.currency,
+    i.total_amount
+   FROM public.vw_pur_invoice i
+UNION ALL
+ SELECT 'sls_offer'::character varying AS doc_table,
+    o.id,
+    o.offer_no AS doc_no,
+    o.offer_date AS doc_date,
+    o.acc_account_id,
+    o.account_code,
+    o.account_name,
+    o.status,
+    o.currency,
+    o.total_amount
+   FROM public.vw_sls_offer o
+UNION ALL
+ SELECT 'sls_order'::character varying AS doc_table,
+    o.id,
+    o.order_no AS doc_no,
+    o.order_date AS doc_date,
+    o.acc_account_id,
+    o.account_code,
+    o.account_name,
+    o.status,
+    o.currency,
+    o.total_amount
+   FROM public.vw_sls_order o
+UNION ALL
+ SELECT 'sls_dispatch'::character varying AS doc_table,
+    d.id,
+    d.dispatch_no AS doc_no,
+    d.dispatch_date AS doc_date,
+    d.acc_account_id,
+    d.account_code,
+    d.account_name,
+    d.status,
+    d.currency,
+    d.total_amount
+   FROM public.vw_sls_dispatch d
+UNION ALL
+ SELECT 'sls_invoice'::character varying AS doc_table,
+    i.id,
+    i.invoice_no AS doc_no,
+    i.invoice_date AS doc_date,
+    i.acc_account_id,
+    i.account_code,
+    i.account_name,
+    NULL::smallint AS status,
+    i.currency,
+    i.total_amount
+   FROM public.vw_sls_invoice i;
+
+
+ALTER VIEW public.vw_sys_document OWNER TO ths_admin;
+
+--
+-- Name: vw_sys_document_link; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_sys_document_link AS
+ SELECT 'pur_request'::character varying(32) AS from_table,
+    q.pur_request_id AS from_id,
+    'pur_quotation'::character varying(32) AS to_table,
+    q.id AS to_id
+   FROM public.pur_quotation q
+  WHERE (q.pur_request_id IS NOT NULL)
+UNION ALL
+ SELECT 'pur_request'::character varying AS from_table,
+    rd.pur_request_id AS from_id,
+    'pur_order'::character varying AS to_table,
+    od.pur_order_id AS to_id
+   FROM (public.pur_order_detail od
+     JOIN public.pur_request_detail rd ON ((rd.id = od.pur_request_detail_id)))
+UNION ALL
+ SELECT 'pur_quotation'::character varying AS from_table,
+    q.id AS from_id,
+    'pur_order'::character varying AS to_table,
+    q.pur_order_id AS to_id
+   FROM public.pur_quotation q
+  WHERE (q.pur_order_id IS NOT NULL)
+UNION ALL
+ SELECT 'pur_order'::character varying AS from_table,
+    r.pur_order_id AS from_id,
+    'pur_receipt'::character varying AS to_table,
+    r.id AS to_id
+   FROM public.pur_receipt r
+  WHERE (r.pur_order_id IS NOT NULL)
+UNION ALL
+ SELECT 'pur_order'::character varying AS from_table,
+    od.pur_order_id AS from_id,
+    'pur_receipt'::character varying AS to_table,
+    rd.pur_receipt_id AS to_id
+   FROM (public.pur_receipt_detail rd
+     JOIN public.pur_order_detail od ON ((od.id = rd.pur_order_detail_id)))
+UNION ALL
+ SELECT 'pur_receipt'::character varying AS from_table,
+    rd.pur_receipt_id AS from_id,
+    'pur_invoice'::character varying AS to_table,
+    id.pur_invoice_id AS to_id
+   FROM (public.pur_invoice_detail id
+     JOIN public.pur_receipt_detail rd ON ((rd.id = id.pur_receipt_detail_id)))
+UNION ALL
+ SELECT 'sls_offer'::character varying AS from_table,
+    ofd.sls_offer_id AS from_id,
+    'sls_order'::character varying AS to_table,
+    od.sls_order_id AS to_id
+   FROM (public.sls_order_detail od
+     JOIN public.sls_offer_detail ofd ON ((ofd.id = od.sls_offer_detail_id)))
+UNION ALL
+ SELECT 'sls_order'::character varying AS from_table,
+    d.sls_order_id AS from_id,
+    'sls_dispatch'::character varying AS to_table,
+    d.id AS to_id
+   FROM public.sls_dispatch d
+  WHERE (d.sls_order_id IS NOT NULL)
+UNION ALL
+ SELECT 'sls_order'::character varying AS from_table,
+    od.sls_order_id AS from_id,
+    'sls_dispatch'::character varying AS to_table,
+    dd.sls_dispatch_id AS to_id
+   FROM (public.sls_dispatch_detail dd
+     JOIN public.sls_order_detail od ON ((od.id = dd.sls_order_detail_id)))
+UNION ALL
+ SELECT 'sls_dispatch'::character varying AS from_table,
+    dd.sls_dispatch_id AS from_id,
+    'sls_invoice'::character varying AS to_table,
+    id.sls_invoice_id AS to_id
+   FROM (public.sls_invoice_detail id
+     JOIN public.sls_dispatch_detail dd ON ((dd.id = id.sls_dispatch_detail_id)))
+UNION ALL
+ SELECT 'sls_order'::character varying AS from_table,
+    od.sls_order_id AS from_id,
+    'sls_invoice'::character varying AS to_table,
+    id.sls_invoice_id AS to_id
+   FROM (public.sls_invoice_detail id
+     JOIN public.sls_order_detail od ON ((od.id = id.sls_order_detail_id)));
+
+
+ALTER VIEW public.vw_sys_document_link OWNER TO ths_admin;
+
+--
+-- Name: vw_sys_document_tax_summary; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_sys_document_tax_summary AS
+ SELECT row_number() OVER (PARTITION BY u.doc_table, u.doc_id ORDER BY u.summary_type, u.tax_rate DESC, w.code) AS id,
+    u.doc_table,
+    u.doc_id,
+    u.summary_type,
+    u.tax_rate,
+    u.einv_withholding_id,
+    w.code AS withholding_code,
+    w.name AS withholding_name,
+    u.base_amount,
+    u.tax_amount
+   FROM (( SELECT 'sls_offer'::character varying(32) AS doc_table,
+            s.sls_offer_id AS doc_id,
+            s.id AS summary_id,
+            s.summary_type,
+            s.tax_rate,
+            s.einv_withholding_id,
+            s.base_amount,
+            s.tax_amount
+           FROM public.sls_offer_tax_summary s
+        UNION ALL
+         SELECT 'sls_order'::character varying(32) AS doc_table,
+            s.sls_order_id AS doc_id,
+            s.id AS summary_id,
+            s.summary_type,
+            s.tax_rate,
+            s.einv_withholding_id,
+            s.base_amount,
+            s.tax_amount
+           FROM public.sls_order_tax_summary s
+        UNION ALL
+         SELECT 'sls_invoice'::character varying(32) AS doc_table,
+            s.sls_invoice_id AS doc_id,
+            s.id AS summary_id,
+            s.summary_type,
+            s.tax_rate,
+            s.einv_withholding_id,
+            s.base_amount,
+            s.tax_amount
+           FROM public.sls_invoice_tax_summary s
+        UNION ALL
+         SELECT 'pur_quotation'::character varying(32) AS doc_table,
+            s.pur_quotation_id AS doc_id,
+            s.id AS summary_id,
+            s.summary_type,
+            s.tax_rate,
+            s.einv_withholding_id,
+            s.base_amount,
+            s.tax_amount
+           FROM public.pur_quotation_tax_summary s
+        UNION ALL
+         SELECT 'pur_order'::character varying(32) AS doc_table,
+            s.pur_order_id AS doc_id,
+            s.id AS summary_id,
+            s.summary_type,
+            s.tax_rate,
+            s.einv_withholding_id,
+            s.base_amount,
+            s.tax_amount
+           FROM public.pur_order_tax_summary s
+        UNION ALL
+         SELECT 'pur_invoice'::character varying(32) AS doc_table,
+            s.pur_invoice_id AS doc_id,
+            s.id AS summary_id,
+            s.summary_type,
+            s.tax_rate,
+            s.einv_withholding_id,
+            s.base_amount,
+            s.tax_amount
+           FROM public.pur_invoice_tax_summary s) u
+     LEFT JOIN public.einv_withholding w ON ((w.id = u.einv_withholding_id)));
+
+
+ALTER VIEW public.vw_sys_document_tax_summary OWNER TO ths_admin;
+
+--
+-- Name: vw_sys_document_trail; Type: VIEW; Schema: public; Owner: ths_admin
+--
+
+CREATE VIEW public.vw_sys_document_trail AS
+ SELECT row_number() OVER (PARTITION BY s.doc_table, s.id ORDER BY t.trail_level, t.doc_date, t.doc_no) AS id,
+    s.doc_table AS source_table,
+    s.id AS source_id,
+    t.trail_level,
+    t.doc_table,
+    t.doc_id,
+    t.doc_no,
+    t.doc_date,
+    t.acc_account_id,
+    t.account_code,
+    t.account_name,
+    t.status,
+    t.currency,
+    t.total_amount
+   FROM (public.vw_sys_document s
+     CROSS JOIN LATERAL public.fn_document_trail(s.doc_table, s.id) t(trail_level, doc_table, doc_id, doc_no, doc_date, acc_account_id, account_code, account_name, status, currency, total_amount));
+
+
+ALTER VIEW public.vw_sys_document_trail OWNER TO ths_admin;
+
+--
 -- Name: vw_sys_grid_column; Type: VIEW; Schema: public; Owner: ths_admin
 --
 
@@ -9323,13 +9988,6 @@ CREATE VIEW public.vw_sys_user_permission_template AS
 ALTER VIEW public.vw_sys_user_permission_template OWNER TO ths_admin;
 
 --
--- Name: pur_offer_detail id; Type: DEFAULT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.pur_offer_detail ALTER COLUMN id SET DEFAULT nextval('public.pur_offer_detail_id_seq'::regclass);
-
-
---
 -- Name: stk_kind_family id; Type: DEFAULT; Schema: public; Owner: ths_admin
 --
 
@@ -9581,30 +10239,6 @@ ALTER TABLE ONLY public.acc_voucher_detail
 
 ALTER TABLE ONLY public.acc_voucher
     ADD CONSTRAINT acc_voucher_no_key UNIQUE (voucher_no);
-
-
---
--- Name: pur_offer_detail als_teklif_detaylari_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.pur_offer_detail
-    ADD CONSTRAINT als_teklif_detaylari_pkey PRIMARY KEY (id);
-
-
---
--- Name: pur_offer als_teklifler_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.pur_offer
-    ADD CONSTRAINT als_teklifler_pkey PRIMARY KEY (id);
-
-
---
--- Name: pur_offer als_teklifler_teklif_no_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.pur_offer
-    ADD CONSTRAINT als_teklifler_teklif_no_key UNIQUE (offer_number);
 
 
 --
@@ -10528,6 +11162,22 @@ ALTER TABLE ONLY public.pur_invoice
 
 
 --
+-- Name: pur_invoice_tax_summary pur_invoice_tax_summary_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_invoice_tax_summary
+    ADD CONSTRAINT pur_invoice_tax_summary_key UNIQUE NULLS NOT DISTINCT (pur_invoice_id, summary_type, tax_rate, einv_withholding_id);
+
+
+--
+-- Name: pur_invoice_tax_summary pur_invoice_tax_summary_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_invoice_tax_summary
+    ADD CONSTRAINT pur_invoice_tax_summary_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: pur_order_detail pur_order_detail_line_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -10557,6 +11207,22 @@ ALTER TABLE ONLY public.pur_order
 
 ALTER TABLE ONLY public.pur_order
     ADD CONSTRAINT pur_order_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: pur_order_tax_summary pur_order_tax_summary_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_order_tax_summary
+    ADD CONSTRAINT pur_order_tax_summary_key UNIQUE NULLS NOT DISTINCT (pur_order_id, summary_type, tax_rate, einv_withholding_id);
+
+
+--
+-- Name: pur_order_tax_summary pur_order_tax_summary_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_order_tax_summary
+    ADD CONSTRAINT pur_order_tax_summary_pkey PRIMARY KEY (id);
 
 
 --
@@ -10597,6 +11263,22 @@ ALTER TABLE ONLY public.pur_quotation
 
 ALTER TABLE ONLY public.pur_quotation
     ADD CONSTRAINT pur_quotation_quotation_no_key UNIQUE (quotation_no);
+
+
+--
+-- Name: pur_quotation_tax_summary pur_quotation_tax_summary_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_quotation_tax_summary
+    ADD CONSTRAINT pur_quotation_tax_summary_key UNIQUE NULLS NOT DISTINCT (pur_quotation_id, summary_type, tax_rate, einv_withholding_id);
+
+
+--
+-- Name: pur_quotation_tax_summary pur_quotation_tax_summary_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_quotation_tax_summary
+    ADD CONSTRAINT pur_quotation_tax_summary_pkey PRIMARY KEY (id);
 
 
 --
@@ -10864,6 +11546,22 @@ ALTER TABLE ONLY public.sls_invoice
 
 
 --
+-- Name: sls_invoice_tax_summary sls_invoice_tax_summary_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_invoice_tax_summary
+    ADD CONSTRAINT sls_invoice_tax_summary_key UNIQUE NULLS NOT DISTINCT (sls_invoice_id, summary_type, tax_rate, einv_withholding_id);
+
+
+--
+-- Name: sls_invoice_tax_summary sls_invoice_tax_summary_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_invoice_tax_summary
+    ADD CONSTRAINT sls_invoice_tax_summary_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: sls_offer_detail sls_offer_detail_line_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -10896,6 +11594,22 @@ ALTER TABLE ONLY public.sls_offer
 
 
 --
+-- Name: sls_offer_tax_summary sls_offer_tax_summary_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_offer_tax_summary
+    ADD CONSTRAINT sls_offer_tax_summary_key UNIQUE NULLS NOT DISTINCT (sls_offer_id, summary_type, tax_rate, einv_withholding_id);
+
+
+--
+-- Name: sls_offer_tax_summary sls_offer_tax_summary_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_offer_tax_summary
+    ADD CONSTRAINT sls_offer_tax_summary_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: sls_order_detail sls_order_detail_line_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -10925,6 +11639,22 @@ ALTER TABLE ONLY public.sls_order
 
 ALTER TABLE ONLY public.sls_order
     ADD CONSTRAINT sls_order_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sls_order_tax_summary sls_order_tax_summary_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_order_tax_summary
+    ADD CONSTRAINT sls_order_tax_summary_key UNIQUE NULLS NOT DISTINCT (sls_order_id, summary_type, tax_rate, einv_withholding_id);
+
+
+--
+-- Name: sls_order_tax_summary sls_order_tax_summary_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_order_tax_summary
+    ADD CONSTRAINT sls_order_tax_summary_pkey PRIMARY KEY (id);
 
 
 --
@@ -11948,13 +12678,6 @@ CREATE INDEX fin_pos_transaction_pos_idx ON public.fin_pos_transaction USING btr
 
 
 --
--- Name: idx_als_teklif_detaylari_header_id; Type: INDEX; Schema: public; Owner: ths_admin
---
-
-CREATE INDEX idx_als_teklif_detaylari_header_id ON public.pur_offer_detail USING btree (header_id);
-
-
---
 -- Name: prd_bom_by_product_stk_inventory_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
 --
 
@@ -12060,6 +12783,13 @@ CREATE INDEX pur_invoice_detail_stk_inventory_id_idx ON public.pur_invoice_detai
 
 
 --
+-- Name: pur_invoice_tax_summary_withholding_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX pur_invoice_tax_summary_withholding_idx ON public.pur_invoice_tax_summary USING btree (einv_withholding_id);
+
+
+--
 -- Name: pur_order_acc_account_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
 --
 
@@ -12092,6 +12822,13 @@ CREATE INDEX pur_order_detail_stk_inventory_id_idx ON public.pur_order_detail US
 --
 
 CREATE INDEX pur_order_stk_warehouse_id_idx ON public.pur_order USING btree (stk_warehouse_id);
+
+
+--
+-- Name: pur_order_tax_summary_withholding_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX pur_order_tax_summary_withholding_idx ON public.pur_order_tax_summary USING btree (einv_withholding_id);
 
 
 --
@@ -12141,6 +12878,13 @@ CREATE INDEX pur_quotation_request_idx ON public.pur_quotation USING btree (pur_
 --
 
 CREATE UNIQUE INDEX pur_quotation_selected_key ON public.pur_quotation USING btree (pur_request_id) WHERE (status = ANY (ARRAY[2, 3, 5]));
+
+
+--
+-- Name: pur_quotation_tax_summary_withholding_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX pur_quotation_tax_summary_withholding_idx ON public.pur_quotation_tax_summary USING btree (einv_withholding_id);
 
 
 --
@@ -12445,6 +13189,13 @@ CREATE INDEX sls_invoice_stk_warehouse_id_idx ON public.sls_invoice USING btree 
 
 
 --
+-- Name: sls_invoice_tax_summary_withholding_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_invoice_tax_summary_withholding_idx ON public.sls_invoice_tax_summary USING btree (einv_withholding_id);
+
+
+--
 -- Name: sls_offer_acc_account_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
 --
 
@@ -12522,6 +13273,13 @@ CREATE UNIQUE INDEX sls_offer_shipping_sys_address_id_key ON public.sls_offer US
 
 
 --
+-- Name: sls_offer_tax_summary_withholding_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_offer_tax_summary_withholding_idx ON public.sls_offer_tax_summary USING btree (einv_withholding_id);
+
+
+--
 -- Name: sls_order_acc_account_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
 --
 
@@ -12561,6 +13319,13 @@ CREATE INDEX sls_order_emp_employee_id_idx ON public.sls_order USING btree (emp_
 --
 
 CREATE INDEX sls_order_stk_warehouse_id_idx ON public.sls_order USING btree (stk_warehouse_id);
+
+
+--
+-- Name: sls_order_tax_summary_withholding_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX sls_order_tax_summary_withholding_idx ON public.sls_order_tax_summary USING btree (einv_withholding_id);
 
 
 --
@@ -13404,6 +14169,62 @@ CREATE TRIGGER order_unlinked BEFORE UPDATE OF pur_order_id ON public.pur_quotat
 
 
 --
+-- Name: pur_invoice party_snapshot; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER party_snapshot BEFORE INSERT OR UPDATE ON public.pur_invoice FOR EACH ROW EXECUTE FUNCTION public.fn_document_party_snapshot();
+
+
+--
+-- Name: pur_order party_snapshot; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER party_snapshot BEFORE INSERT OR UPDATE ON public.pur_order FOR EACH ROW EXECUTE FUNCTION public.fn_document_party_snapshot();
+
+
+--
+-- Name: pur_quotation party_snapshot; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER party_snapshot BEFORE INSERT OR UPDATE ON public.pur_quotation FOR EACH ROW EXECUTE FUNCTION public.fn_document_party_snapshot();
+
+
+--
+-- Name: pur_receipt party_snapshot; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER party_snapshot BEFORE INSERT OR UPDATE ON public.pur_receipt FOR EACH ROW EXECUTE FUNCTION public.fn_document_party_snapshot();
+
+
+--
+-- Name: sls_dispatch party_snapshot; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER party_snapshot BEFORE INSERT OR UPDATE ON public.sls_dispatch FOR EACH ROW EXECUTE FUNCTION public.fn_document_party_snapshot();
+
+
+--
+-- Name: sls_invoice party_snapshot; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER party_snapshot BEFORE INSERT OR UPDATE ON public.sls_invoice FOR EACH ROW EXECUTE FUNCTION public.fn_document_party_snapshot();
+
+
+--
+-- Name: sls_offer party_snapshot; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER party_snapshot BEFORE INSERT OR UPDATE ON public.sls_offer FOR EACH ROW EXECUTE FUNCTION public.fn_document_party_snapshot();
+
+
+--
+-- Name: sls_order party_snapshot; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER party_snapshot BEFORE INSERT OR UPDATE ON public.sls_order FOR EACH ROW EXECUTE FUNCTION public.fn_document_party_snapshot();
+
+
+--
 -- Name: sys_grid_column sys_grid_col_width_table_notify; Type: TRIGGER; Schema: public; Owner: ths_admin
 --
 
@@ -13429,6 +14250,132 @@ CREATE TRIGGER table_notify BEFORE INSERT OR DELETE OR UPDATE ON public.stk_kind
 --
 
 CREATE TRIGGER table_notify BEFORE INSERT OR DELETE OR UPDATE ON public.stk_kind_property FOR EACH ROW EXECUTE FUNCTION public.table_notify();
+
+
+--
+-- Name: pur_invoice_detail tax_summary_del; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER tax_summary_del AFTER DELETE ON public.pur_invoice_detail REFERENCING OLD TABLE AS old_rows FOR EACH STATEMENT EXECUTE FUNCTION public.fn_tax_summary_trigger('pur_invoice');
+
+
+--
+-- Name: pur_order_detail tax_summary_del; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER tax_summary_del AFTER DELETE ON public.pur_order_detail REFERENCING OLD TABLE AS old_rows FOR EACH STATEMENT EXECUTE FUNCTION public.fn_tax_summary_trigger('pur_order');
+
+
+--
+-- Name: pur_quotation_detail tax_summary_del; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER tax_summary_del AFTER DELETE ON public.pur_quotation_detail REFERENCING OLD TABLE AS old_rows FOR EACH STATEMENT EXECUTE FUNCTION public.fn_tax_summary_trigger('pur_quotation');
+
+
+--
+-- Name: sls_invoice_detail tax_summary_del; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER tax_summary_del AFTER DELETE ON public.sls_invoice_detail REFERENCING OLD TABLE AS old_rows FOR EACH STATEMENT EXECUTE FUNCTION public.fn_tax_summary_trigger('sls_invoice');
+
+
+--
+-- Name: sls_offer_detail tax_summary_del; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER tax_summary_del AFTER DELETE ON public.sls_offer_detail REFERENCING OLD TABLE AS old_rows FOR EACH STATEMENT EXECUTE FUNCTION public.fn_tax_summary_trigger('sls_offer');
+
+
+--
+-- Name: sls_order_detail tax_summary_del; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER tax_summary_del AFTER DELETE ON public.sls_order_detail REFERENCING OLD TABLE AS old_rows FOR EACH STATEMENT EXECUTE FUNCTION public.fn_tax_summary_trigger('sls_order');
+
+
+--
+-- Name: pur_invoice_detail tax_summary_ins; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER tax_summary_ins AFTER INSERT ON public.pur_invoice_detail REFERENCING NEW TABLE AS new_rows FOR EACH STATEMENT EXECUTE FUNCTION public.fn_tax_summary_trigger('pur_invoice');
+
+
+--
+-- Name: pur_order_detail tax_summary_ins; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER tax_summary_ins AFTER INSERT ON public.pur_order_detail REFERENCING NEW TABLE AS new_rows FOR EACH STATEMENT EXECUTE FUNCTION public.fn_tax_summary_trigger('pur_order');
+
+
+--
+-- Name: pur_quotation_detail tax_summary_ins; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER tax_summary_ins AFTER INSERT ON public.pur_quotation_detail REFERENCING NEW TABLE AS new_rows FOR EACH STATEMENT EXECUTE FUNCTION public.fn_tax_summary_trigger('pur_quotation');
+
+
+--
+-- Name: sls_invoice_detail tax_summary_ins; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER tax_summary_ins AFTER INSERT ON public.sls_invoice_detail REFERENCING NEW TABLE AS new_rows FOR EACH STATEMENT EXECUTE FUNCTION public.fn_tax_summary_trigger('sls_invoice');
+
+
+--
+-- Name: sls_offer_detail tax_summary_ins; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER tax_summary_ins AFTER INSERT ON public.sls_offer_detail REFERENCING NEW TABLE AS new_rows FOR EACH STATEMENT EXECUTE FUNCTION public.fn_tax_summary_trigger('sls_offer');
+
+
+--
+-- Name: sls_order_detail tax_summary_ins; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER tax_summary_ins AFTER INSERT ON public.sls_order_detail REFERENCING NEW TABLE AS new_rows FOR EACH STATEMENT EXECUTE FUNCTION public.fn_tax_summary_trigger('sls_order');
+
+
+--
+-- Name: pur_invoice_detail tax_summary_upd; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER tax_summary_upd AFTER UPDATE ON public.pur_invoice_detail REFERENCING OLD TABLE AS old_rows NEW TABLE AS new_rows FOR EACH STATEMENT EXECUTE FUNCTION public.fn_tax_summary_trigger('pur_invoice');
+
+
+--
+-- Name: pur_order_detail tax_summary_upd; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER tax_summary_upd AFTER UPDATE ON public.pur_order_detail REFERENCING OLD TABLE AS old_rows NEW TABLE AS new_rows FOR EACH STATEMENT EXECUTE FUNCTION public.fn_tax_summary_trigger('pur_order');
+
+
+--
+-- Name: pur_quotation_detail tax_summary_upd; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER tax_summary_upd AFTER UPDATE ON public.pur_quotation_detail REFERENCING OLD TABLE AS old_rows NEW TABLE AS new_rows FOR EACH STATEMENT EXECUTE FUNCTION public.fn_tax_summary_trigger('pur_quotation');
+
+
+--
+-- Name: sls_invoice_detail tax_summary_upd; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER tax_summary_upd AFTER UPDATE ON public.sls_invoice_detail REFERENCING OLD TABLE AS old_rows NEW TABLE AS new_rows FOR EACH STATEMENT EXECUTE FUNCTION public.fn_tax_summary_trigger('sls_invoice');
+
+
+--
+-- Name: sls_offer_detail tax_summary_upd; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER tax_summary_upd AFTER UPDATE ON public.sls_offer_detail REFERENCING OLD TABLE AS old_rows NEW TABLE AS new_rows FOR EACH STATEMENT EXECUTE FUNCTION public.fn_tax_summary_trigger('sls_offer');
+
+
+--
+-- Name: sls_order_detail tax_summary_upd; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER tax_summary_upd AFTER UPDATE ON public.sls_order_detail REFERENCING OLD TABLE AS old_rows NEW TABLE AS new_rows FOR EACH STATEMENT EXECUTE FUNCTION public.fn_tax_summary_trigger('sls_order');
 
 
 --
@@ -13676,46 +14623,6 @@ ALTER TABLE ONLY public.acc_voucher_detail
 
 ALTER TABLE ONLY public.acc_voucher_detail
     ADD CONSTRAINT acc_voucher_detail_account_fkey FOREIGN KEY (acc_account_id) REFERENCES public.acc_account(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: pur_offer_detail als_teklif_detaylari_header_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.pur_offer_detail
-    ADD CONSTRAINT als_teklif_detaylari_header_id_fkey FOREIGN KEY (header_id) REFERENCES public.pur_offer(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: pur_offer_detail als_teklif_detaylari_referans_ana_urun_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.pur_offer_detail
-    ADD CONSTRAINT als_teklif_detaylari_referans_ana_urun_id_fkey FOREIGN KEY (referans_ana_urun_id) REFERENCES public.pur_offer_detail(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: pur_offer_detail als_teklif_detaylari_stok_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.pur_offer_detail
-    ADD CONSTRAINT als_teklif_detaylari_stok_kodu_fkey FOREIGN KEY (sku_code) REFERENCES public.stk_inventory(code) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: pur_offer als_teklifler_islem_tipi_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.pur_offer
-    ADD CONSTRAINT als_teklifler_islem_tipi_id_fkey FOREIGN KEY (operation_type_id) REFERENCES public.einv_invoice_type(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: pur_offer als_teklifler_musteri_kodu_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.pur_offer
-    ADD CONSTRAINT als_teklifler_musteri_kodu_fkey FOREIGN KEY (customer_code) REFERENCES public.acc_account(code) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -14399,35 +15306,19 @@ ALTER TABLE ONLY public.pur_invoice_detail
 
 
 --
--- Name: pur_offer pur_offer_city_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: pur_invoice_tax_summary pur_invoice_tax_summary_header_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.pur_offer
-    ADD CONSTRAINT pur_offer_city_id_fk FOREIGN KEY (city_id) REFERENCES public.sys_city(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: pur_offer pur_offer_country_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.pur_offer
-    ADD CONSTRAINT pur_offer_country_id_fk FOREIGN KEY (country_id) REFERENCES public.sys_country(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY public.pur_invoice_tax_summary
+    ADD CONSTRAINT pur_invoice_tax_summary_header_fkey FOREIGN KEY (pur_invoice_id) REFERENCES public.pur_invoice(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: pur_offer pur_offer_currency_code_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+-- Name: pur_invoice_tax_summary pur_invoice_tax_summary_withholding_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
-ALTER TABLE ONLY public.pur_offer
-    ADD CONSTRAINT pur_offer_currency_code_fk FOREIGN KEY (currency_code) REFERENCES public.sys_currency(currency) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: pur_offer_detail pur_offer_detail_uom_code_fk; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
---
-
-ALTER TABLE ONLY public.pur_offer_detail
-    ADD CONSTRAINT pur_offer_detail_uom_code_fk FOREIGN KEY (uom_code) REFERENCES public.sys_uom(unit_code) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY public.pur_invoice_tax_summary
+    ADD CONSTRAINT pur_invoice_tax_summary_withholding_fkey FOREIGN KEY (einv_withholding_id) REFERENCES public.einv_withholding(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -14476,6 +15367,22 @@ ALTER TABLE ONLY public.pur_order_detail
 
 ALTER TABLE ONLY public.pur_order
     ADD CONSTRAINT pur_order_stk_warehouse_id_fkey FOREIGN KEY (stk_warehouse_id) REFERENCES public.stk_warehouse(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: pur_order_tax_summary pur_order_tax_summary_header_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_order_tax_summary
+    ADD CONSTRAINT pur_order_tax_summary_header_fkey FOREIGN KEY (pur_order_id) REFERENCES public.pur_order(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: pur_order_tax_summary pur_order_tax_summary_withholding_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_order_tax_summary
+    ADD CONSTRAINT pur_order_tax_summary_withholding_fkey FOREIGN KEY (einv_withholding_id) REFERENCES public.einv_withholding(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -14540,6 +15447,22 @@ ALTER TABLE ONLY public.pur_quotation
 
 ALTER TABLE ONLY public.pur_quotation
     ADD CONSTRAINT pur_quotation_request_fkey FOREIGN KEY (pur_request_id) REFERENCES public.pur_request(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: pur_quotation_tax_summary pur_quotation_tax_summary_header_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_quotation_tax_summary
+    ADD CONSTRAINT pur_quotation_tax_summary_header_fkey FOREIGN KEY (pur_quotation_id) REFERENCES public.pur_quotation(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: pur_quotation_tax_summary pur_quotation_tax_summary_withholding_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.pur_quotation_tax_summary
+    ADD CONSTRAINT pur_quotation_tax_summary_withholding_fkey FOREIGN KEY (einv_withholding_id) REFERENCES public.einv_withholding(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -14935,6 +15858,22 @@ ALTER TABLE ONLY public.sls_invoice
 
 
 --
+-- Name: sls_invoice_tax_summary sls_invoice_tax_summary_header_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_invoice_tax_summary
+    ADD CONSTRAINT sls_invoice_tax_summary_header_fkey FOREIGN KEY (sls_invoice_id) REFERENCES public.sls_invoice(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: sls_invoice_tax_summary sls_invoice_tax_summary_withholding_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_invoice_tax_summary
+    ADD CONSTRAINT sls_invoice_tax_summary_withholding_fkey FOREIGN KEY (einv_withholding_id) REFERENCES public.einv_withholding(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: sls_offer sls_offer_acc_account_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -15031,6 +15970,22 @@ ALTER TABLE ONLY public.sls_offer
 
 
 --
+-- Name: sls_offer_tax_summary sls_offer_tax_summary_header_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_offer_tax_summary
+    ADD CONSTRAINT sls_offer_tax_summary_header_fkey FOREIGN KEY (sls_offer_id) REFERENCES public.sls_offer(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: sls_offer_tax_summary sls_offer_tax_summary_withholding_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_offer_tax_summary
+    ADD CONSTRAINT sls_offer_tax_summary_withholding_fkey FOREIGN KEY (einv_withholding_id) REFERENCES public.einv_withholding(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: sls_order sls_order_acc_account_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -15084,6 +16039,22 @@ ALTER TABLE ONLY public.sls_order
 
 ALTER TABLE ONLY public.sls_order
     ADD CONSTRAINT sls_order_stk_warehouse_id_fkey FOREIGN KEY (stk_warehouse_id) REFERENCES public.stk_warehouse(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: sls_order_tax_summary sls_order_tax_summary_header_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_order_tax_summary
+    ADD CONSTRAINT sls_order_tax_summary_header_fkey FOREIGN KEY (sls_order_id) REFERENCES public.sls_order(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: sls_order_tax_summary sls_order_tax_summary_withholding_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.sls_order_tax_summary
+    ADD CONSTRAINT sls_order_tax_summary_withholding_fkey FOREIGN KEY (einv_withholding_id) REFERENCES public.einv_withholding(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -15773,5 +16744,5 @@ GRANT ALL ON TABLE public.vw_einv_diib_line TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict itPdCh6th8aoYd48PNq1BWYFQ1audGxXARkg8vsif2ola5u8E1HArIb7IrwOLaR
+\unrestrict FJnOQd8j0XCm8SYapnxYrFH3wAbwIHsdkhOC5PWTfyU04tfuY7Ak66qL7Oqgdog
 

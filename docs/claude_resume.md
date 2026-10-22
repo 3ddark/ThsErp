@@ -345,7 +345,7 @@ Modül modül stabilizasyon: System + yetki mimarisi, Employee, Account, Stock, 
   `dash.py <config>` (config: fin_config / money_config / pur_config).
 
 ## Satın alma (pur_) modülü (2026-10-12, aynı /goal)
-- Eski `pur_offer` / `pur_offer_detail` (boş, kodu yok, Türkçe kolonlar) DOKUNULMADI — silinmesi için kullanıcı onayı gerekli.
+- Eski `pur_offer` / `pur_offer_detail` 2026-10-22'de kullanıcı onayıyla silindi (alış teklifi = `pur_quotation`).
   Dashboard "Alımlar" menüsündeki 4 işlevsiz öğe + boş `actals_teklifler` action'ı kaldırıldı, yerine yeni ekranlar.
 - DB: talep `pur_request` (+`_detail`: stok, miktar, ordered_quantity), sipariş `pur_order` (+`_detail`: sıra no, stok, miktar,
   fiyat, iskonto %, KDV %, brüt/iskonto/net/KDV/toplam, received_quantity, talep kalemi bağlantısı), mal kabul `pur_receipt`
@@ -941,7 +941,7 @@ gevşek bağlı, ileride framework olarak paylaşılacak")
      (BeforeHeaderSaved / AfterSaveFailed / LoadAddresses / CheckRates); form başlığında sekmeler (pgcHeader: Genel / Fatura Adresi / Teslimat Adresi, TDocumentAddressEditor; teklif formu gibi — kullanıcı kararı 2026-10-20: adresler kalem sekmelerinde değil, başlıkta).
   2. CreateFromOffer: teklifin adreslerini (yeni sys_address kopyası) ve kurlarını siparişe taşı; siparişten irsaliye /
      faturaya da aynı şekilde.
-  3. sls_dispatch, sls_invoice; sonra pur_offer / pur_order / pur_receipt / pur_invoice.
+  3. sls_dispatch, sls_invoice; sonra pur_quotation / pur_order / pur_receipt / pur_invoice.
   4. e-Belge: EInvDocument.Repository.ReadAccountParty belgenin billing/shipping_sys_address_id'sini kullanmalı
      (yoksa cari adresi); irsaliyede teslimat adresi.
   5. Ortak kod: adres kaydetme / yükleme teklif servisinde; ikinci belgede ortak yardımcıya (ör. DocumentAddress
@@ -1083,6 +1083,48 @@ gevşek bağlı, ileride framework olarak paylaşılacak")
   resultCode'u (test hesabı gerekli).
 - 2026-10-21 (devam): e-İrsaliye gönderimi aynı katmanla tamamlandı: EIR e-İrsaliye serisi eklendi + e-Belge Ayarları scope 3'e
   bağlandı (önceden seri yoktu, gönderim "seri seçilmemiş" hatası verirdi). IT TestEDespatchIntegrator 15 adım; toplam 658/0.
+
+## Domain değerlendirmesi + evrak izi (2026-10-22, DESKTOP-JF3LUBB, 5432, RAD Studio 37.0)
+- Kullanıcı kararları (eski pur_offer tasarımı değerlendirmesi): KDV oranı bazında özet ayrı tabloda `{belge}_tax_summary`
+  (tasarım önerildi, onay bekliyor — uygulanmadı); kod / ad belgede kopyalanmaz, karttan izlenir; miktar numeric(18,6)
+  (zaten); kur numeric(18,6) kalır; status yeterli; belge adresi deseni (sls_offer) diğer belgelere yayılmalı (Kalan'da);
+  vergi dairesi / no nullable, satışta (ihracat hariç) zorunluluk Service + UI kırmızı alan — NEREDE uygulanacağı soruldu
+  (vergi bilgisi artık cari kartında acc_account_taxpayer; belgede kolon yok); identity; pur_offer silindi.
+- pur_offer / pur_offer_detail DROP (yedek scratchpad ths_erp_before_drop_pur_offer.dump); EInvInvoiceType.Repository
+  UsageCount sorgusundan çıkarıldı.
+- Evrak izi (DB, DDL scratchpad document_trail_ddl.sql): `vw_sys_document` (9 belge başlığı tek biçim: no, tarih, cari, durum,
+  para, toplam), `vw_sys_document_link` (başlık düzeyi önceki -> sonraki; UNION ALL, satır + başlık bağları),
+  `fn_document_trail(table, id)` (plpgsql, genişlik öncelikli; atalar < 0, torunlar > 0, kardeşler yok, en yakın düzey;
+  her adım tablo başına `id = ANY` indeksli; 30 bin belge / tür ile 20-70 ms), `vw_sys_document_trail` (source_table +
+  source_id filtresiyle okunur; id = iz içinde row_number).
+- Kod: SysDocumentTrail (Domain / Exception / Repository / Service; salt okunur, ayrı yetki yok: okuma = kaynak belgenin
+  kodu, izde yalnız okunabilen türler), ufrmSysDocumentTrails (liste; çift tık belgeyi kendi detaylı formunda inceleme),
+  kancalar Grid.Types GDocumentTrailAvailable / GDocumentTrailShow; her belge listesinde popup "Evrak İzi" (Ctrl+T),
+  TfrmInputDetailedDB başlık çubuğunda sağda "Evrak İzi" düğmesi (kayıtlı belge). Lokalizasyon 4 dil.
+- Test: SQL senaryoları (ROLLBACK) + IT 2 yeni adım PASS. IT specific 747 PASS / 5 FAIL — FAIL'ler canlı DB'de TEST
+  kullanıcısının (id 4) olmamasından (sys_user yalnız MASTER; TestPermissions AR nil -> AV, ardından yetki testleri);
+  evrak izi kodundan bağımsız. Derleme 0 hata. UI elle denenmedi.
+- Bekleyen: KDV özet tablosu onayı; vergi no zorunluluğunun yeri; belge adresi deseni (Kalan 1-6).
+
+## Belge vergi özeti + belgede cari vergi bilgisi kopyası (2026-10-22, aynı oturum, DESKTOP-JF3LUBB, 5432)
+- Kullanıcı kararları: madde 1 önerilen biçimde + tevkifat; madde 7: vergi bilgisi hem cari kartında (güncel) hem belgede
+  (düzenlendiği andaki; Ltd -> A.Ş. / vergi no değişse eski belge eski bilgiyle kalır), hesap seçilince belgeye otomatik gelir;
+  7a satış faturasında ihracat dışı vergi no (tüzel kişide vergi dairesi de) zorunlu; 7b cari kartı (mevcut davranış uygun);
+  madde 6 (belge adresleri) bekliyor; TEST kullanıcısı geri yüklendi (Claude'a bırakıldı).
+- TEST kullanıcısı (id 4, emp 16) + 91 yetki satırı HEAD db.dump'tan (geçici ths_erp_headchk) canlıya geri eklendi.
+- DB (yedek scratchpad ths_erp_before_party_tax.dump; DDL document_party_ddl.sql, tax_summary_ddl.sql):
+  8 belge başlığına cari kopyası kolonları + party_snapshot tetikleyicisi; 6 belgeye {belge}_tax_summary + deyim düzeyi
+  tetikleyiciler + vw_sys_document_tax_summary (ayrıntı rules/database.md).
+- Kod: e-belge ReadAccountParty belgenin kopyasını okur (fatura / irsaliye); SlsInvoice / PurInvoice / SlsOffer domain + repo
+  kopya alanları; TSlsInvoiceService.CheckPartyTaxInfo (+ Repository.ReadEffectiveParty, 2 exception); TSysDocumentTrailService
+  .TaxSummary; Detail.TaxInfo (fatura formlarında "Vergi Bilgisi" sekmesi); satış siparişi listesinde kopya kolonları gizli.
+- Testler: IT specific 774/0 (yeni TestDocumentPartyAndTaxSummary 10 adım; eski satış testlerinde vergi bilgisi her test
+  transaction'ında GTaxCustomers ile verilir; e-fatura testinde Expect sonrası eksik Begin_ eklendi), generic 1212/0, perm 230/0,
+  perm2 106/0. UI tamamı 1841/0 (seed: fatura müşterisine vergi bilgisi; yeni TestDocumentTrail: kanca, iz satırları, belge
+  açma). Derleme 0 hata. Elle denenmedi: Vergi Bilgisi sekmesi görünümü.
+- Açık soru: 7a kuralı e-Arşiv'de kimliği bilinmeyen nihai tüketiciye (TCKN yok) faturayı da engeller — istisna olsun mu?
+- Bekleyen: kopya alanları sipariş / irsaliye / teklif formlarında görünmüyor (DB'de tutuluyor); satınalma fatura tevkifatı yok
+  (alış faturası satırında tevkifat kolonu yok); madde 6.
 
 ## Hatalar / Engeller
 - Bu PC'de güncel DB 5433'te; GlobalSettings.ini DBPortNo=5432 (diğer makine değeri) ve 5432'de 2023'ten kalma eski ths_erp var

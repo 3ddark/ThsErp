@@ -48,6 +48,13 @@ Register both form units in `Ths.dpr` (`… in '…pas' {frmX}`) and `Ths.dproj`
   it when the entity's table has the `audit` trigger and the user may read 1112 (hooks `GRecordHistoryAvailable` /
   `GRecordHistoryShow` in `Grid.Types`, assigned in `ufrmSysAuditLogs` initialization — the grid does not use that unit).
   Nothing to do per form; the row must have an `id` field.
+- Invoice detail forms (`ufrmSlsInvoiceDetail`, `ufrmPurInvoiceDetail`) have a code-built detail tab "Vergi Bilgisi"
+  (`Detail.TaxInfo.TDocumentTaxInfo`): the document's party snapshot (read-only; picking the account shows the card's current
+  values) + a red warning line when the sales invoice rule is not met (no red `thsRequiredData` on read-only display edits — they
+  would block the form's own required-field check) + the saved tax breakdown (`TaxSummary`, loaded in `RefreshData`).
+- Document trail: hidden popup item `mniDocumentTrail` ("Evrak İzi", Ctrl+T) on every list and a header-bar button on
+  `TfrmInputDetailedDB` (saved document), shown when the table is a trail document and the user may read it (hooks
+  `GDocumentTrailAvailable` / `GDocumentTrailShow` in `Grid.Types`, assigned in `ufrmSysDocumentTrails` initialization).
 - **Paging (server side, default on):** `FormShow` keeps the query body without `ORDER BY` (after `AddFixedFilter` +
   `sys_grid_filter` / `sys_grid_sort`) and every page is `body [+ AND search / popup filters] ORDER BY title sort, base
   sort, id LIMIT n OFFSET m`. Quick filter (350 ms debounce, `ILIKE` + Turkish upper/lower params `pg_s*`), popup

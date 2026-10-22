@@ -224,6 +224,14 @@ begin
   SetColumnProperty('acc_account_id', 0);
   SetColumnProperty('stk_warehouse_id', 0);
   SetColumnProperty('emp_employee_id', 0);
+  // belgedeki cari kopyası (sys_grid_column satırı yoksa tüm view kolonları gelir) listede gösterilmez
+  SetColumnProperty('account_title', 0);
+  SetColumnProperty('taxpayer_type', 0);
+  SetColumnProperty('taxpayer_name', 0);
+  SetColumnProperty('taxpayer_name2', 0);
+  SetColumnProperty('taxpayer_surname', 0);
+  SetColumnProperty('tax_office', 0);
+  SetColumnProperty('tax_no', 0);
   LField := Grd.DataSource.DataSet.FindField('status');
   if Assigned(LField) then
     LField.OnGetText := StatusGetText;
