@@ -62,6 +62,7 @@ uses
   ufrmAccRegions, AccRegion.Service, AccRegion,
   ufrmAccAccountPlans, AccAccountPlan.Service, AccAccountPlan,
   ufrmAccExchangeRates, AccExchangeRate.Service, AccExchangeRate,
+  ufrmAccVouchers, AccVoucher.Service, AccVoucher,
   ufrmAccSetTaxRates, AccSetTaxRate.Service, AccSetTaxRate,
   ufrmAccTransferCodes, AccTransferCode.Service, AccTransferCode,
   ufrmStkInventories, StkInventory.Service, StkInventory,
@@ -134,6 +135,7 @@ type
     actsys_country: TAction;
     actsys_city: TAction;
     actacc_exchange_rate: TAction;
+    actacc_voucher: TAction;
     actsys_currency: TAction;
     actsys_unit: TAction;
     actsys_region: TAction;
@@ -292,6 +294,7 @@ type
     mniacc_account: TMenuItem;
     mniacc_account_intermediate: TMenuItem;
     mniacc_exchange_rate: TMenuItem;
+    mniacc_voucher: TMenuItem;
     mniacc_account_plan: TMenuItem;
     mniacc_group: TMenuItem;
     mniacc_region: TMenuItem;
@@ -391,6 +394,7 @@ type
     procedure actsys_countryExecute(Sender: TObject);
     procedure actsys_cityExecute(Sender: TObject);
     procedure actacc_exchange_rateExecute(Sender: TObject);
+    procedure actacc_voucherExecute(Sender: TObject);
     procedure actsys_currencyExecute(Sender: TObject);
     procedure actsys_unitExecute(Sender: TObject);
     procedure actch_hesap_karti_araExecute(Sender: TObject);
@@ -609,6 +613,11 @@ procedure TfrmDashboard.actsys_aboutExecute(Sender: TObject);
 begin
   TfrmAbout.Create(Application).ShowModal;
   RefreshUserPermissions(False);
+end;
+
+procedure TfrmDashboard.actacc_voucherExecute(Sender: TObject);
+begin
+  TfrmAccVouchers.Create(Self, TAccVoucherService.Create, TAccVoucher.Create).Show;
 end;
 
 procedure TfrmDashboard.actacc_exchange_rateExecute(Sender: TObject);
@@ -1694,6 +1703,8 @@ begin
         actch_hesap_karti_ara.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.BtnSubAccount, 'Sub Account Cards');
       if Assigned(actacc_exchange_rate) then
         actacc_exchange_rate.Caption := TLocalizationManager.Translate(TLangKeys.TAccExchangeRate.TitlePlural, 'Exchange Rates');
+      if Assigned(actacc_voucher) then
+        actacc_voucher.Caption := TLocalizationManager.Translate(TLangKeys.TDashboard.ActionAccVouchers, 'Accounting Vouchers');
       if Assigned(actset_ch_vergi_orani) then
         actset_ch_vergi_orani.Caption := TLocalizationManager.Translate(TLangKeys.TAccSetTaxRate.TitlePlural, 'Tax Rates');
       if Assigned(actch_bankalar) then

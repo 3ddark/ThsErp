@@ -37,6 +37,12 @@ type
     procedure DoDeleteBatch(AFilter: TFilterCriteria); override;
   public
     constructor Create(AConnection: TFDConnection);
+
+    function NextLineNo(AParentId: Int64): SmallInt;
+    // Hesapların tipi (acc_set_account_type_id): id -> tip
+    function AccountTypes(const AAccountIds: TArray<Int64>): TDictionary<Int64, Int64>;
+    // Fişlerin kalemleri tek sorguda (talep + satır no sırasıyla): belge yükleme
+    function FindByVoucherIds(const AVoucherIds: TArray<Int64>): TObjectList<TAccVoucherDetail>;
   end;
 
 implementation
@@ -46,17 +52,102 @@ begin
   inherited Create(AConnection);
 end;
 
+function TAccVoucherDetailRepository.AccountTypes(const AAccountIds: TArray<Int64>): TDictionary<Int64, Int64>;
+var
+  Q: TFDQuery;
+  LIds: string;
+  LId: Int64;
+begin
+  Result := TDictionary<Int64, Int64>.Create;
+  LIds := '';
+  for LId in AAccountIds do
+    if LId > 0 then
+    begin
+      if LIds <> '' then
+        LIds := LIds + ',';
+      LIds := LIds + IntToStr(LId);   // sayısal id: doğrudan yazılır
+    end;
+  if LIds = '' then
+    Exit;
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT id, acc_set_account_type_id FROM public.acc_account WHERE id IN (' + LIds + ')';
+    LogQuery(Q, 'AccountTypes');
+    Q.Open;
+    while not Q.Eof do
+    begin
+      Result.AddOrSetValue(Q.Fields[0].AsLargeInt, Q.Fields[1].AsLargeInt);
+      Q.Next;
+    end;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TAccVoucherDetailRepository.NextLineNo(AParentId: Int64): SmallInt;
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT COALESCE(MAX(line_no), 0) + 1 AS v FROM public.acc_voucher_detail WHERE acc_voucher_id = :id';
+    Q.ParamByName('id').AsLargeInt := AParentId;
+    LogQuery(Q, 'NextLineNo');
+    Q.Open;
+    Result := Q.FieldByName('v').AsInteger;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TAccVoucherDetailRepository.FindByVoucherIds(const AVoucherIds: TArray<Int64>): TObjectList<TAccVoucherDetail>;
+var
+  Q: TFDQuery;
+  LIds: string;
+  LId: Int64;
+begin
+  Result := TObjectList<TAccVoucherDetail>.Create(True);
+  LIds := '';
+  for LId in AVoucherIds do
+    if LId > 0 then
+    begin
+      if LIds <> '' then
+        LIds := LIds + ',';
+      LIds := LIds + IntToStr(LId);   // sayısal id: doğrudan yazılır
+    end;
+  if LIds = '' then
+    Exit;
+
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT v.* FROM ' + Self.GetFullViewName(TAccVoucherDetail) + ' v ' +
+                  ' WHERE v.acc_voucher_id IN (' + LIds + ') ORDER BY v.acc_voucher_id, v.line_no, v.id';
+    LogQuery(Q, 'FindByVoucherIds');
+    Q.Open;
+    while not Q.Eof do
+    begin
+      Result.Add(MapFromQuery(Q));
+      Q.Next;
+    end;
+  finally
+    Q.Free;
+  end;
+end;
+
 function TAccVoucherDetailRepository.PrepareAddSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TAccVoucherDetail) +
-            ' (acc_voucher_id) ' +
-            ' VALUES (:acc_voucher_id)';
+            ' (acc_voucher_id, line_no, acc_account_id, description, debit, credit) ' +
+            ' VALUES (:acc_voucher_id, :line_no, :acc_account_id, :description, :debit, :credit)';
 end;
 
 function TAccVoucherDetailRepository.PrepareUpdateSql: string;
 begin
   Result := 'UPDATE public.' + Self.GetTableName(TAccVoucherDetail) +
-            ' SET acc_voucher_id = :acc_voucher_id ' +
+            ' SET acc_voucher_id = :acc_voucher_id, line_no = :line_no, acc_account_id = :acc_account_id, description = :description, debit = :debit, credit = :credit ' +
             ' WHERE id = :id';
 end;
 
@@ -68,7 +159,23 @@ end;
 
 procedure TAccVoucherDetailRepository.SetInsertParams(Q: TFDQuery; AModel: TAccVoucherDetail; AIndex: Integer);
 begin
+  if AIndex < 0 then
+  begin
+    Q.ParamByName('line_no').AsSmallInt := AModel.LineNo;
+    Q.ParamByName('description').AsWideString := AModel.Description;
+    Q.ParamByName('debit').AsBCD := AModel.Debit;
+    Q.ParamByName('credit').AsBCD := AModel.Credit;
+  end
+  else
+  begin
+    Q.ParamByName('line_no').AsSmallInts[AIndex] := AModel.LineNo;
+    Q.ParamByName('description').AsWideStrings[AIndex] := AModel.Description;
+    Q.ParamByName('debit').AsBCDs[AIndex] := AModel.Debit;
+    Q.ParamByName('credit').AsBCDs[AIndex] := AModel.Credit;
+  end;
+
   SetNullableParam(Q.ParamByName('acc_voucher_id'), ftLargeint, AModel.AccVoucherId, AIndex);
+  SetNullableParam(Q.ParamByName('acc_account_id'), ftLargeint, AModel.AccAccountId, AIndex);
 end;
 
 procedure TAccVoucherDetailRepository.SetUpdateParams(Q: TFDQuery; AModel: TAccVoucherDetail; AIndex: Integer);
@@ -76,13 +183,22 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
+    Q.ParamByName('line_no').AsSmallInt := AModel.LineNo;
+    Q.ParamByName('description').AsWideString := AModel.Description;
+    Q.ParamByName('debit').AsBCD := AModel.Debit;
+    Q.ParamByName('credit').AsBCD := AModel.Credit;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
+    Q.ParamByName('line_no').AsSmallInts[AIndex] := AModel.LineNo;
+    Q.ParamByName('description').AsWideStrings[AIndex] := AModel.Description;
+    Q.ParamByName('debit').AsBCDs[AIndex] := AModel.Debit;
+    Q.ParamByName('credit').AsBCDs[AIndex] := AModel.Credit;
   end;
 
   SetNullableParam(Q.ParamByName('acc_voucher_id'), ftLargeint, AModel.AccVoucherId, AIndex);
+  SetNullableParam(Q.ParamByName('acc_account_id'), ftLargeint, AModel.AccAccountId, AIndex);
 end;
 
 function TAccVoucherDetailRepository.MapFromQuery(Q: TFDQuery): TAccVoucherDetail;
@@ -90,7 +206,14 @@ begin
   Result := TAccVoucherDetail.Create;
   Result.Id := Q.FieldByName('id').AsLargeInt;
   Result.AccVoucherId := Q.FieldByName('acc_voucher_id').AsLargeInt;
-  Result.JournalNo := Q.FieldByName('journal_no').AsString;
+  Result.LineNo := Q.FieldByName('line_no').AsInteger;
+  Result.AccAccountId := Q.FieldByName('acc_account_id').AsLargeInt;
+  Result.Description := Q.FieldByName('description').AsString;
+  Result.Debit := Q.FieldByName('debit').AsCurrency;
+  Result.Credit := Q.FieldByName('credit').AsCurrency;
+  Result.VoucherNo := Q.FieldByName('voucher_no').AsString;
+  Result.AccountCode := Q.FieldByName('account_code').AsString;
+  Result.AccountName := Q.FieldByName('account_name').AsString;
 end;
 
 function TAccVoucherDetailRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;

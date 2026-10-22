@@ -1130,5 +1130,11 @@ gevşek bağlı, ileride framework olarak paylaşılacak")
 - OLAY: Tests/Ui/seed.sql kendi COMMIT'ini içeriyor; BEGIN..ROLLBACK ile canlıda "kuru çalıştırma" seed'i ths_erp'e yazdı.
   Yedekle id karşılaştırması yapılıp yalnız seed satırları silindi (kullanıcının PT000001 / PS000001 ve kolon ayarları
   korundu). Seed değişikliği yalnız Tests/Ui/build.sh ile doğrulanır.
-- KALAN / SORU: muhasebe fişi (acc_voucher / acc_voucher_detail yalnız iskelet: kalemde hesap / borç / alacak yok) —
-  tasarım kararı kullanıcıda. Satış tarafı zaten belge yapısındaydı. Elle UI denemesi yapılmadı.
+- Kullanıcı kararları (2026-10-22): "fiş" = muhasebe fişi; yetki şablonu haklarına dokunulmaz (mevcut yapı kalır).
+- MUHASEBE FİŞİ TAMAM: acc_voucher (voucher_no UNIQUE, voucher_date, voucher_type 1-5, journal_no, description,
+  total_debit / total_credit) + acc_voucher_detail (line_no deferrable, acc_account_id RESTRICT, description, debit /
+  credit CHECK biri > 0); vw_acc_voucher(+line_count), vw_acc_voucher_detail(+hesap kodu / adı); audit trigger;
+  sys_menu 200203 actacc_voucher (3005). TAccVoucherService = TDocumentService: yalnız SON hesap, borç = alacak > 0,
+  fiş no MF + yevmiye no servisten. UI: ufrmAccVouchers + ufrmAccVoucherDetail (borç / alacak / fark paneli) +
+  ufrmAccVoucherLine (hesap seçimi SON hesaplar). Test: TestAccountingVoucher 10/10; IT 2194 PASS / 6 FAIL (bilinen,
+  yukarıda); UI Account 256/0. Diğer belgelerden otomatik fiş kesimi YOK (sonraki iş). Elle UI denemesi yapılmadı.

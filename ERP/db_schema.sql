@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 88FrZBdptaQn9bmZFfsj1HcOto4XU9c6ReAtIgOYln9OnxG6fdr8HPltbIxh3Wa
+\restrict K5wiNM2qNcaFyWm0nV77rhuq97yPpHesHROtE1bgq2eQbVLWKmBjX3u4gqdrpiF
 
 -- Dumped from database version 18.1
 -- Dumped by pg_dump version 18.1
@@ -1245,11 +1245,39 @@ ALTER TABLE public.acc_transfer_code OWNER TO ths_admin;
 CREATE TABLE public.acc_voucher (
     id bigint CONSTRAINT mhs_fisler_id_not_null NOT NULL,
     journal_no integer CONSTRAINT mhs_fisler_yevmiye_no_not_null NOT NULL,
-    journal_date date
+    voucher_date date NOT NULL,
+    voucher_no character varying(16) NOT NULL,
+    voucher_type smallint DEFAULT 1 NOT NULL,
+    description character varying(256),
+    total_debit numeric(18,2) DEFAULT 0 NOT NULL,
+    total_credit numeric(18,2) DEFAULT 0 NOT NULL,
+    CONSTRAINT acc_voucher_no_check CHECK ((btrim((voucher_no)::text) <> ''::text)),
+    CONSTRAINT acc_voucher_type_check CHECK (((voucher_type >= 1) AND (voucher_type <= 5)))
 );
 
 
 ALTER TABLE public.acc_voucher OWNER TO ths_admin;
+
+--
+-- Name: COLUMN acc_voucher.journal_no; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.acc_voucher.journal_no IS 'yevmiye no (servis sıradaki numarayı verir)';
+
+
+--
+-- Name: COLUMN acc_voucher.voucher_type; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.acc_voucher.voucher_type IS '1 mahsup, 2 tahsil, 3 tediye, 4 açılış, 5 kapanış';
+
+
+--
+-- Name: COLUMN acc_voucher.total_debit; Type: COMMENT; Schema: public; Owner: ths_admin
+--
+
+COMMENT ON COLUMN public.acc_voucher.total_debit IS 'kalemlerden (servis tutar)';
+
 
 --
 -- Name: acc_voucher_detail; Type: TABLE; Schema: public; Owner: ths_admin
@@ -1257,7 +1285,13 @@ ALTER TABLE public.acc_voucher OWNER TO ths_admin;
 
 CREATE TABLE public.acc_voucher_detail (
     id bigint CONSTRAINT mhs_fis_detaylari_id_not_null NOT NULL,
-    acc_voucher_id bigint CONSTRAINT mhs_fis_detaylari_header_id_not_null NOT NULL
+    acc_voucher_id bigint CONSTRAINT mhs_fis_detaylari_header_id_not_null NOT NULL,
+    line_no smallint NOT NULL,
+    acc_account_id bigint NOT NULL,
+    description character varying(256),
+    debit numeric(18,2) DEFAULT 0 NOT NULL,
+    credit numeric(18,2) DEFAULT 0 NOT NULL,
+    CONSTRAINT acc_voucher_detail_amount_check CHECK (((debit >= (0)::numeric) AND (credit >= (0)::numeric) AND ((debit = (0)::numeric) OR (credit = (0)::numeric)) AND ((debit + credit) > (0)::numeric)))
 );
 
 
@@ -6054,8 +6088,16 @@ ALTER VIEW public.vw_acc_transfer_code OWNER TO ths_admin;
 
 CREATE VIEW public.vw_acc_voucher AS
  SELECT id,
+    voucher_no,
+    voucher_date,
+    voucher_type,
     journal_no,
-    journal_date
+    description,
+    total_debit,
+    total_credit,
+    (( SELECT count(*) AS count
+           FROM public.acc_voucher_detail d
+          WHERE (d.acc_voucher_id = v.id)))::integer AS line_count
    FROM public.acc_voucher v;
 
 
@@ -6068,9 +6110,18 @@ ALTER VIEW public.vw_acc_voucher OWNER TO ths_admin;
 CREATE VIEW public.vw_acc_voucher_detail AS
  SELECT d.id,
     d.acc_voucher_id,
-    v.journal_no
-   FROM (public.acc_voucher_detail d
-     LEFT JOIN public.acc_voucher v ON ((v.id = d.acc_voucher_id)));
+    v.voucher_no,
+    v.voucher_date,
+    d.line_no,
+    d.acc_account_id,
+    a.code AS account_code,
+    a.name AS account_name,
+    d.description,
+    d.debit,
+    d.credit
+   FROM ((public.acc_voucher_detail d
+     JOIN public.acc_voucher v ON ((v.id = d.acc_voucher_id)))
+     JOIN public.acc_account a ON ((a.id = d.acc_account_id)));
 
 
 ALTER VIEW public.vw_acc_voucher_detail OWNER TO ths_admin;
@@ -9034,6 +9085,22 @@ ALTER TABLE ONLY public.acc_set_tax_rate
 
 
 --
+-- Name: acc_voucher_detail acc_voucher_detail_line_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.acc_voucher_detail
+    ADD CONSTRAINT acc_voucher_detail_line_key UNIQUE (acc_voucher_id, line_no) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+-- Name: acc_voucher acc_voucher_no_key; Type: CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.acc_voucher
+    ADD CONSTRAINT acc_voucher_no_key UNIQUE (voucher_no);
+
+
+--
 -- Name: pur_offer_detail als_teklif_detaylari_pkey; Type: CONSTRAINT; Schema: public; Owner: ths_admin
 --
 
@@ -10978,6 +11045,13 @@ CREATE INDEX acc_voucher_detail_acc_voucher_id_idx ON public.acc_voucher_detail 
 
 
 --
+-- Name: acc_voucher_detail_account_idx; Type: INDEX; Schema: public; Owner: ths_admin
+--
+
+CREATE INDEX acc_voucher_detail_account_idx ON public.acc_voucher_detail USING btree (acc_account_id);
+
+
+--
 -- Name: einv_diib_acc_account_id_idx; Type: INDEX; Schema: public; Owner: ths_admin
 --
 
@@ -12035,6 +12109,20 @@ CREATE INDEX sys_user_permission_template_template_idx ON public.sys_user_permis
 
 
 --
+-- Name: acc_voucher audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.acc_voucher FOR EACH ROW EXECUTE FUNCTION public.audit();
+
+
+--
+-- Name: acc_voucher_detail audit; Type: TRIGGER; Schema: public; Owner: ths_admin
+--
+
+CREATE TRIGGER audit AFTER INSERT OR DELETE OR UPDATE ON public.acc_voucher_detail FOR EACH ROW EXECUTE FUNCTION public.audit();
+
+
+--
 -- Name: einv_delivery_term audit; Type: TRIGGER; Schema: public; Owner: ths_admin
 --
 
@@ -12852,6 +12940,14 @@ ALTER TABLE ONLY public.acc_set_tax_rate
 
 ALTER TABLE ONLY public.acc_voucher_detail
     ADD CONSTRAINT acc_voucher_detail_acc_voucher_id_fkey FOREIGN KEY (acc_voucher_id) REFERENCES public.acc_voucher(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: acc_voucher_detail acc_voucher_detail_account_fkey; Type: FK CONSTRAINT; Schema: public; Owner: ths_admin
+--
+
+ALTER TABLE ONLY public.acc_voucher_detail
+    ADD CONSTRAINT acc_voucher_detail_account_fkey FOREIGN KEY (acc_account_id) REFERENCES public.acc_account(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -14821,5 +14917,5 @@ GRANT ALL ON TABLE public.vw_einv_diib_line TO ths_admin;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 88FrZBdptaQn9bmZFfsj1HcOto4XU9c6ReAtIgOYln9OnxG6fdr8HPltbIxh3Wa
+\unrestrict K5wiNM2qNcaFyWm0nV77rhuq97yPpHesHROtE1bgq2eQbVLWKmBjX3u4gqdrpiF
 

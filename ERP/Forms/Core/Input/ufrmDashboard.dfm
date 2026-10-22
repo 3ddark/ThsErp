@@ -112,6 +112,12 @@ inherited frmDashboard: TfrmDashboard
       ImageIndex = 68
       OnExecute = actacc_exchange_rateExecute
     end
+    object actacc_voucher: TAction
+      Category = 'System'
+      Caption = 'Muhasebe Fi'#351'leri'
+      ImageIndex = 68
+      OnExecute = actacc_voucherExecute
+    end
     object actsys_access_right: TAction
       Category = 'System'
       Caption = 'Kullan'#305'c'#305' Eri'#351'im Haklar'#305
@@ -903,6 +909,9 @@ inherited frmDashboard: TfrmDashboard
       end
       object mniacc_exchange_rate: TMenuItem
         Action = actacc_exchange_rate
+      end
+      object mniacc_voucher: TMenuItem
+        Action = actacc_voucher
       end
       object mniAccountingSubSettings: TMenuItem
         Caption = 'Ayarlar'

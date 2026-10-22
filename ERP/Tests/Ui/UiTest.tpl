@@ -10,7 +10,7 @@ uses
 procedure TestShowSources;
 const
   Expected: array[1..5] of string = ('TfrmFinMoneyTransaction', 'TfrmFinChequeNote', 'TfrmFinPosTransaction',
-    'TfrmFinCreditCardTransaction', 'TfrmPurInvoice');
+    'TfrmFinCreditCardTransaction', 'TfrmPurInvoiceDetail');
 var
   Outer, Before: TList<TForm>;
   LFrm: TfrmAccAccountTransactions;

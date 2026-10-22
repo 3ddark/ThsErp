@@ -759,6 +759,15 @@
         <DCCReference Include="BackEnd\Account\Domain\AccVoucherDetail.pas"/>
         <DCCReference Include="BackEnd\Account\Repository\AccVoucherDetail.Repository.pas"/>
         <DCCReference Include="BackEnd\Account\Service\AccVoucherDetail.Service.pas"/>
+        <DCCReference Include="Forms\Account\Input\ufrmAccVoucherDetail.pas">
+            <Form>frmAccVoucherDetail</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Account\Input\ufrmAccVoucherLine.pas">
+            <Form>frmAccVoucherLine</Form>
+        </DCCReference>
+        <DCCReference Include="Forms\Account\Output\ufrmAccVouchers.pas">
+            <Form>frmAccVouchers</Form>
+        </DCCReference>
         <DCCReference Include="BackEnd\Account\Domain\AccAccount.pas"/>
         <DCCReference Include="BackEnd\Account\Exception\AccAccount.Exception.pas"/>
         <DCCReference Include="BackEnd\Account\Repository\AccAccount.Repository.pas"/>

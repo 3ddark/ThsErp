@@ -146,11 +146,16 @@ end;
 ## Documents (header + lines aggregate)
 
 Reference: `SlsOffer`, `SlsOrder`, `SlsDispatch`, `SlsInvoice`, `PurRequest`, `PurOrder`, `PurReceipt`, `PurInvoice`,
-`PrdPacketRaw`, `PrdPacketLabour`, `EInvDiib`, multi-list `PrdBom`
+`PrdPacketRaw`, `PrdPacketLabour`, `EInvDiib`, `AccVoucher`, multi-list `PrdBom`
 (`T{Header}.Lines`, `T{Header}Service = class(TDocumentService<T{Header}, T{Line}>)`, `{Line}.Repository.FindBy{Header}Ids`). User
 decisions 2026-10-16 (`docs/claude_resume.md`); tests `TestSalesOfferDocument`, `TestSalesOrderDocument`,
-`TestSalesDispatchInvoiceDocument`, `TestPurchaseDocuments`, `TestProductionDocuments`. Every line table has `line_no`
-(UNIQUE per header, deferrable). The accounting voucher (`acc_voucher`) is still a stub table (no line columns).
+`TestSalesDispatchInvoiceDocument`, `TestPurchaseDocuments`, `TestProductionDocuments`, `TestAccountingVoucher`. Every line
+table has `line_no` (UNIQUE per header, deferrable).
+- Accounting voucher (`acc_voucher` + `acc_voucher_detail`, permission 3005, menu 200203): type 1-5 (`AccLookup`
+  `alkVoucherType`: journal / receipt / payment / opening / closing), voucher no (`MF` + 6 digits) and journal no assigned by
+  the service on insert, totals from lines; a line posts either debit or credit (CHECK) to a detail account
+  (`acc_set_account_type_id` = 3 / `ACC_ACCOUNT_TYPE_DETAIL`); the document is saved only when debit total = credit
+  total > 0. Single currency (base currency); no automatic posting from other documents yet.
 - **Several line lists** (`PrdBom`: Raws = primary list of `TDocumentService`; Labours / ByProducts / PacketRaws /
   PacketLabours = extra lists): the header holds one `TObjectList` per list; the service overrides `LoadExtraLines`
   (called by `LoadLines`, also on `Reload`), checks the extra lists in `CheckLines`, writes them in `AfterDocumentSaved`

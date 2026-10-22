@@ -25,10 +25,18 @@ const
   ACC_TX_SRC_PUR_INVOICE = 5;  // pur_invoice
   ACC_TX_SRC_SLS_INVOICE = 6;  // sls_invoice
 
+  // acc_voucher.voucher_type (alkVoucherType)
+  ACC_VOUCHER_ADJUSTMENT = 1;  // mahsup
+  ACC_VOUCHER_RECEIPT    = 2;  // tahsil
+  ACC_VOUCHER_PAYMENT    = 3;  // tediye
+  ACC_VOUCHER_OPENING    = 4;  // açılış
+  ACC_VOUCHER_CLOSING    = 5;  // kapanış
+  ACC_PREFIX_VOUCHER = 'MF';   // fiş no öneki
+
 type
   // DB'de smallint olarak saklanan sabit seçenekler (1 tabanlı; 0/NULL = seçilmemiş)
   //   taxpayer_type (acc_account_taxpayer): 1 Tüzel kişi, 2 Gerçek kişi (Migrations/20260929_11)
-  TAccLookupKind = (alkTaxpayerType, alkTxSource);
+  TAccLookupKind = (alkTaxpayerType, alkTxSource, alkVoucherType);
 
   TAccLookup = class
   public
@@ -53,6 +61,12 @@ begin
                  TLocalizationManager.Translate(TLangKeys.TAccOption.SrcCreditCard, 'Credit Card'),
                  TLocalizationManager.Translate(TLangKeys.TAccOption.SrcPurInvoice, 'Purchase Invoice'),
                  TLocalizationManager.Translate(TLangKeys.TAccOption.SrcSlsInvoice, 'Sales Invoice')];
+    alkVoucherType:
+      Result := [TLocalizationManager.Translate(TLangKeys.TAccOption.VoucherAdjustment, 'Journal'),
+                 TLocalizationManager.Translate(TLangKeys.TAccOption.VoucherReceipt, 'Receipt'),
+                 TLocalizationManager.Translate(TLangKeys.TAccOption.VoucherPayment, 'Payment'),
+                 TLocalizationManager.Translate(TLangKeys.TAccOption.VoucherOpening, 'Opening'),
+                 TLocalizationManager.Translate(TLangKeys.TAccOption.VoucherClosing, 'Closing')];
   else
     Result := [];
   end;

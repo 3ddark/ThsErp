@@ -37,6 +37,11 @@ type
     procedure DoDeleteBatch(AFilter: TFilterCriteria); override;
   public
     constructor Create(AConnection: TFDConnection);
+    function NextDocumentNo(const APrefix: string): string;
+    // Sıradaki yevmiye no (fiş kaydında verilir)
+    function NextJournalNo: Integer;
+    // Kalemlerden borç / alacak toplamı (tek kalem yolu)
+    procedure RecalculateTotals(AVoucherId: Int64);
   end;
 
 implementation
@@ -46,17 +51,70 @@ begin
   inherited Create(AConnection);
 end;
 
+function TAccVoucherRepository.NextDocumentNo(const APrefix: string): string;
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT :prefix || lpad((COALESCE(MAX(CAST(substr(voucher_no, length(:prefix) + 1) AS bigint)), 0) + 1)::text, 6, ''0'') AS v ' +
+                  '  FROM public.acc_voucher WHERE voucher_no ~ (''^'' || :prefix || ''[0-9]+$'')';
+    Q.ParamByName('prefix').DataType := ftWideString;
+    Q.ParamByName('prefix').AsWideString := APrefix;
+    LogQuery(Q, 'NextDocumentNo');
+    Q.Open;
+    Result := Q.FieldByName('v').AsString;
+  finally
+    Q.Free;
+  end;
+end;
+
+function TAccVoucherRepository.NextJournalNo: Integer;
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'SELECT COALESCE(MAX(journal_no), 0) + 1 AS v FROM public.acc_voucher';
+    LogQuery(Q, 'NextJournalNo');
+    Q.Open;
+    Result := Q.FieldByName('v').AsInteger;
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TAccVoucherRepository.RecalculateTotals(AVoucherId: Int64);
+var
+  Q: TFDQuery;
+begin
+  Q := TFDQuery.Create(nil);
+  try
+    Q.Connection := Connection;
+    Q.SQL.Text := 'UPDATE public.acc_voucher v SET total_debit = COALESCE(s.d, 0), total_credit = COALESCE(s.c, 0) ' +
+                  '  FROM (SELECT sum(debit) d, sum(credit) c FROM public.acc_voucher_detail WHERE acc_voucher_id = :id) s ' +
+                  ' WHERE v.id = :id';
+    Q.ParamByName('id').AsLargeInt := AVoucherId;
+    LogQuery(Q, 'RecalculateTotals');
+    Q.ExecSQL;
+  finally
+    Q.Free;
+  end;
+end;
+
 function TAccVoucherRepository.PrepareAddSql: string;
 begin
   Result := 'INSERT INTO public.' + Self.GetTableName(TAccVoucher) +
-            ' (journal_no, journal_date) ' +
-            ' VALUES (:journal_no, :journal_date)';
+            ' (voucher_no, voucher_date, voucher_type, journal_no, description, total_debit, total_credit) ' +
+            ' VALUES (:voucher_no, :voucher_date, :voucher_type, :journal_no, :description, :total_debit, :total_credit)';
 end;
 
 function TAccVoucherRepository.PrepareUpdateSql: string;
 begin
   Result := 'UPDATE public.' + Self.GetTableName(TAccVoucher) +
-            ' SET journal_no = :journal_no, journal_date = :journal_date ' +
+            ' SET voucher_no = :voucher_no, voucher_date = :voucher_date, voucher_type = :voucher_type, journal_no = :journal_no, description = :description, total_debit = :total_debit, total_credit = :total_credit ' +
             ' WHERE id = :id';
 end;
 
@@ -87,14 +145,24 @@ procedure TAccVoucherRepository.SetInsertParams(Q: TFDQuery; AModel: TAccVoucher
 begin
   if AIndex < 0 then
   begin
+    Q.ParamByName('voucher_no').AsWideString := AModel.VoucherNo;
+    Q.ParamByName('voucher_type').AsSmallInt := AModel.VoucherType;
     Q.ParamByName('journal_no').AsInteger := AModel.JournalNo;
+    Q.ParamByName('description').AsWideString := AModel.Description;
+    Q.ParamByName('total_debit').AsBCD := AModel.TotalDebit;
+    Q.ParamByName('total_credit').AsBCD := AModel.TotalCredit;
   end
   else
   begin
+    Q.ParamByName('voucher_no').AsWideStrings[AIndex] := AModel.VoucherNo;
+    Q.ParamByName('voucher_type').AsSmallInts[AIndex] := AModel.VoucherType;
     Q.ParamByName('journal_no').AsIntegers[AIndex] := AModel.JournalNo;
+    Q.ParamByName('description').AsWideStrings[AIndex] := AModel.Description;
+    Q.ParamByName('total_debit').AsBCDs[AIndex] := AModel.TotalDebit;
+    Q.ParamByName('total_credit').AsBCDs[AIndex] := AModel.TotalCredit;
   end;
 
-  SetDate('journal_date', AModel.JournalDate);
+  SetDate('voucher_date', AModel.VoucherDate);
 end;
 
 procedure TAccVoucherRepository.SetUpdateParams(Q: TFDQuery; AModel: TAccVoucher; AIndex: Integer);
@@ -119,26 +187,41 @@ begin
   if AIndex < 0 then
   begin
     Q.ParamByName('id').AsLargeInt := AModel.Id;
+    Q.ParamByName('voucher_no').AsWideString := AModel.VoucherNo;
+    Q.ParamByName('voucher_type').AsSmallInt := AModel.VoucherType;
     Q.ParamByName('journal_no').AsInteger := AModel.JournalNo;
+    Q.ParamByName('description').AsWideString := AModel.Description;
+    Q.ParamByName('total_debit').AsBCD := AModel.TotalDebit;
+    Q.ParamByName('total_credit').AsBCD := AModel.TotalCredit;
   end
   else
   begin
     Q.ParamByName('id').AsLargeInts[AIndex] := AModel.Id;
+    Q.ParamByName('voucher_no').AsWideStrings[AIndex] := AModel.VoucherNo;
+    Q.ParamByName('voucher_type').AsSmallInts[AIndex] := AModel.VoucherType;
     Q.ParamByName('journal_no').AsIntegers[AIndex] := AModel.JournalNo;
+    Q.ParamByName('description').AsWideStrings[AIndex] := AModel.Description;
+    Q.ParamByName('total_debit').AsBCDs[AIndex] := AModel.TotalDebit;
+    Q.ParamByName('total_credit').AsBCDs[AIndex] := AModel.TotalCredit;
   end;
 
-  SetDate('journal_date', AModel.JournalDate);
+  SetDate('voucher_date', AModel.VoucherDate);
 end;
 
 function TAccVoucherRepository.MapFromQuery(Q: TFDQuery): TAccVoucher;
 begin
   Result := TAccVoucher.Create;
   Result.Id := Q.FieldByName('id').AsLargeInt;
-  Result.JournalNo := Q.FieldByName('journal_no').AsInteger;
-  if Q.FieldByName('journal_date').IsNull then
-    Result.JournalDate := 0
+  Result.VoucherNo := Q.FieldByName('voucher_no').AsString;
+  if Q.FieldByName('voucher_date').IsNull then
+    Result.VoucherDate := 0
   else
-    Result.JournalDate := Q.FieldByName('journal_date').AsDateTime;
+    Result.VoucherDate := Q.FieldByName('voucher_date').AsDateTime;
+  Result.VoucherType := Q.FieldByName('voucher_type').AsInteger;
+  Result.JournalNo := Q.FieldByName('journal_no').AsInteger;
+  Result.Description := Q.FieldByName('description').AsString;
+  Result.TotalDebit := Q.FieldByName('total_debit').AsCurrency;
+  Result.TotalCredit := Q.FieldByName('total_credit').AsCurrency;
 end;
 
 function TAccVoucherRepository.DoFindAllGridQuery(AFilter: TFilterCriteria): TFDQuery;

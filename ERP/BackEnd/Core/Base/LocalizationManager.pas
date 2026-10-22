@@ -301,6 +301,7 @@ type
         const KpiLegendReceived = 'dashboard.kpi.legend_received';
         const KpiLegendGiven = 'dashboard.kpi.legend_given';
         const MenuEInvSettings = 'dashboard.menu.einv_settings';
+        const ActionAccVouchers = 'dashboard.action.acc_vouchers';
       end;
 
       TGridColumn = record
@@ -778,6 +779,11 @@ type
         const SrcCreditCard = 'acc_option.src_credit_card';
         const SrcPurInvoice = 'acc_option.src_pur_invoice';
         const SrcSlsInvoice = 'acc_option.src_sls_invoice';
+        const VoucherAdjustment = 'acc_option.voucher_adjustment';
+        const VoucherReceipt = 'acc_option.voucher_receipt';
+        const VoucherPayment = 'acc_option.voucher_payment';
+        const VoucherOpening = 'acc_option.voucher_opening';
+        const VoucherClosing = 'acc_option.voucher_closing';
       end;
 
       TAccSetAccountType = record
@@ -891,12 +897,33 @@ type
         const ColJournalNo = 'acc_voucher.col_journal_no';
         const ColJournalDate = 'acc_voucher.col_journal_date';
         const JournalNoUnique = 'acc_voucher.journal_no_unique';
+        const ColVoucherNo = 'acc_voucher.col_voucher_no';
+        const ColVoucherDate = 'acc_voucher.col_voucher_date';
+        const ColVoucherType = 'acc_voucher.col_voucher_type';
+        const ColDescription = 'acc_voucher.col_description';
+        const ColTotalDebit = 'acc_voucher.col_total_debit';
+        const ColTotalCredit = 'acc_voucher.col_total_credit';
+        const ColDifference = 'acc_voucher.col_difference';
+        const ColLineCount = 'acc_voucher.col_line_count';
+        const MenuLines = 'acc_voucher.popup.lines';
+        const NoUnique = 'acc_voucher.no_unique';
+        const NotBalanced = 'acc_voucher.not_balanced';
+        const NoLines = 'acc_voucher.no_lines';
       end;
 
       TAccVoucherDetail = record
         const TitlePlural = 'acc_voucher_detail.title_plural';
         const TitleSingular = 'acc_voucher_detail.title_singular';
         const ColVoucher = 'acc_voucher_detail.col_voucher';
+        const ColLineNo = 'acc_voucher_detail.col_line_no';
+        const ColAccAccountId = 'acc_voucher_detail.col_acc_account_id';
+        const ColAccountCode = 'acc_voucher_detail.col_account_code';
+        const ColAccountName = 'acc_voucher_detail.col_account_name';
+        const ColDescription = 'acc_voucher_detail.col_description';
+        const ColDebit = 'acc_voucher_detail.col_debit';
+        const ColCredit = 'acc_voucher_detail.col_credit';
+        const AmountRule = 'acc_voucher_detail.amount_rule';
+        const DetailAccountOnly = 'acc_voucher_detail.detail_account_only';
       end;
 
       TAccAccount = record

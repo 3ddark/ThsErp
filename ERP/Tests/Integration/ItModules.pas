@@ -38,6 +38,7 @@ uses
   SysDashboard, SysDashboard.Service,
   EInvLookup, EInvGtip, EInvGtip.Service, EInvWithholding, EInvWithholding.Service,
   EInvDiib, EInvDiib.Service, EInvDiibLine, EInvDiibLine.Service,
+  AccVoucher, AccVoucher.Service, AccVoucherDetail,
   PrdBom, PrdBom.Service, PrdBomRaw, PrdBomLabour, PrdBomByProduct, PrdPacketRaw, PrdPacketRaw.Service, PrdPacketRawDetail,
   EInvVehicle, EInvVehicle.Service, EInvDriver, EInvDriver.Service,
   ApiService.Config, SysApiService, SysApiService.Service, SysApiService.ConfigSource,
@@ -4320,6 +4321,96 @@ end;
 
 { ---------------------------------------------------------------- e-Belge (UBL-TR) }
 
+// Muhasebe fişi (TDocumentService): dengeli fiş kaydı (fiş no + yevmiye no servis), toplamlar kalemlerden, kalem
+// değişikliği / çıkarma, dengesiz fiş reddi, SON olmayan hesap reddi, borç + alacak aynı satırda reddi, kopya.
+// Reddedilen kayıt transaction'ı geri aldığı için her red yeni transaction'da kurulur.
+procedure TestAccountingVoucher;
+var
+  Svc: TAccVoucherService;
+  V, Copy: TAccVoucher;
+  L: TAccVoucherDetail;
+  Acc1, Acc2, MainAcc, VId: Int64;
+
+  function Q(const ASql: string): Double;
+  begin
+    Result := Num(Scalar(ASql));
+  end;
+
+  function NewVoucher(ADebit, ACredit: Currency): TAccVoucher;
+  begin
+    Result := TAccVoucher.Create;
+    Result.VoucherType := ACC_VOUCHER_ADJUSTMENT;
+    Result.Description := 'IT FIS';
+    L := Svc.NewLine(Result); L.AccAccountId := Acc1; L.Debit := ADebit;
+    L := Svc.NewLine(Result); L.AccAccountId := Acc2; L.Credit := ACredit;
+  end;
+
+begin
+  Ctx('Account', 'voucher document');
+  Acc1 := Scalar('SELECT min(id) FROM acc_account WHERE acc_set_account_type_id = 3');
+  Acc2 := Scalar('SELECT max(id) FROM acc_account WHERE acc_set_account_type_id = 3');
+  MainAcc := Scalar('SELECT min(id) FROM acc_account WHERE acc_set_account_type_id = 1');
+  Svc := TAccVoucherService.Create;
+  V := nil;
+  Copy := nil;
+  try
+    try
+      Begin_;
+      V := NewVoucher(100, 100);
+      Svc.BusinessSaveWithDetails(V, False, True);
+      VId := V.Id;
+      Check('voucher: saved, numbers by service', (VId > 0) and (V.VoucherNo <> '') and (V.JournalNo > 0) and
+        (V.Lines.Count = 2) and (V.Lines[0].Id > 0) and (V.Lines[1].LineNo = 2) and (V.Lines[0].AccountCode <> ''));
+      Check('voucher: totals from lines', Near(Q('SELECT total_debit FROM acc_voucher WHERE id = ' + VId.ToString), 100) and
+        Near(Q('SELECT total_credit FROM acc_voucher WHERE id = ' + VId.ToString), 100));
+      // 3 kalem: 100 borç = 60 + 40 alacak
+      V.Lines[1].Credit := 60;
+      L := Svc.NewLine(V); L.AccAccountId := Acc2; L.Credit := 40;
+      Svc.BusinessSaveWithDetails(V, False, True);
+      Check('voucher: changed + added line', (Q('SELECT count(*) FROM acc_voucher_detail WHERE acc_voucher_id = ' + VId.ToString) = 3) and
+        Near(Q('SELECT total_credit FROM acc_voucher WHERE id = ' + VId.ToString), 100));
+      Copy := V.Clone;
+      Svc.PrepareCopy(Copy);
+      Check('voucher copy: new numbers later, new lines', (Copy.Id = 0) and (Copy.VoucherNo = '') and (Copy.JournalNo = 0) and (Copy.Lines[0].Id < 0));
+      Svc.BusinessSaveWithDetails(Copy, False, True);
+      Check('voucher copy saved', (Copy.Id > 0) and (Copy.VoucherNo <> V.VoucherNo) and (Copy.JournalNo = V.JournalNo + 1));
+      Svc.RemoveLine(V, V.Lines[2]);
+      Expect('voucher: unbalanced after line removal rejected', procedure begin Svc.BusinessSaveWithDetails(V, False, True); end);
+      FreeAndNil(V);
+      FreeAndNil(Copy);
+
+      Begin_;
+      V := NewVoucher(100, 90);
+      Expect('voucher: unbalanced rejected', procedure begin Svc.BusinessSaveWithDetails(V, False, True); end);
+      FreeAndNil(V);
+
+      Begin_;
+      V := NewVoucher(100, 100);
+      V.Lines[0].AccAccountId := MainAcc;
+      Expect('voucher: main (non-detail) account rejected', procedure begin Svc.BusinessSaveWithDetails(V, False, True); end);
+      FreeAndNil(V);
+
+      Begin_;
+      V := NewVoucher(100, 100);
+      V.Lines[0].Credit := 5;
+      Expect('voucher: debit and credit on one line rejected', procedure begin Svc.BusinessSaveWithDetails(V, False, True); end);
+      FreeAndNil(V);
+
+      Begin_;
+      V := TAccVoucher.Create;
+      Expect('voucher: no lines rejected', procedure begin Svc.BusinessSaveWithDetails(V, False, True); end);
+    except
+      on E: Exception do
+        Check('voucher document flow', False, E.Message);
+    end;
+  finally
+    End_;
+    Copy.Free;
+    V.Free;
+    Svc.Free;
+  end;
+end;
+
 // Üretim + DİİB belgeleri: reçete (beş liste tek kayıt: hammadde ana liste, işçilik / yan ürün ek listeler; satır no
 // takası, ek listeden çıkarma, ürün kendi hammaddesi olamaz, aynı işçilik iki kez reddi, kopya), hammadde paketi,
 // DİİB belgesi (satır kodu tekil). Commit yok: transaction geri alınır; reddedilen kayıt transaction'ı geri aldığı için
@@ -6140,6 +6231,7 @@ begin
   TestSalesOrderDocument;
   TestSalesDispatchInvoiceDocument;
   TestProductionDocuments;
+  TestAccountingVoucher;
   TestEInvoice;
   TestEDespatch;
   TestApiServices;
