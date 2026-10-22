@@ -206,6 +206,131 @@ var
       TUi.R('FAIL', AStep, AForm.Caption);
   end;
 
+  // Sekmeli gösterim: liste ekranı (Hesap Kartları — kullanıcının "Cannot focus a disabled or invisible window" aldığı
+  // ekran) ana ekranda sekme açılır, odak sekmedeki grid'de; ayrı pencereye alınır / geri sekmeye; kapanınca sekme gider
+  procedure TestTabbed;
+  var
+    LFrm: TfrmAccAccounts;
+    LPages: TPageControl;
+    LChk: TCheckBox;
+    LSheets, I: Integer;
+    LWasTabbed: Boolean;
+
+    function FindPages: TPageControl;
+    var
+      J: Integer;
+    begin
+      Result := nil;
+      for J := 0 to F.ComponentCount - 1 do
+        if F.Components[J] is TPageControl then
+          Exit(TPageControl(F.Components[J]));
+    end;
+
+    // IfThen iki dalı da hesaplar: nil'de ClassName çağrılmasın
+    function ParentName(AForm: TForm): string;
+    begin
+      if Assigned(AForm.Parent) then
+        Result := AForm.Parent.ClassName
+      else
+        Result := 'nil';
+      Result := Result + ', visible ' + BoolToStr(AForm.Visible, True) + ', showing ' + BoolToStr(AForm.Showing, True) +
+        ', pages ' + IntToStr(LPages.PageCount);
+    end;
+
+    function CtrlName(AControl: TControl): string;
+    begin
+      if Assigned(AControl) then
+        Result := AControl.ClassName
+      else
+        Result := 'nil';
+    end;
+
+    function FindTabbedCheck: TCheckBox;
+    var
+      J: Integer;
+    begin
+      Result := nil;
+      for J := 0 to F.ComponentCount - 1 do
+        if (F.Components[J] is TCheckBox) and (TCheckBox(F.Components[J]).Parent = F.FindComponent('pnlToolbar')) then
+          Exit(TCheckBox(F.Components[J]));
+    end;
+
+  begin
+    LPages := FindPages;
+    LChk := FindTabbedCheck;
+    if (LPages = nil) or (LChk = nil) then
+    begin
+      TUi.R('FAIL', 'tabbed: host controls', 'page control / checkbox not found');
+      Exit;
+    end;
+    // ayar kullanıcıda kalıcı (nav.tabbed): sonda eski haline döner
+    LWasTabbed := LChk.Checked;
+    if not LChk.Checked then
+      LChk.Checked := True;   // OnClick: sekmeli moda geçer
+    TUi.Pump;
+    LSheets := LPages.PageCount;
+    LFrm := nil;
+    try
+      LFrm := TfrmAccAccounts.Create(F, TAccAccountService.Create, TAccAccount.Create);
+      LFrm.Show;
+      TUi.Pump;
+      // OnShow hataları VCL'de Application.HandleException'a gider (Show'dan dışarı çıkmaz): diyalog / EXC kaydı da hata
+      var LDlg := TUi.TakeDialogs;
+      if LDlg = '' then
+        TUi.R('PASS', 'tabbed: open account cards (no exception)', '')
+      else
+        TUi.R('FAIL', 'tabbed: open account cards (no exception)', LDlg);
+    except
+      on E: Exception do
+        TUi.R('FAIL', 'tabbed: open account cards (no exception)', E.ClassName + ': ' + E.Message);
+    end;
+    if LFrm = nil then
+      Exit;
+    if (LFrm.Parent is TTabSheet) and (LPages.PageCount = LSheets + 1) and (LPages.ActivePage = LFrm.Parent) and LFrm.Showing
+      and (TTabSheet(LFrm.Parent).Caption = LFrm.Caption) then
+      TUi.R('PASS', 'tabbed: docked as active tab', TTabSheet(LFrm.Parent).Caption)
+    else
+      TUi.R('FAIL', 'tabbed: docked as active tab', 'parent ' + ParentName(LFrm) +
+        ', pages ' + IntToStr(LPages.PageCount));
+    if Assigned(Screen.ActiveControl) and (GetParentForm(Screen.ActiveControl, False) = LFrm) then
+      TUi.R('PASS', 'tabbed: focus inside docked list', Screen.ActiveControl.ClassName)
+    else
+      TUi.R('FAIL', 'tabbed: focus inside docked list', 'active control ' +
+        CtrlName(Screen.ActiveControl) + ' (test process may not own the foreground)');
+    // ayrı pencere moduna: açık sekme pencere olur; geri sekmeli moda: yeniden sekme
+    try
+      // ayrı pencere modunda açık sekmelerin hepsi pencere olur (önceki adımlardan açık kalanlar da)
+      LChk.Checked := False;
+      TUi.Pump;
+      if (LFrm.Parent = nil) and LFrm.Visible and LFrm.Showing then
+        TUi.R('PASS', 'tabbed: switch to windows undocks', '')
+      else
+        TUi.R('FAIL', 'tabbed: switch to windows undocks', 'parent ' + ParentName(LFrm));
+      LChk.Checked := True;
+      TUi.Pump;
+      if (LFrm.Parent is TTabSheet) and LFrm.Showing then
+        TUi.R('PASS', 'tabbed: switch back docks again', '')
+      else
+        TUi.R('FAIL', 'tabbed: switch back docks again', 'parent ' + ParentName(LFrm));
+      TUi.TakeDialogs;
+    except
+      on E: Exception do
+        TUi.R('FAIL', 'tabbed: mode switch', E.ClassName + ': ' + E.Message);
+    end;
+    // kapat: form serbest kalır, sekmesi gider
+    LSheets := LPages.PageCount;
+    LFrm.Close;
+    for I := 1 to 5 do
+      TUi.Pump;
+    if LPages.PageCount = LSheets - 1 then
+      TUi.R('PASS', 'tabbed: close removes tab', '')
+    else
+      TUi.R('FAIL', 'tabbed: close removes tab', 'pages ' + IntToStr(LSheets) + ' -> ' + IntToStr(LPages.PageCount));
+    if LChk.Checked <> LWasTabbed then
+      LChk.Checked := LWasTabbed;
+    TUi.Pump;
+  end;
+
   procedure TestNav;
   var
     L: TStringList;
@@ -536,6 +661,7 @@ begin
       end;
 
       TestNav;
+      TestTabbed;
 
       // TEST (id 4): yalnız kur + satın alma siparişi okuma
       TUi.Sql('SELECT count(*) FROM (SELECT 1) x', []);
@@ -557,11 +683,10 @@ begin
           TUi.R('PASS', 'limited user charts', ChartTitles.CommaText)
         else
           TUi.R('FAIL', 'limited user charts', IntToStr(ChartTitles.Count) + ': ' + ChartTitles.CommaText);
-        // ağaçta yalnız izinli ekranlar: kur, satın alma siparişi + kalemleri (aynı yetki) + yetkisiz şifre değiştir
+        // ağaçta yalnız izinli ekranlar: kur, satın alma siparişi (kalemler belge ekranında) + yetkisiz şifre değiştir
         var NavL := NavScreens;
         try
-          if (NavL.Count = 4) and (NavL.IndexOf(MenuName(200202)) >= 0) and (NavL.IndexOf(MenuName(500302)) >= 0)
-            and (NavL.IndexOf(MenuName(500402)) >= 0)
+          if (NavL.Count = 3) and (NavL.IndexOf(MenuName(200202)) >= 0) and (NavL.IndexOf(MenuName(500302)) >= 0)
             and (NavL.IndexOf(MenuName(100108)) >= 0) then
             TUi.R('PASS', 'limited user nav', NavL.CommaText)
           else

@@ -83,6 +83,9 @@ Register both form units in `Ths.dpr` (`… in '…pas' {frmX}`) and `Ths.dproj`
   toolbar checkbox) the dashboard docks the list as a tab instead of a window. Call `Show` through the grid type (not a
   `TForm` variable) or the form always opens as a window. Dialogs opened from a docked form use
   `OwnerCenterPosition(Owner)` instead of `poOwnerFormCenter` (a docked form's Left/Top are tab-relative).
+  A docked form must not assign `ActiveControl` (VCL raises "Cannot focus a disabled or invisible window": the real
+  parent form is the dashboard) — focus with `if X.CanFocus then X.SetFocus` (`FocusGrid`); the dashboard activates the
+  tab before `Show` and copies the caption after it. UI test: `TestTabbed` in `Tests/Ui/UiTest.tpl` (account cards list).
 
 ## Master / detail (header + lines in one screen)
 

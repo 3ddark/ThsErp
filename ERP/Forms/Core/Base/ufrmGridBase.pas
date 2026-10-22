@@ -667,8 +667,11 @@ begin
 
   if FIsHelper then
     EdtFilter.SetFocus
+  else if Self.Parent = nil then
+    Self.ActiveControl := Grd
   else
-    Self.ActiveControl := Grd;
+    // ana ekran sekmesine gömülü: ActiveControl atanamaz (VCL kontrolün gerçek üst formunu, yani ana ekranı ister)
+    FocusGrid;
 end;
 
 procedure TfrmGridBase.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -770,10 +773,11 @@ begin
   else if (ssCtrl in Shift) and (Key = Ord('F')) then
   begin
     Key := 0;
+    // SetFocus: ana ekran sekmesine gömülü formda da çalışır (ActiveControl ataması orada istisna verir)
     if EdtFilter.Focused then
-      ActiveControl := Grd
-    else
-      ActiveControl := EdtFilter;
+      FocusGrid
+    else if EdtFilter.CanFocus then
+      EdtFilter.SetFocus;
   end;
 end;
 

@@ -2418,6 +2418,8 @@ begin
     TScreenCodes.AttachTo(AForm);
     AForm.Show;
   end;
+  // başlık FormShow'da (dil) belli olur
+  LInfo.Sheet.Caption := AForm.Caption;
   TabsChange(FPages);
 end;
 
